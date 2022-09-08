@@ -1,0 +1,43 @@
+.db-dashboard{}
+.db-dashboard-content{ margin: 20px; }
+.db-dashboard .events-button{ margin: 0; }
+.db-container{ spacing: 20px; }
+
+/* user-box */
+.db-user-icon{
+  border-radius: 10px;
+}
+.db-user-box{}
+
+/* levels-box */
+.db-usage-level StIcon{ icon-size: 22px; }
+.db-usage-level StLabel{ width: 28px; }
+.level-bar{
+  height: 16px; /* horizontal width */
+  width: 16px; /* vertical width */
+  border-radius: 12px;
+}
+.level-fill{
+  border-radius: 12px;
+}
+
+/* media-box */
+.db-dashboard .db-media-box{ }
+.db-dashboard .mp-media-cover{
+  padding: 0;
+  border-radius: 0;
+}
+.db-dashboard .mp-media-cover StIcon{ icon-size: 138px; }
+.db-dashboard .mp-media-icon{ icon-size: 1em; }
+.db-dashboard .mp-player-icon{ icon-size: 1.4em; }
+.db-dashboard .mp-media-controls{ spacing: 6px; }
+.db-dashboard .mp-media-right-box{ padding: 8px; padding-right: 0; font-size: 1.2em; }
+.db-dashboard .mp-slider StIcon{ icon-size: 1.2em; }
+.db-dashboard .mp-container{ spacing: 8px; }
+
+/* clock-box */
+.db-clock{ font-size: 2.4em; }
+.db-day{}
+.db-date{}
+
+.db-dashboard .message-media-control{ padding: 8px; margin: 0;}

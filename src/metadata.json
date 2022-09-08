@@ -1,0 +1,10 @@
+{
+  "name": "Dash Board",
+  "description": "Dash Board containing system actions, launchers, favorite apps, weblinks, media controller",
+  "uuid": "dash-board@aylur",
+  "shell-version": [ "42", "43" ],
+  "version": 1,
+  "session-modes": ["user"],
+  "url": "https://github.com/Aylur/dash-board",
+  "settings-schema": "org.gnome.shell.extensions.dash-board"
+}
