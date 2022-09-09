@@ -188,7 +188,6 @@ class CpuLevel extends UsageLevel{
         this.lastCPUUsed = 0;
     }
     setUsage(){
-        //stolen from here
         //https://github.com/eeeeeio/gnome-shell-extension-nano-system-monitor/blob/master/src/extension.js
         let currentCPUUsage = 0;
       

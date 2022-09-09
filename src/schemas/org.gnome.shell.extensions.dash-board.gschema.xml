@@ -45,11 +45,11 @@
 
     <!-- links -->
     <key name="link-names" type="as">
-      <default>['reddit', 'youtube', 'github', 'gmail', 'canvas', 'ncore']</default>
+      <default>['reddit', 'youtube', 'gmail', 'twitter', 'github']</default>
     </key>
 
     <key name="link-urls" type="as">
-      <default>['https://www.reddit.com/', 'https://www.youtube.com/', 'https://www.github.com/', 'https://www.gmail.com/', 'https://canvas.elte.hu/belepes/', 'https://ncore.pro/login.php']</default>
+      <default>['https://www.reddit.com/', 'https://www.youtube.com/', 'https://www.gmail.com/', 'https://twitter.com/', 'https://www.github.com/']</default>
     </key>
 
   </schema>

@@ -234,7 +234,7 @@ class DashBoardPanelButton extends St.Button{
         Main.wm.addKeybinding('dash-board-shortcut', this.settings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.ALL,
-            () => this.openDash());
+            () => this.toggleDash());
 
         this.connect('destroy', () => Main.wm.removeKeybinding('dash-board-shortcut'));
 
@@ -251,8 +251,20 @@ class DashBoardPanelButton extends St.Button{
         );
     }
     openDash(){
+        this.opened = true;
         this.dash.open();
         this.add_style_pseudo_class('active');
+    }
+    closeDash(){
+        this.opened = false;
+        this.dash.close();
+        this.remove_style_pseudo_class('active');
+    }
+    toggleDash(){
+        if(this.opened)
+            this.closeDash();
+        else
+            this.openDash();
     }
 });
 

@@ -9,8 +9,6 @@ const AppFavorites = imports.ui.appFavorites;
 const SystemActions = imports.misc.systemActions;
 const { Media, Player } = Me.imports.mediaPlayer;
 const SystemLevels = Me.imports.systemLevels;
-const { NMWirelessDialog } = Me.imports.networkDialog;
-const shellVersion = Math.floor(parseFloat(imports.misc.config.PACKAGE_VERSION));
 
 // USERBOX
 var UserBox = GObject.registerClass(
