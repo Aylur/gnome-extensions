@@ -50,7 +50,6 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     open(){
         super.open();
         this.appBox.reload();
-        this.sysBox.getNetworkWrapper();
         this.levelsBox.startTimeout();
     }
     close(){

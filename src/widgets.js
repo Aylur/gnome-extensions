@@ -346,130 +346,21 @@ class SysBox extends St.BoxLayout{
         if(iconSize) this.iconSize = iconSize;
         else this.iconSize = 22;
         this._buildUI();
-        this.connect('destroy', () => {
-            if(this.wifi !== null){
-                this._client.disconnectObject(this);
-                this._device.disconnectObject(this);
-            }
-        });
     }
     _buildUI(){
-        this.wifi = new SysBtn('network-wireless-connected-symbolic', () => this._showNetworkDialog(), this.iconSize);
+        let wifi = new SysBtn('network-wireless-signal-good-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-wifi-panel.desktop').activate(), this.iconSize);
         let settings = new SysBtn('org.gnome.Settings-symbolic', () => Shell.AppSystem.get_default().lookup_app('org.gnome.Settings.desktop').activate(), this.iconSize);
         let bluetooth = new SysBtn('bluetooth-active-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-bluetooth-panel.desktop').activate(), this.iconSize);
 
         if(this.vertical){
             this.add_child(settings);
             this.add_child(bluetooth);
-            this.add_child(this.wifi);
+            this.add_child(wifi);
         }else{
-            this.add_child(this.wifi);
+            this.add_child(wifi);
             this.add_child(bluetooth);
             this.add_child(settings);
         }
-    }
-    getNetworkWrapper(){
-        let network;
-        if(shellVersion == 42)
-            network = Main.panel.statusArea.aggregateMenu._network;
-        if(shellVersion == 43)
-            network = Main.panel.statusArea.quickSettings._network;
-        if(network !== null){
-            let devices = network._client.get_devices();
-            let wifiDevice;
-            devices.forEach(element => {
-                if(element.device_type === NM.DeviceType.WIFI)
-                    wifiDevice = element;
-            });
-    
-            this._client = network._client;
-            this._device = wifiDevice;
-    
-            this._client.connectObject(
-                'notify::wireless-enabled', this._syncWifiIcon.bind(this),
-                'notify::wireless-hardware-enabled', this._syncWifiIcon.bind(this),
-                'notify::connectivity', this._syncWifiIcon.bind(this), this);
-    
-            this._device.connectObject(
-                'state-changed', this._syncWifiIcon.bind(this), this);
-    
-            this._syncWifiIcon();
-        }else{
-            this.wifi.destroy();
-            this.wifi = null;
-        }
-    }
-    _syncWifiIcon(){
-        this.wifi.get_child().icon_name = this._getMenuIcon();
-    }
-    _getMenuIcon() {
-        if (!this._client.wireless_enabled)
-            return 'network-wireless-disabled-symbolic';
-
-        if (this._device.active_connection)
-            return this.getIndicatorIcon();
-        else
-            return 'network-wireless-signal-none-symbolic';
-    }
-    _canReachInternet() {
-        if (this._client.primary_connection != this._device.active_connection)
-            return true;
-
-        return this._client.connectivity == NM.ConnectivityState.FULL;
-    }
-    getIndicatorIcon() {
-        if (this._device.state < NM.DeviceState.PREPARE)
-            return 'network-wireless-disconnected-symbolic';
-        if (this._device.state < NM.DeviceState.ACTIVATED)
-            return 'network-wireless-acquiring-symbolic';
-
-        if (this._isHotSpotMaster())
-            return 'network-wireless-hotspot-symbolic';
-
-        let ap = this._device.active_access_point;
-        if (!ap) {
-            if (this._device.mode != NM['80211Mode'].ADHOC)
-                log('An active wireless connection, in infrastructure mode, involves no access point?');
-
-            if (this._canReachInternet())
-                return 'network-wireless-connected-symbolic';
-            else
-                return 'network-wireless-no-route-symbolic';
-        }
-
-        let strength = 'excellent';
-        if (ap.strength < 20)
-            strength = 'none';
-        else if (ap.strength < 40)
-            strength = 'weak';
-        else if (ap.strength < 50)
-            strength = 'ok';
-        else if (ap.strength < 80)
-            strength = 'good';
-
-        if (this._canReachInternet())
-            return `network-wireless-signal-${strength}-symbolic`;
-        else
-            return 'network-wireless-no-route-symbolic';
-    }
-    _isHotSpotMaster() {
-        if (!this._device.active_connection)
-            return false;
-
-        let connection = this._device.active_connection.connection;
-        if (!connection)
-            return false;
-
-        let ip4config = connection.get_setting_ip4_config();
-        if (!ip4config)
-            return false;
-
-        return ip4config.get_method() == NM.SETTING_IP4_CONFIG_METHOD_SHARED;
-    }
-    _showNetworkDialog(){
-        this.dialog = new NMWirelessDialog(this._client, this._device);
-        this.dialog.connect('closed', () => this.dialog = null);
-        this.dialog.open();
     }
 });
 

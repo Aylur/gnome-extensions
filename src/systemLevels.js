@@ -17,10 +17,12 @@ class LevelBar extends St.Bin{
             x_expand: true,
         });
         this.background = new St.Bin({
-            style_class: 'level-bar workspace-thumbnail'
+            style_class: 'level-bar calendar',
+            pseudo_class: 'active'
         });
         this.fillLevel = new St.Widget({
-            style_class: 'level-fill calendar-today'
+            style_class: 'level-fill calendar-today',
+            pseudo_class: 'selected'
         });
         this.set_child(this.background);
         this.background.set_child(this.fillLevel);

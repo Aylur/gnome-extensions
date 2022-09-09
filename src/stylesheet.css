@@ -11,11 +11,12 @@
 
 /* levels-box */
 .db-usage-level StIcon{ icon-size: 22px; }
-.db-usage-level StLabel{ width: 28px; }
+.db-usage-level StLabel{ width: 2.2em; }
 .level-bar{
   height: 16px; /* horizontal width */
   width: 16px; /* vertical width */
   border-radius: 12px;
+  margin: 0;
 }
 .level-fill{
   border-radius: 12px;
@@ -41,3 +42,4 @@
 .db-date{}
 
 .db-dashboard .message-media-control{ padding: 8px; margin: 0;}
+.db-dashboard .popup-menu-item{ padding: 8px; margin: 0;}
