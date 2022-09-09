@@ -86,6 +86,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 
         this.userBox.x_expand = false;
         this.linksBox.y_expand = false;
+        this.clockBox.width = 280;
 
         let row1 = new St.BoxLayout({ style_class: 'db-container' });
         let row2 = new St.BoxLayout({ style_class: 'db-container' });
@@ -120,6 +121,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 
         this.userBox.y_expand = false;
         this.linksBox.y_expand = false;
+        this.clockBox.width = 250;
 
         let col1 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
         let col2 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
