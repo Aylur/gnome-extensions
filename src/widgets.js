@@ -105,14 +105,19 @@ class LevelsBox extends St.BoxLayout{
         ];
 
         this._buildUI(vertical);
-
+        this.connect('destroy', () => this.stopTimeout());
+    }
+    startTimeout(){
         let levels = this;
         function update(){
             levels.updateLevels();
             return true;
         }
         this.timeout = Mainloop.timeout_add_seconds(1.0, update);
-        this.connect('destroy', () => Mainloop.source_remove(this.timeout));
+    }
+    stopTimeout(){
+        if(this.timeout)
+            Mainloop.source_remove(this.timeout);
     }
     updateLevels(){
         this.levels.forEach(l => {
@@ -157,6 +162,7 @@ class LinkButton extends St.Button{
             }),
             style_class: 'events-button db-link-btn',
             x_expand: true,
+            can_focus: true,
         });
         this.connect('clicked', () => Util.spawnCommandLine('xdg-open '+link));
         this.add_style_class_name('db-'+name+'-btn');
@@ -235,9 +241,14 @@ class ClockBox extends St.BoxLayout{
         if(vertical) vbox.style = 'text-align: center';
 
         this.wallclock = new GnomeDesktop.WallClock();
-        this.wallclock.connect(
+        this.wallclock.connectObject(
             'notify::clock',
-            () => this.updateClock() );
+            () => this.updateClock(), this);
+
+        this.connect('destroy', () => {
+            this.wallclock.disconnectObject(this);
+            this.wallclock = null;
+        });
     
         this.updateClock();
     }
@@ -253,12 +264,13 @@ const AppBtn = GObject.registerClass(
 class AppBtn extends St.Button{
     _init(app){
         super._init({
-            style_class: 'message-media-control db-app-btn',
+            style_class: 'popup-menu-item db-app-btn',
             x_expand: true,
             child: new St.Icon({
                 gicon: app.get_icon(),
                 style_class: 'db-app-icon',
             }),
+            can_focus: true,
         });
         this.connect('clicked', () => app.activate());
     }
@@ -274,11 +286,12 @@ class AppBox extends St.BoxLayout{
             x_expand: true,
             reactive: true,
         });
-        this.hboxes = [];
         this.cols = cols;
         this.rows = rows;
     }
-    load(){
+    reload(){
+        this.hboxes = [];
+        this.remove_all_children();
         this._buildUI();
     }
     _buildUI(){
@@ -310,13 +323,14 @@ const SysBtn = GObject.registerClass(
 class SysBtn extends St.Button{
     _init(icon, callback, iconSize){
         super._init({
-            style_class: 'message-media-control db-sys-btn',
+            style_class: 'popup-menu-item db-sys-btn',
             child: new St.Icon({
                 icon_name: icon,
                 style_class: 'db-sys-icon',
                 icon_size: iconSize
             }),
             y_expand: true,
+            can_focus: true,
         });
         this.connect('clicked', callback);
     }

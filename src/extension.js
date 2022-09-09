@@ -26,7 +26,9 @@ const Widgets = Me.imports.widgets;
 const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _init(settings){
-        super._init();
+        super._init({
+            destroyOnClose: false
+        });
         this.settings = settings;
         
         let closeBtn = this.addButton({
@@ -47,16 +49,19 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     }
     open(){
         super.open();
-        this.appBox.load();
+        this.appBox.reload();
         this.sysBox.getNetworkWrapper();
+        this.levelsBox.startTimeout();
     }
     close(){
         super.close();
+        this.levelsBox.stopTimeout();
     }
     _buildUI(){
-        let layout = this.settings.get_int('dash-layout');
         this.mainBox = new St.BoxLayout({ style_class: 'db-container' });
         this.contentLayout.add_child(this.mainBox);
+
+        let layout = this.settings.get_int('dash-layout');
         switch (layout) {
             case 1:
                 this._layout1(); break;
@@ -225,7 +230,7 @@ class DashBoardPanelButton extends St.Button{
         box.add_child(this.buttonIcon);
         box.add_child(this.buttonLabel);
 
-        //DASHBOARD
+        //SHORTCUT
         this.connect('clicked', () => this.openDash());
         Main.wm.addKeybinding('dash-board-shortcut', this.settings,
             Meta.KeyBindingFlags.NONE,
@@ -233,10 +238,20 @@ class DashBoardPanelButton extends St.Button{
             () => this.openDash());
 
         this.connect('destroy', () => Main.wm.removeKeybinding('dash-board-shortcut'));
+
+        // DASH
+        this.dash = new DashBoardModal(this.settings);
+        this.dash.connect('closed', () => this.remove_style_pseudo_class('active'));
+
+        this.settings.connect('changed::dash-layout',
+            () => {
+                this.dash.destroy();
+                this.dash = new DashBoardModal(this.settings);
+                this.dash.connect('closed', () => this.remove_style_pseudo_class('active'));
+            }
+        );
     }
     openDash(){
-        this.dash = new DashBoardModal(this.settings);
-        this.dash.connect('destroy', () => this.remove_style_pseudo_class('active'));
         this.dash.open();
         this.add_style_pseudo_class('active');
     }

@@ -133,6 +133,7 @@ class PowerLevel extends UsageLevel{
     _init(vertical){
         super._init(vertical);
 
+        this.icon.icon_name = 'battery-symbolic';
         this.colorSwitchValues = [ 75, 50, 25 ];
 
         this._proxy = new PowerManagerProxy(Gio.DBus.system,
@@ -141,38 +142,37 @@ class PowerLevel extends UsageLevel{
             (proxy, error) => {
                 if (error) {
                     log(error.message);
-                } else {
-                    this._proxy.connect('g-properties-changed',
-                        this._sync.bind(this));
                 }
-                this._sync();
         });
 
         this.connect('destroy', () => this._proxy = null);
     }
-    _sync(){
-        // The icons
-        let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
-            ? '-charging' : '';
-        let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
-        const charged =
-            this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
-            (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
-        
-        this.icon.icon_name = charged
-            ? 'battery-level-100-charged-symbolic'
-            : `battery-level-${fillLevel}${chargingState}-symbolic`;
-
-        this.icon.fallback_icon_name = this._proxy.IconName;
-        this.label.text = this._proxy.Percentage.toString() + '%';
-        this.level.value = this._proxy.Percentage/100;
-        
-        if(fillLevel > 99){
-            this.label.text = 'F';
+    setUsage(){
+        if(this._proxy.IsPresent){
+            this.show();
+            // The icons
+            let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
+                ? '-charging' : '';
+            let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
+            const charged =
+                this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
+                (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
+            
+            this.icon.icon_name = charged
+                ? 'battery-level-100-charged-symbolic'
+                : `battery-level-${fillLevel}${chargingState}-symbolic`;
+    
+            this.icon.fallback_icon_name = this._proxy.IconName;
+            this.label.text = this._proxy.Percentage.toString() + '%';
+            this.level.value = this._proxy.Percentage/100;
+            
+            if(fillLevel > 99){
+                this.label.text = 'F';
+            }
+        }else{
+            this.hide();
         }
-        this.setColorClass();
     }
-    setUsage(){}
 });
 
 var CpuLevel = GObject.registerClass(
