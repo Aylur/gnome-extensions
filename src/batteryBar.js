@@ -138,31 +138,35 @@ class BatteryBar extends St.Bin{
         this._sync();
     }
     _sync(){
-        let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
-            ? '-charging' : '';
-        let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
-        const charged =
-            this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
-            (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
-        
-        this.icon.icon_name = charged
-            ? 'battery-level-100-charged-symbolic'
-            : `battery-level-${fillLevel}${chargingState}-symbolic`;
-
-        this.icon.fallback_icon_name = this._proxy.IconName;
-
-        if(this._proxy.Percentage < 30)
-            this.add_style_pseudo_class('low');
-        else
-            this.remove_style_pseudo_class('low');
-
-        if(this._proxy.State === UPower.DeviceState.CHARGING || this._proxy.State === UPower.DeviceState.FULLY_CHARGED)
-            this.add_style_pseudo_class('charging');
-        else
-            this.remove_style_pseudo_class('charging');
-        
-        this.level.value = this._proxy.Percentage/100;
-        this.level.repaint();
+        if(this._proxy.IsPresent){
+            let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
+                ? '-charging' : '';
+            let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
+            const charged =
+                this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
+                (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
+            
+            this.icon.icon_name = charged
+                ? 'battery-level-100-charged-symbolic'
+                : `battery-level-${fillLevel}${chargingState}-symbolic`;
+    
+            this.icon.fallback_icon_name = this._proxy.IconName;
+    
+            if(this._proxy.Percentage < 30)
+                this.add_style_pseudo_class('low');
+            else
+                this.remove_style_pseudo_class('low');
+    
+            if(this._proxy.State === UPower.DeviceState.CHARGING || this._proxy.State === UPower.DeviceState.FULLY_CHARGED)
+                this.add_style_pseudo_class('charging');
+            else
+                this.remove_style_pseudo_class('charging');
+            
+            this.level.value = this._proxy.Percentage/100;
+            this.level.repaint();
+        }else{
+            this.hide();
+        }
     }
 });
 
