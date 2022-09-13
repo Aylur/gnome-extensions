@@ -206,7 +206,7 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
     _init(settings){
         super._init({
             title: 'Workspace Indicator',
-            icon_name: 'multitasking-symbolic'
+            icon_name: 'org.gnome.Settings-multitasking-symbolic'
         });
 
         const group = new Adw.PreferencesGroup();
