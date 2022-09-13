@@ -9,6 +9,8 @@ const Mainloop = imports.mainloop;
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
 
+const ZERO_VALUE = 12;
+
 const LevelBar = GObject.registerClass(
 class LevelBar extends St.Bin{
     _init(vertical){
@@ -38,11 +40,15 @@ class LevelBar extends St.Bin{
         if(this.value < 0) this.value = 0;
         if(this.vertical){
             let max = this.background.height;
-            this.fillLevel.height = max*this.value;
+            this.fillLevel.height = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
         }else{
             let max = this.background.width;
-            this.fillLevel.width = max*this.value;
+            this.fillLevel.width = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
         }
+        if(this.value*100 < 1)
+            this.fillLevel.hide();
+        else
+            this.fillLevel.show();
     }
     set_vertical(){
         this.background.y_expand = true;
@@ -80,8 +86,8 @@ class UsageLevel extends St.BoxLayout{
                                   //high red
 
         this.icon = new St.Icon();
-        this.level = new LevelBar(vertical);
         this.label = new St.Label();
+        this.level = new LevelBar(vertical);
 
         this._buildUI();
     }

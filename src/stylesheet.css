@@ -1,3 +1,21 @@
+/* Battery Bar */
+.battery-bar .level-bar{
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 99px;
+}
+.battery-bar .level-fill{
+    background-color: #62a0ea;
+    color: black;
+    border-radius: 99px;
+}
+.battery-bar:low .level-fill{
+    background-color: #f66151;
+}
+.battery-bar:charging .level-fill{
+    background-color: #33d17a;
+}
+
+/* Dash Board */
 .db-dashboard{}
 .db-dashboard-content{ margin: 20px; }
 .db-dashboard .events-button{ margin: 0; }
@@ -12,13 +30,13 @@
 /* levels-box */
 .db-usage-level StIcon{ icon-size: 22px; }
 .db-usage-level StLabel{ width: 2.2em; }
-.level-bar{
+.db-dashboard .level-bar{
   height: 16px; /* horizontal width */
   width: 16px; /* vertical width */
   border-radius: 12px;
   margin: 0;
 }
-.level-fill{
+.db-dashboard .level-fill{
   border-radius: 12px;
 }
 
@@ -37,9 +55,80 @@
 .db-dashboard .mp-container{ spacing: 8px; }
 
 /* clock-box */
-.db-clock{ font-size: 2.4em; }
+.db-clock{ font-size: 2.4em; width: 3em; text-align: center; }
 .db-day{}
 .db-date{}
 
 .db-dashboard .message-media-control{ padding: 8px; margin: 0;}
 .db-dashboard .popup-menu-item{ padding: 8px; margin: 0;}
+
+/* date-menu-mod */
+#panel .panel-button.clock-display{
+  -natural-hpadding: 0;
+  -minimum-hpadding: 0;
+}
+
+/* media-player */
+.media-player-content{ 
+    margin: 20px; 
+    max-width: 260px
+}
+.media-player-content .container{ spacing: 12px; }
+.media-player-content StLabel{ font-size: 1.2em; }
+
+/* volume */
+.media-player-content StIcon{ icon-size: 1.4em; }
+
+/* cover */
+.media-player-content .media-cover{
+    padding: 0;
+    border-radius: 0;
+}
+
+/* controls */
+.media-player-content .message-media-control{ padding: 8px; margin: 0;}
+.media-player-content .message-media-control StIcon{ icon-size: 2em; }
+.media-player-content .message-media-control:last-child StIcon{ icon-size: 1.6em; }
+.media-player-content .message-media-control:first-child StIcon{ icon-size: 1.6em; }
+
+/* power-menu */
+.power-menu-button:hover{ color: #f66151; }
+.power-menu-button:active{ color: #e01b24; }
+
+/* content */
+.power-menu-content{
+    margin: 36px;
+    spacing: 16px;
+}
+.power-menu .container{
+    spacing: 16px;
+}
+
+/* round */
+.power-menu .button-round-container{
+    width: 120px;
+    height: 130px;
+}
+.power-menu .button-round{
+    padding: 0;
+    border-radius: 50px;
+}
+.power-menu .button-round StIcon{
+    icon-size: 50px;
+    margin: 26px;
+}
+
+/* rectangle */
+.power-menu .button-rectangle{
+    padding: 0;
+    width: 120px;
+    height: 120px;
+}
+.power-menu .button-rectangle StIcon{
+    icon-size: 70px;
+}
+
+/* workspace-indicator */
+.workspace-indicator StIcon{
+    margin: 0;
+}

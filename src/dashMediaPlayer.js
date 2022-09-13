@@ -2,10 +2,6 @@
 
 const { GObject, St, Gio, Clutter, Shell } = imports.gi;
 const { Slider } = imports.ui.slider;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension()
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
 
 const PlayerIFace =
 `<node>
@@ -29,6 +25,7 @@ const PlayerIFace =
     </interface>
 </node>`;
 
+
 const MprisIFace =
 `<node>
     <interface name='org.mpris.MediaPlayer2'>
@@ -45,7 +42,8 @@ const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(PlayerIFace);
 const MprisProxy = Gio.DBusProxy.makeProxyWrapper(MprisIFace);
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(imports.misc.fileUtils.loadInterfaceXML('org.freedesktop.DBus'));
 
-const Player = GObject.registerClass({
+
+var Player = GObject.registerClass({
     Signals: {
         'closed': {
             flags: GObject.SignalFlags.RUN_FIRST,
@@ -56,11 +54,8 @@ const Player = GObject.registerClass({
     }
 },
 class Player extends St.BoxLayout{
-    _init(busName, settings){
-        super._init({
-            vertical: true,
-            style_class: 'container'
-        });
+    _init(busName, coverSize){
+        super._init();
         this._mprisProxy = new MprisProxy(
             Gio.DBus.session,
             busName,
@@ -71,8 +66,6 @@ class Player extends St.BoxLayout{
             busName,
             '/org/mpris/MediaPlayer2',
             this._onPlayerProxyReady.bind(this));
-
-        this.settings = settings;
 
         this._busName = busName;
         this._trackArtists = [];
@@ -93,12 +86,14 @@ class Player extends St.BoxLayout{
         this._length = 0;
 
         //UI elements
+        this.coverSize = coverSize;
         this.mediaCover = new St.Button({
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
-            style_class: 'media-cover button',
+            style_class: 'mp-media-cover button',
+            width: this.coverSize,
+            height: this.coverSize,
         });
-
         this.mediaTitle = new St.Label();
         this.mediaArtist = new St.Label();
 
@@ -108,11 +103,11 @@ class Player extends St.BoxLayout{
         this.nextBtn      = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
         this.loopBtn      = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
 
-        this.shuffleIcon = new St.Icon({ icon_name: 'media-playlist-shuffle-symbolic', });
-        this.prevIcon = new St.Icon({ icon_name: 'media-skip-backward-symbolic',       });
-        this.playPauseIcon = new St.Icon({ icon_name: 'media-playback-start-symbolic', });
-        this.nextIcon = new St.Icon({ icon_name: 'media-skip-forward-symbolic',        });
-        this.loopIcon = new St.Icon({ icon_name: 'media-playlist-repeat-symbolic',     });
+        this.shuffleIcon = new St.Icon({ icon_name: 'media-playlist-shuffle-symbolic', style_class: 'mp-media-icon'});
+        this.prevIcon = new St.Icon({ icon_name: 'media-skip-backward-symbolic',       style_class: 'mp-media-icon mp-player-icon'});
+        this.playPauseIcon = new St.Icon({ icon_name: 'media-playback-start-symbolic', style_class: 'mp-media-icon mp-player-icon'});
+        this.nextIcon = new St.Icon({ icon_name: 'media-skip-forward-symbolic',        style_class: 'mp-media-icon mp-player-icon'});
+        this.loopIcon = new St.Icon({ icon_name: 'media-playlist-repeat-symbolic',     style_class: 'mp-media-icon'});
 
         this.shuffleBtn.set_child(this.shuffleIcon);
         this.prevBtn.set_child(this.prevIcon);
@@ -135,59 +130,48 @@ class Player extends St.BoxLayout{
         ];
 
         //UI
-        this.titleBox = new St.BoxLayout({
-            vertical: true,
-            x_align: Clutter.ActorAlign.CENTER,
+        this.style_class = 'mp-container';
+        let vbox = new St.BoxLayout({
+            style_class: 'mp-container mp-media-right-box',
+            x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
+            vertical: true,
         });
-        this.titleBox.add_child(this.mediaTitle);
-        this.titleBox.add_child(this.mediaArtist);
-
-        this.controlsBox = new St.BoxLayout({
-            style_class: 'container',
+        let titleBox = new St.BoxLayout({
+            vertical: true,
+            y_align: Clutter.ActorAlign.END,
             x_align: Clutter.ActorAlign.CENTER,
+            style: 'text-align: center',
         });
-        this.controlsBox.add_child(this.shuffleBtn);
-        this.controlsBox.add_child(this.prevBtn);
-        this.controlsBox.add_child(this.playPauseBtn);
-        this.controlsBox.add_child(this.nextBtn);
-        this.controlsBox.add_child(this.loopBtn);
+        this.mediaTitle.y_align = Clutter.ActorAlign.END;
+        this.mediaArtist.y_align = Clutter.ActorAlign.START;
+        titleBox.add_child(this.mediaTitle);
+        titleBox.add_child(this.mediaArtist);
+
+        let controlsBox = new St.BoxLayout({
+            style_class: 'mp-container mp-media-controls',
+            x_expand: true, 
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.START,
+        });
+        controlsBox.add_child(this.shuffleBtn);
+        controlsBox.add_child(this.prevBtn);
+        controlsBox.add_child(this.playPauseBtn);
+        controlsBox.add_child(this.nextBtn);
+        controlsBox.add_child(this.loopBtn);
 
         this.volumeBox = new St.BoxLayout({
-            style_class: 'container',
+            style_class: 'mp-container mp-slider',
         });
         this.volumeBox.add_child(this.volumeIcon);
         this.volumeBox.add_child(this.volumeSlider);
 
-        this.hbox = new St.BoxLayout({ style_class: 'container' });
-        this.hbox.add_child(this.mediaCover);
-        this.hbox.add_child(this.titleBox);
-
-        this.settings.connect('changed::media-player-layout', () => this._buildUI());
-        this._buildUI();
-    }
-    _buildUI(){
-        this.remove_all_children();
-        const layout = this.settings.get_int('media-player-layout');
-        if(layout === 0){
-            this.mediaCover.width = 230;
-            this.mediaCover.height = 230;
-            this.titleBox.style = 'text-align: center';
-            this.hbox.vertical = true;
-            this.add_child(this.hbox);
-            this.add_child(this.controlsBox);
-            this.add_child(this.volumeBox);
-        }else{
-            this.mediaCover.width = 70;
-            this.mediaCover.height = 70;
-            this.titleBox.style = '';
-            this.hbox.vertical = false;
-            this.add_child(this.hbox);
-            this.add_child(this.controlsBox);
-            this.add_child(this.volumeBox);
-        }
-        let child = this.mediaCover.get_child();
-        if(child) child.icon_size = this.mediaCover.width-4;
+        //LAYOUT
+        this.add_child(this.mediaCover);
+        this.add_child(vbox);
+        vbox.add_child(titleBox);
+        vbox.add_child(controlsBox);
+        vbox.add_child(this.volumeBox);
     }
     _close() {
         this._mprisProxy.disconnectObject(this);
@@ -246,24 +230,22 @@ class Player extends St.BoxLayout{
         this.emit('updated');
     }
     _sync(){
-        this.mediaArtist.text = this._trackArtists.join(', ');
         this.mediaTitle.text = this._trackTitle;
+        this.mediaArtist.text = this._trackArtists.join(', ');
 
         if(this._trackCoverUrl !== ''){
             this.mediaCover.remove_all_children();
             // this.mediaCover.style = 'background-image: url("' + this._trackCoverUrl + '"); background-size: cover;';
             let cover = new St.Icon({
                 gicon: Gio.Icon.new_for_string(this._trackCoverUrl),
-                icon_size: this.mediaCover.width-4,
+                icon_size: this.coverSize-4,
             });
             this.mediaCover.set_child(cover);
         }
         else {
             this.mediaCover.remove_all_children();
             // this.mediaCover.style = 'background-image: none';
-            let mediaCoverDummy = new St.Icon({
-                icon_name: 'applications-multimedia-symbolic',
-            });
+            let mediaCoverDummy = new St.Icon({ icon_name: 'applications-multimedia-symbolic', });
             this.mediaCover.set_child(mediaCoverDummy);
         }
 
@@ -377,7 +359,7 @@ class Player extends St.BoxLayout{
     }
 });
 
-const Media = GObject.registerClass({
+var Media = GObject.registerClass({
     Signals: {
         'updated': {
             flags: GObject.SignalFlags.RUN_FIRST,
@@ -385,9 +367,17 @@ const Media = GObject.registerClass({
         'proxy-ready': {}
     }
 }, class Media extends St.Bin{
-    _init(settings){
-        super._init();
-        this.settings = settings;
+    _init(vertical, coverSize, settings){
+        super._init({
+            y_align: Clutter.ActorAlign.CENTER,
+            x_align: Clutter.ActorAlign.CENTER,
+            x_expand: true,
+            y_expand: true
+        });
+        if(vertical) this.vertical = true;
+        if(coverSize) this.coverSize = coverSize;
+        if(settings) this.settings = settings;
+        else this.coverSize = 150;
         this._players = new Map();
         this._proxy = new DBusProxy(Gio.DBus.session,
                                     'org.freedesktop.DBus',
@@ -398,17 +388,18 @@ const Media = GObject.registerClass({
         if (this._players.get(busName))
             return;
 
-        let player = new Player(busName, this.settings);
+        let player = new Player(busName, this.coverSize);
+        if(this.vertical) player.vertical = true;
         this._players.set(busName, player);
         player.connect('closed',
             () => {
                 this._players.delete(busName);
-                this.emit('updated');
+                this.getFavPlayer();
             });
         player.connect('updated',
             () => this.emit('updated'));
 
-        this.emit('updated');
+        this.getFavPlayer();
     }
     _onProxyReady() {
         this._proxy.ListNamesRemote(([names]) => {
@@ -422,6 +413,7 @@ const Media = GObject.registerClass({
         this._proxy.connectSignal('NameOwnerChanged',
                                   this._onNameOwnerChanged.bind(this));
         this.emit('proxy-ready');
+        this.getFavPlayer();
     }
     _onNameOwnerChanged(proxy, sender, [name, oldOwner, newOwner]) {
         if (!name.startsWith('org.mpris.MediaPlayer2.'))
@@ -431,89 +423,22 @@ const Media = GObject.registerClass({
     }
     getFavPlayer(){
         if(this._players.size === 0){
-            return false;
+            this.set_child(new St.Label({
+                text: 'Nothing Playing',
+                y_align: Clutter.ActorAlign.CENTER,
+                x_align: Clutter.ActorAlign.CENTER,
+            }));
+            return;
         }
-        for (const [busName, player] of this._players) {
-            if(busName.includes(this.settings.get_string('media-player-prefer'))){
-                return player;
+        if(this.settings){
+            for (const [busName, player] of this._players) {
+                if(busName.includes(this.settings.get_string('media-player-prefer'))){
+                    this.set_child(player);
+                    return;
+                }
             }
         }
         const iterator = this._players.values();
-        return iterator.next().value;
+        this.set_child(iterator.next().value);
     }
 });
-
-const MediaButton = GObject.registerClass(
-class MediaButton extends PanelMenu.Button{
-    _init(settings){
-        super._init(0.5, 'Media Player', false);
-        
-        this.hide();
-        this.label = new St.Label({
-            text: 'artist - title',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this.add_child(this.label);
-
-        this.media = new Media(settings);
-        this.media.connect('updated', () => this.sync());
-
-        this.playerBin = new St.Bin({ style_class: 'media-player-content' });
-        this.menu.box.add_child(this.playerBin);
-    }
-    sync(){
-        let player = this.media.getFavPlayer();
-        if(player){
-            this.show();
-            this.label.text = `${player._trackArtists.join(', ')} - ${player._trackTitle}`;
-            this.playerBin.set_child(player);
-        }else{
-            this.hide();
-        }
-    }
-});
-
-var Extension = class Extension {
-    constructor() {
-        this.pos = [
-            'left',
-            'center',
-            'right'
-        ];
-
-        this.stockMpris = Main.panel.statusArea.dateMenu._messageList._mediaSection;
-        this.shouldShow = this.stockMpris._shouldShow;
-    }
-
-    enable() {
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::media-player-offset', () => this.addToPanel());
-        this.settings.connect('changed::media-player-position', () => this.addToPanel());
-        this.addToPanel();
-
-        this.stockMpris.visible = false;
-        this.stockMpris._shouldShow = () => false;
-    }
-
-    disable() {
-        this.panelButton.destroy();
-        this.panelButton = null;
-        this.settings = null;
-        
-        this.stockMpris._shouldShow = this.shouldShow;
-        this.stockMpris.visible = this.stockMpris._shouldShow();
-    }
-
-    addToPanel(){
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
-        };
-        this.panelButton = new MediaButton(this.settings);
-
-        let pos = this.settings.get_int('media-player-position');
-        let offset = this.settings.get_int('media-player-offset');
-
-        Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
-    }
-}

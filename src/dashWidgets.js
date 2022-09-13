@@ -7,8 +7,8 @@ const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const SystemActions = imports.misc.systemActions;
-const { Media, Player } = Me.imports.mediaPlayer;
-const SystemLevels = Me.imports.systemLevels;
+const { Media, Player } = Me.imports.dashMediaPlayer;
+const SystemLevels = Me.imports.dashSystemLevels;
 
 // USERBOX
 var UserBox = GObject.registerClass(
@@ -85,7 +85,7 @@ class UserBox extends St.Bin{
 //SYSTEM LEVELS
 var LevelsBox = GObject.registerClass(
 class LevelsBox extends St.BoxLayout{
-    _init(vertical){
+    _init(vertical, parentDialog){
         super._init({
             x_expand: true,
             y_expand: true,
@@ -104,6 +104,8 @@ class LevelsBox extends St.BoxLayout{
 
         this._buildUI(vertical);
         this.connect('destroy', () => this.stopTimeout());
+        parentDialog.connect('opened', () => this.startTimeout());
+        parentDialog.connect('closed', () => this.stopTimeout());
     }
     startTimeout(){
         let levels = this;
@@ -136,13 +138,13 @@ class LevelsBox extends St.BoxLayout{
 //MEDIA
 var MediaBox = GObject.registerClass(
 class MediaBox extends St.Bin{
-    _init(vertical, coverSize){
+    _init(vertical, coverSize, settings){
         super._init({
             x_expand: true,
             y_expand: true,
             style_class: 'events-button db-media-box',
             reactive: true,
-            child: new Media(vertical, coverSize)
+            child: new Media(vertical, coverSize, settings)
         });
     }
 });
@@ -150,7 +152,7 @@ class MediaBox extends St.Bin{
 //LINKS
 const LinkButton = GObject.registerClass(
 class LinkButton extends St.Button{
-    _init(name, link){
+    _init(name, link, parentDialog){
         super._init({
             child: new St.Icon({
                 gicon: Gio.icon_new_for_string(
@@ -162,14 +164,17 @@ class LinkButton extends St.Button{
             x_expand: true,
             can_focus: true,
         });
-        this.connect('clicked', () => Util.spawnCommandLine('xdg-open '+link));
+        this.connect('clicked', () => {
+            Util.spawnCommandLine('xdg-open '+link);
+            parentDialog.close();
+        });
         this.add_style_class_name('db-'+name+'-btn');
     }
 });
 
 var LinksBox = GObject.registerClass(
 class LinksBox extends St.BoxLayout{
-    _init(vertical, settings){
+    _init(vertical, settings, parentDialog){
         super._init({
             style_class: 'db-container',
             x_expand: true,
@@ -177,16 +182,16 @@ class LinksBox extends St.BoxLayout{
             reactive: true,
         });
         if(vertical) this.vertical = true;
-        let names = settings.get_strv('link-names');
-        let urls = settings.get_strv('link-urls');
+        let names = settings.get_strv('dash-link-names');
+        let urls = settings.get_strv('dash-link-urls');
 
         this.links = [];
 
         for (let i = 0; i < urls.length; i++) {
             if(names[i] !== undefined){
-                this.links.push(new LinkButton(names[i], urls[i]));
+                this.links.push(new LinkButton(names[i], urls[i], parentDialog));
             }else{
-                this.links.push(new LinkButton('none', urls[i]));
+                this.links.push(new LinkButton('none', urls[i], parentDialog));
             }
         }
 
@@ -260,7 +265,7 @@ class ClockBox extends St.BoxLayout{
 
 const AppBtn = GObject.registerClass(
 class AppBtn extends St.Button{
-    _init(app){
+    _init(app, parentDialog){
         super._init({
             style_class: 'popup-menu-item db-app-btn',
             x_expand: true,
@@ -270,13 +275,16 @@ class AppBtn extends St.Button{
             }),
             can_focus: true,
         });
-        this.connect('clicked', () => app.activate());
+        this.connect('clicked', () => {
+            app.activate();
+            parentDialog.close();
+        });
     }
 });
 
 var AppBox = GObject.registerClass(
 class AppBox extends St.BoxLayout{
-    _init(cols, rows){
+    _init(cols, rows, parentDialog){
         super._init({
             vertical: true,
             style_class: 'events-button db-container db-app-box',
@@ -286,6 +294,9 @@ class AppBox extends St.BoxLayout{
         });
         this.cols = cols;
         this.rows = rows;
+        this.parentDialog = parentDialog;
+        
+        this.parentDialog.connect('opened', () => this.reload());
     }
     reload(){
         this.hboxes = [];
@@ -309,7 +320,7 @@ class AppBox extends St.BoxLayout{
         for (let i = 0; i < favs.length; i++) {
             if(i !== 0 && i%this.cols === 0) k++;
             if(this.hboxes[k]){
-                this.hboxes[k].add_child(new AppBtn(favs[i]));
+                this.hboxes[k].add_child(new AppBtn(favs[i], this.parentDialog));
             }else{
                 return;
             }
@@ -319,7 +330,7 @@ class AppBox extends St.BoxLayout{
 
 const SysBtn = GObject.registerClass(
 class SysBtn extends St.Button{
-    _init(icon, callback, iconSize){
+    _init(icon, callback, iconSize, parentDialog){
         super._init({
             style_class: 'popup-menu-item db-sys-btn',
             child: new St.Icon({
@@ -331,24 +342,28 @@ class SysBtn extends St.Button{
             can_focus: true,
         });
         this.connect('clicked', callback);
+        this.connect('clicked', () => parentDialog.close());
     }
 });
 
 var SysBox = GObject.registerClass(
 class SysBox extends St.BoxLayout{
-    _init(vertical, iconSize){
+    _init(vertical, iconSize, parentDialog){
         super._init({
             style_class: 'db-container events-button',
         });
         if(vertical) this.vertical = true;
         if(iconSize) this.iconSize = iconSize;
         else this.iconSize = 22;
+
+        this.parentDialog = parentDialog;
+
         this._buildUI();
     }
     _buildUI(){
-        let wifi = new SysBtn('network-wireless-signal-good-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-wifi-panel.desktop').activate(), this.iconSize);
-        let settings = new SysBtn('org.gnome.Settings-symbolic', () => Shell.AppSystem.get_default().lookup_app('org.gnome.Settings.desktop').activate(), this.iconSize);
-        let bluetooth = new SysBtn('bluetooth-active-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-bluetooth-panel.desktop').activate(), this.iconSize);
+        let wifi = new SysBtn('network-wireless-signal-good-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-wifi-panel.desktop').activate(), this.iconSize, this.parentDialog);
+        let settings = new SysBtn('org.gnome.Settings-symbolic', () => Shell.AppSystem.get_default().lookup_app('org.gnome.Settings.desktop').activate(), this.iconSize, this.parentDialog);
+        let bluetooth = new SysBtn('bluetooth-active-symbolic', () => Shell.AppSystem.get_default().lookup_app('gnome-bluetooth-panel.desktop').activate(), this.iconSize, this.parentDialog);
 
         if(this.vertical){
             this.add_child(settings);
@@ -364,7 +379,7 @@ class SysBox extends St.BoxLayout{
 
 var SysActionsBox = GObject.registerClass(
 class SysActionsBox extends St.BoxLayout{
-    _init(layout, iconSize){
+    _init(layout, iconSize, parentDialog){
         super._init({
             style_class: 'db-container events-button',
         });
@@ -372,10 +387,10 @@ class SysActionsBox extends St.BoxLayout{
         if(iconSize) this.iconSize = iconSize;
 
         let sysActions = SystemActions.getDefault();
-        this.powerOff = new SysBtn('system-shutdown-symbolic', () => sysActions.activateAction('power-off'), this.iconSize);
-        this.restart = new SysBtn('system-reboot-symbolic', () => sysActions.activateAction('restart'), this.iconSize);
-        this.logout = new SysBtn('system-log-out-symbolic', () => sysActions.activateAction('logout'), this.iconSize);
-        this.suspend = new SysBtn('weather-clear-night-symbolic', () => sysActions.activateAction('suspend'), this.iconSize);
+        this.powerOff = new SysBtn('system-shutdown-symbolic', () => sysActions.activateAction('power-off'), this.iconSize, parentDialog);
+        this.restart = new SysBtn('system-reboot-symbolic', () => sysActions.activateAction('restart'), this.iconSize, parentDialog);
+        this.logout = new SysBtn('system-log-out-symbolic', () => sysActions.activateAction('logout'), this.iconSize, parentDialog);
+        this.suspend = new SysBtn('weather-clear-night-symbolic', () => sysActions.activateAction('suspend'), this.iconSize, parentDialog);
 
         this._buildUI();
     }
