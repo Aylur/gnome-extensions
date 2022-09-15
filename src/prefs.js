@@ -82,26 +82,6 @@ class Switch extends Adw.ActionRow{
     }
 });
 
-const MainPage = GObject.registerClass(
-class MainPage extends Adw.PreferencesPage{
-    _init(settings){
-        super._init({
-            title: "Aylur's Widgets",
-            icon_name: 'org.gnome.Shell.Extensions-symbolic'
-        });
-        
-        const group = new Adw.PreferencesGroup();
-        this.add(group);
-
-        group.add(new Switch('Battery Bar', settings, 'battery-bar'));
-        group.add(new Switch('Dash Board', settings, 'dash-board'));
-        group.add(new Switch('DateMenu Mod', settings, 'date-menu-mod'));
-        group.add(new Switch('Media Player', settings, 'media-player'));
-        group.add(new Switch('Power Menu', settings, 'power-menu'));
-        group.add(new Switch('Workspace Indicator', settings, 'workspace-indicator'));
-    }
-});
-
 const BatteryBarPage = GObject.registerClass(
 class BatteryBarPage extends Adw.PreferencesPage{
     _init(settings){
@@ -109,6 +89,10 @@ class BatteryBarPage extends Adw.PreferencesPage{
             title: 'Battery Bar',
             icon_name: 'battery-symbolic'
         });
+
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Battery Bar', settings, 'battery-bar'));
+        this.add(toggleGroup);
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
@@ -129,6 +113,10 @@ class DashBoardPage extends Adw.PreferencesPage{
             title: 'Dash Board',
             icon_name: 'org.gnome.Settings-applications-symbolic'
         });
+
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Dash Board', settings, 'dash-board'));
+        this.add(toggleGroup);
 
         const buttonGroup = new Adw.PreferencesGroup({ title: 'Panel Button' });
         this.add(buttonGroup);
@@ -156,6 +144,10 @@ class DateMenuModPage extends Adw.PreferencesPage{
             icon_name: 'org.gnome.clocks-symbolic'
         });
 
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Date Menu Mod', settings, 'date-menu-mod'));
+        this.add(toggleGroup);
+
         const group = new Adw.PreferencesGroup();
         this.add(group);
 
@@ -173,6 +165,10 @@ class MediaPlayerPage extends Adw.PreferencesPage{
             title: 'Media Player',
             icon_name: 'applications-multimedia-symbolic'
         });
+
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Media Player', settings, 'media-player'));
+        this.add(toggleGroup);
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
@@ -192,6 +188,10 @@ class PowerMenuPage extends Adw.PreferencesPage{
             icon_name: 'system-shutdown-symbolic'
         });
 
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Power Menu', settings, 'power-menu'));
+        this.add(toggleGroup);
+
         const group = new Adw.PreferencesGroup();
         this.add(group);
 
@@ -209,6 +209,10 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
             icon_name: 'org.gnome.Settings-multitasking-symbolic'
         });
 
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Workspace Indicator', settings, 'workspace-indicator'));
+        this.add(toggleGroup);
+
         const group = new Adw.PreferencesGroup();
         this.add(group);
 
@@ -219,11 +223,11 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
 
 function fillPreferencesWindow(window) {
     const settings = ExtensionUtils.getSettings();
-    window.add(new MainPage(settings));
     window.add(new BatteryBarPage(settings));
     window.add(new DashBoardPage(settings));
     window.add(new DateMenuModPage(settings));
     window.add(new MediaPlayerPage(settings));
     window.add(new PowerMenuPage(settings));
     window.add(new WorkspaceIndicator(settings));
+    window.search_enabled = true;    
 }

@@ -60,6 +60,13 @@ class Extension {
         this.mediaPlayer.disable();
         this.powerMenu.disable();
         this.workspaceIndicator.disable();
+
+        this.batteryBar = null;
+        this.dashBoard = null;
+        this.dateMenuMod = null;
+        this.mediaPlayer = null;
+        this.powerMenu = null;
+        this.workspaceIndicator = null;
     }
 
     toggleExtension(extension){
