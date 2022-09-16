@@ -9,10 +9,10 @@ function init() {}
 
 const SpinButton = GObject.registerClass(
 class SpinButton extends Adw.ActionRow{
-    _init(title, settings, settingName, low, high){
+    _init(title, settings, settingName, low, high, step){
         super._init({ title: title });
     
-        const gspin = Gtk.SpinButton.new_with_range(low, high, 1);
+        const gspin = Gtk.SpinButton.new_with_range(low, high, step);
         gspin.valign = Gtk.Align.CENTER;
         settings.bind(
             settingName,
@@ -98,10 +98,10 @@ class BatteryBarPage extends Adw.PreferencesPage{
         this.add(group);
 
         group.add(new DropDown('Position', settings, 'battery-bar-position', ["Left", "Center", "Right"]));
-        group.add(new SpinButton('Offset', settings, 'battery-bar-offset', 0, 12));
+        group.add(new SpinButton('Offset', settings, 'battery-bar-offset', 0, 12, 1));
         group.add(new Switch('Show Icon', settings, 'battery-bar-show-icon'));
         group.add(new Switch('Show Percentage', settings, 'battery-bar-show-percentage'));
-        group.add(new SpinButton('Width', settings, 'battery-bar-width', 50, 800));
+        group.add(new SpinButton('Width', settings, 'battery-bar-width', 50, 800, 10));
 
     }
 });
@@ -127,12 +127,12 @@ class DashBoardPage extends Adw.PreferencesPage{
         buttonGroup.add(new Switch('Hide Icon', settings, 'dash-button-icon-hide'));
         buttonGroup.add(new Entry('Icon Path', settings, 'dash-button-icon-path'));
         buttonGroup.add(new DropDown('Position', settings, 'dash-button-position', ["Left", "Center", "Right"]));
-        buttonGroup.add(new SpinButton('Offset', settings, 'dash-button-offset', 0, 12));
+        buttonGroup.add(new SpinButton('Offset', settings, 'dash-button-offset', 0, 12, 1));
 
         const dashGroup = new Adw.PreferencesGroup({ title: 'Dash' });
         this.add(dashGroup);
 
-        dashGroup.add(new SpinButton('Layout', settings, 'dash-layout', 1, 3));
+        dashGroup.add(new SpinButton('Layout', settings, 'dash-layout', 1, 3, 1));
     }
 });
 
@@ -170,13 +170,22 @@ class MediaPlayerPage extends Adw.PreferencesPage{
         toggleGroup.add(new Switch('Media Player', settings, 'media-player'));
         this.add(toggleGroup);
 
-        const group = new Adw.PreferencesGroup();
-        this.add(group);
+        const trackGroup = new Adw.PreferencesGroup({ title: 'Track Button' });
+        const controlsGroup = new Adw.PreferencesGroup({ title: 'Controls' });
+        const playerGroup = new Adw.PreferencesGroup({ title: 'Player' });
+        
+        this.add(trackGroup);
+        this.add(controlsGroup);
+        this.add(playerGroup);
 
-        group.add(new DropDown('Position', settings, 'media-player-position', ["Left", "Center", "Right"]));
-        group.add(new SpinButton('Offset', settings, 'media-player-offset', 0, 12));
-        group.add(new Entry('Prefer', settings, 'media-player-prefer'));
-        group.add(new DropDown('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
+        trackGroup.add(new DropDown('Position', settings, 'media-player-position', ["Left", "Center", "Right"]));
+        trackGroup.add(new SpinButton('Offset', settings, 'media-player-offset', 0, 12, 1));
+        controlsGroup.add(new Switch('Hide', settings, 'media-player-hide-controls'));
+        controlsGroup.add(new DropDown('Position', settings, 'media-player-controls-position', ["Left", "Center", "Right"]));
+        controlsGroup.add(new SpinButton('Offset', settings, 'media-player-controls-offset', 0, 12, 1));
+        playerGroup.add(new Entry('Prefer', settings, 'media-player-prefer'));
+        playerGroup.add(new DropDown('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
+        playerGroup.add(new SpinButton('Max Width', settings, 'media-player-max-width', 0, 800, 10));
     }
 });
 
@@ -217,7 +226,7 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
         this.add(group);
 
         group.add(new DropDown('Position', settings, 'workspace-indicator-position', ["Left", "Center", "Right"]));
-        group.add(new SpinButton('Offset', settings, 'workspace-indicator-offset', 0, 12));
+        group.add(new SpinButton('Offset', settings, 'workspace-indicator-offset', 0, 12, 1));
     }
 });
 

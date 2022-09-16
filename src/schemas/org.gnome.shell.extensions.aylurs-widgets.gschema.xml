@@ -133,6 +133,22 @@
       <default>0</default> 
     </key>
 
+    <key name="media-player-controls-position" type="i">
+      <default>1</default> 
+    </key>
+
+    <key name="media-player-controls-offset" type="i">
+      <default>0</default> 
+    </key>
+
+    <key name="media-player-hide-controls" type="b">
+      <default>false</default> 
+    </key>
+
+    <key name="media-player-max-width" type="i">
+      <default>0</default> 
+    </key>
+
     <!-- power-menu -->
     <key name="power-menu-position" type="i">
       <default>0</default> 
