@@ -54,12 +54,12 @@ class Extension {
     }
 
     disable() {
-        this.batteryBar.disable();
-        this.dashBoard.disable();
-        this.dateMenuMod.disable();
-        this.mediaPlayer.disable();
-        this.powerMenu.disable();
-        this.workspaceIndicator.disable();
+        if(this.batteryBar.enabled) this.batteryBar.disable();
+        if(this.dashBoard.enabled) this.dashBoard.disable();
+        if(this.dateMenuMod.enabled) this.dateMenuMod.disable();
+        if(this.mediaPlayer.enabled) this.mediaPlayer.disable();
+        if(this.powerMenu.enabled) this.powerMenu.disable();
+        if(this.workspaceIndicator.enabled) this.workspaceIndicator.disable();
 
         this.batteryBar = null;
         this.dashBoard = null;

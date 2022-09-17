@@ -56,8 +56,8 @@
 
 /* clock-box */
 .db-clock{ font-size: 2.4em; width: 3em; text-align: center; }
-.db-day{}
-.db-date{}
+.db-day{ text-align: center; }
+.db-date{ width: 6em; text-align: center; }
 
 .db-dashboard .message-media-control{ padding: 8px; margin: 0;}
 .db-dashboard .popup-menu-item{ padding: 8px; margin: 0;}
@@ -129,6 +129,7 @@
 }
 
 /* workspace-indicator */
-.workspace-indicator StIcon{
-    margin: 0;
-}
+.workspace-indicator StIcon{ margin: 0; }
+.workspace-indicator StLabel{ margin: 0 8px; }
+.workspace-indicator-active{ font-weight: 900; }
+.workspace-indicator-inactive{ font-weight: 300; }

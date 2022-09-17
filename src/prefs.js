@@ -178,11 +178,14 @@ class MediaPlayerPage extends Adw.PreferencesPage{
         this.add(controlsGroup);
         this.add(playerGroup);
 
+        trackGroup.add(new Switch('Hide', settings, 'media-player-hide-track'));
         trackGroup.add(new DropDown('Position', settings, 'media-player-position', ["Left", "Center", "Right"]));
         trackGroup.add(new SpinButton('Offset', settings, 'media-player-offset', 0, 12, 1));
+
         controlsGroup.add(new Switch('Hide', settings, 'media-player-hide-controls'));
         controlsGroup.add(new DropDown('Position', settings, 'media-player-controls-position', ["Left", "Center", "Right"]));
         controlsGroup.add(new SpinButton('Offset', settings, 'media-player-controls-offset', 0, 12, 1));
+        
         playerGroup.add(new Entry('Prefer', settings, 'media-player-prefer'));
         playerGroup.add(new DropDown('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
         playerGroup.add(new SpinButton('Max Width', settings, 'media-player-max-width', 0, 800, 10));
@@ -227,6 +230,7 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
 
         group.add(new DropDown('Position', settings, 'workspace-indicator-position', ["Left", "Center", "Right"]));
         group.add(new SpinButton('Offset', settings, 'workspace-indicator-offset', 0, 12, 1));
+        group.add(new Switch('Show Names', settings, 'workspace-indicator-show-names'));
     }
 });
 

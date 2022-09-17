@@ -391,10 +391,8 @@ const Media = GObject.registerClass({
                                     this._onProxyReady.bind(this));
 
         this.connect('destroy', () => {
-            for (const [busName, player] of this._players) {
+            for (const [busName, player] of this._players)
                 player.destroy();
-                player = null;
-            }
         });
     }
     _addPlayer(busName) {
@@ -557,6 +555,7 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-controls-offset', () => this.reload());
         this.settings.connect('changed::media-player-hide-controls', () => this.reload());
         this.settings.connect('changed::media-player-max-width', () => this.reload());
+        this.settings.connect('changed::media-player-hide-track', () => this.reload());
         this.reload();
 
         this.stockMpris.visible = false;
@@ -590,14 +589,17 @@ var Extension = class Extension {
         this.panelButton = new MediaButton(this.media, this.settings);
         this.controls = new MediaControls(this.media);
 
-        let trackPos = this.settings.get_int('media-player-position');
-        let trackOffset = this.settings.get_int('media-player-offset');
-        Main.panel.addToStatusArea('Media Player', this.panelButton, trackOffset, this.pos[trackPos]);
+        let pos, offset
 
-        let controlsPos = this.settings.get_int('media-player-controls-position');
-        let controlsOffset = this.settings.get_int('media-player-controls-offset');
+        pos = this.settings.get_int('media-player-position');
+        offset = this.settings.get_int('media-player-offset');
+        if(!this.settings.get_boolean('media-player-hide-track'))
+            Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
+
+        pos = this.settings.get_int('media-player-controls-position');
+        offset = this.settings.get_int('media-player-controls-offset');
         if(!this.settings.get_boolean('media-player-hide-controls'))
-            this.panelBox[controlsPos].insert_child_at_index(this.controls, controlsOffset);
+            this.panelBox[pos].insert_child_at_index(this.controls, offset);
     
         this.loaded = true;
     }
