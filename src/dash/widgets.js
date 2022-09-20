@@ -7,8 +7,8 @@ const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const SystemActions = imports.misc.systemActions;
-const { Media, Player } = Me.imports.dashMediaPlayer;
-const SystemLevels = Me.imports.dashSystemLevels;
+const { Media, Player } = Me.imports.dash.mediaPlayer;
+const SystemLevels = Me.imports.dash.systemLevels;
 
 // USERBOX
 var UserBox = GObject.registerClass(

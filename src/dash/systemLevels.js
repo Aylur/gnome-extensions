@@ -85,9 +85,11 @@ class UsageLevel extends St.BoxLayout{
                                    //low green
                                   //high red
 
-        this.icon = new St.Icon();
+        this.icon = new St.Icon({ reactive: true, track_hover: true });
         this.label = new St.Label();
         this.level = new LevelBar(vertical);
+        this.hoverLabel = new St.Label({ style_class: 'dash-label' });
+        this.icon.connect('notify::hover', () => this.toggleHoverLabel());
 
         this._buildUI();
     }
@@ -131,6 +133,29 @@ class UsageLevel extends St.BoxLayout{
             this.y_expand = true;
         }
     }
+
+
+    toggleHoverLabel() {
+        if(this.icon.hover){
+            Main.layoutManager.addTopChrome(this.hoverLabel);
+            this.hoverLabel.opacity = 0;
+            let [stageX, stageY] = this.icon.get_transformed_position();
+            const iconWidth = this.icon.allocation.get_width();
+            const labelWidth = this.hoverLabel.get_width();
+            const xOffset = Math.floor((iconWidth - labelWidth) / 2);
+            const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
+            const y = stageY - this.hoverLabel.height - this.icon.height;
+            this.hoverLabel.set_position(x, y);
+    
+            this.hoverLabel.ease({
+                opacity: 255,
+                duration: 300,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+            });
+        }else{
+            Main.layoutManager.removeChrome(this.hoverLabel);
+        }
+    }
 });
 
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -142,6 +167,7 @@ class PowerLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'battery-symbolic';
+        this.hoverLabel.text = 'Battery';
         this.colorSwitchValues = [ 75, 50, 25 ];
 
         this._proxy = new PowerManagerProxy(Gio.DBus.system,
@@ -189,6 +215,7 @@ class CpuLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'computer-chip-symbolic';
+        this.hoverLabel.text = 'CPU';
 
         this.lastCPUTotal = 0;
         this.lastCPUUsed = 0;
@@ -258,6 +285,7 @@ class RamLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'application-x-firmware-symbolic';
+        this.hoverLabel.text = 'RAM';
 
     }
     setUsage(){
@@ -316,6 +344,7 @@ class TempLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'temperature-symbolic';
+        this.hoverLabel.text = 'Temperature';
         this.colorSwitchValues = [ 50, 65, 80 ];
 
     }
@@ -350,6 +379,7 @@ class DirLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'drive-harddisk-symbolic';
+        this.hoverLabel.text = 'Disk';
         this.colorSwitchValues = [ 40, 60, 80 ];
     }
     setUsage(){

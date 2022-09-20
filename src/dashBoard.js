@@ -4,7 +4,7 @@ const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const Widgets = Me.imports.dashWidgets;
+const Widgets = Me.imports.dash.widgets;
 
 const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
