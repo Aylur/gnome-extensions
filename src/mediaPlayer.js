@@ -6,6 +6,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
+const { EventEmitter } = imports.misc.signals;
 
 const PlayerIFace =
 `<node>
@@ -29,6 +30,7 @@ const PlayerIFace =
     </interface>
 </node>`;
 
+
 const MprisIFace =
 `<node>
     <interface name='org.mpris.MediaPlayer2'>
@@ -45,34 +47,17 @@ const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(PlayerIFace);
 const MprisProxy = Gio.DBusProxy.makeProxyWrapper(MprisIFace);
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(imports.misc.fileUtils.loadInterfaceXML('org.freedesktop.DBus'));
 
-const Player = GObject.registerClass({
-    Signals: {
-        'closed': {
-            flags: GObject.SignalFlags.RUN_FIRST,
-        },
-        'updated': {
-            flags: GObject.SignalFlags.RUN_LAST,
-        },
-    }
-},
-class Player extends St.BoxLayout{
-    _init(busName, settings){
-        super._init({
-            vertical: true,
-            style_class: 'container'
-        });
-        this._mprisProxy = new MprisProxy(
-            Gio.DBus.session,
-            busName,
+
+const MprisPlayer = class MprisPlayer extends EventEmitter {
+    constructor(busName) {
+        super();
+
+        this._mprisProxy = new MprisProxy(Gio.DBus.session, busName,
             '/org/mpris/MediaPlayer2',
             this._onMprisProxyReady.bind(this));
-        this._playerProxy = new MprisPlayerProxy(
-            Gio.DBus.session,
-            busName,
+        this._playerProxy = new MprisPlayerProxy(Gio.DBus.session, busName,
             '/org/mpris/MediaPlayer2',
             this._onPlayerProxyReady.bind(this));
-
-        this.settings = settings;
 
         this._busName = busName;
         this._trackArtists = [];
@@ -84,116 +69,66 @@ class Player extends St.BoxLayout{
         this._canGoPrev = false; 
         this._canPlay = false;
 
-        this._shuffle = '';
+        this._shuffle = false;
         this._loopStatus = '';
 
-        this._volume = 0;
-
-        this._position = 0;
-        this._length = 0;
-
-        //UI elements
-        this.mediaCover = new St.Button({
-            y_align: Clutter.ActorAlign.CENTER,
-            x_align: Clutter.ActorAlign.CENTER,
-            style_class: 'media-cover button',
-        });
-
-        this.mediaTitle = new St.Label();
-        this.mediaArtist = new St.Label();
-
-        this.shuffleBtn   = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
-        this.prevBtn      = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
-        this.playPauseBtn = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
-        this.nextBtn      = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
-        this.loopBtn      = new St.Button({ can_focus: true, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.CENTER, style_class: 'message-media-control', });
-
-        this.shuffleIcon = new St.Icon({ icon_name: 'media-playlist-shuffle-symbolic', });
-        this.prevIcon = new St.Icon({ icon_name: 'media-skip-backward-symbolic',       });
-        this.playPauseIcon = new St.Icon({ icon_name: 'media-playback-start-symbolic', });
-        this.nextIcon = new St.Icon({ icon_name: 'media-skip-forward-symbolic',        });
-        this.loopIcon = new St.Icon({ icon_name: 'media-playlist-repeat-symbolic',     });
-
-        this.shuffleBtn.set_child(this.shuffleIcon);
-        this.prevBtn.set_child(this.prevIcon);
-        this.playPauseBtn.set_child(this.playPauseIcon);
-        this.nextBtn.set_child(this.nextIcon);
-        this.loopBtn.set_child(this.loopIcon);
-
-        this.volumeIcon = new St.Icon({ icon_name: 'audio-volume-high-symbolic', });
-        this.volumeSlider = new Slider(0);
-
-        this.bindings = [
-            this.shuffleBtn.connect('clicked', () => this.shuffle() ),
-            this.loopBtn.connect('clicked', () => this.loop() ),
-            this.prevBtn.connect('clicked', () => this.prev() ),
-            this.nextBtn.connect('clicked', () => this.next() ),
-            this.playPauseBtn.connect('clicked', () => this.playPause() ),
-            this.mediaCover.connect('clicked', () => this.raise() ),
-            this.volumeSlider.connect('notify::value',
-                                       () => { this._playerProxy.Volume = this.volumeSlider.value; }),
-        ];
-
-        //UI
-        this.titleBox = new St.BoxLayout({
-            vertical: true,
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this.titleBox.add_child(this.mediaTitle);
-        this.titleBox.add_child(this.mediaArtist);
-
-        this.controlsBox = new St.BoxLayout({
-            style_class: 'container',
-            x_align: Clutter.ActorAlign.CENTER,
-        });
-        this.controlsBox.add_child(this.shuffleBtn);
-        this.controlsBox.add_child(this.prevBtn);
-        this.controlsBox.add_child(this.playPauseBtn);
-        this.controlsBox.add_child(this.nextBtn);
-        this.controlsBox.add_child(this.loopBtn);
-
-        this.volumeBox = new St.BoxLayout({
-            style_class: 'container',
-        });
-        this.volumeBox.add_child(this.volumeIcon);
-        this.volumeBox.add_child(this.volumeSlider);
-
-        this.hbox = new St.BoxLayout({ style_class: 'container' });
-        this.hbox.add_child(this.mediaCover);
-        this.hbox.add_child(this.titleBox);
-
-        this._buildUI();
+        this._volume = -1;
     }
-    _buildUI(){
-        const layout = this.settings.get_int('media-player-layout');
-        if(layout === 0){
-            this.mediaCover.width = 230;
-            this.mediaCover.height = 230;
-            this.titleBox.style = 'text-align: center';
-            this.hbox.vertical = true;
-            this.add_child(this.hbox);
-            this.add_child(this.controlsBox);
-            this.add_child(this.volumeBox);
-        }else{
-            this.mediaCover.width = 70;
-            this.mediaCover.height = 70;
-            this.titleBox.style = '';
-            this.hbox.vertical = false;
-            this.add_child(this.hbox);
-            this.add_child(this.controlsBox);
-            this.add_child(this.volumeBox);
+    get busName(){ return this._busName; }
+    get trackArtists(){ return this._trackArtists; }
+    get trackTitle(){ return this._trackTitle; }
+    get trackCoverUrl(){ return this._trackCoverUrl; }
+    get playBackStatus(){ return this._playBackStatus; }
+    get canGoNext(){ return this._canGoNext; }
+    get canGoPrev(){ return this._canGoPrev; }
+    get canPlay(){ return this._canPlay; }
+    get shuffleStatus(){ return this._shuffle; }
+    get loopStatus(){ return this._loopStatus; }
+    get volume(){ return this._volume; }
+
+    setVolume(value){ this._playerProxy.Volume = value; }
+    playPause() { this._playerProxy.PlayPauseAsync().catch(logError); }
+    next() { this._playerProxy.NextAsync().catch(logError); }
+    previous() { this._playerProxy.PreviousAsync().catch(logError); }
+    shuffle(){ this._playerProxy.Shuffle = !this._playerProxy.Shuffle; }
+    loop(){
+        switch (this._playerProxy.LoopStatus) {
+          case "None":
+              this._playerProxy.LoopStatus = "Track";
+              break;
+          case "Track":
+              this._playerProxy.LoopStatus = "Playlist";
+              break;
+          case "Playlist":
+              this._playerProxy.LoopStatus = "None";
+              break;
+          default:
+              break;
         }
     }
+    raise() {
+        let app = null;
+        if (this._mprisProxy.DesktopEntry) {
+            let desktopId = `${this._mprisProxy.DesktopEntry}.desktop`;
+            app = Shell.AppSystem.get_default().lookup_app(desktopId);
+        }
+        if (app)
+            app.activate();
+        else if (this._mprisProxy.CanRaise)
+            this._mprisProxy.RaiseAsync().catch(logError);
+    }
+
     _close() {
         this._mprisProxy.disconnectObject(this);
         this._mprisProxy = null;
+
         this._playerProxy.disconnectObject(this);
         this._playerProxy = null;
 
         this.emit('closed');
     }
-    _onMprisProxyReady(){
+
+    _onMprisProxyReady() {
         this._mprisProxy.connectObject('notify::g-name-owner',
             () => {
                 if (!this._mprisProxy.g_name_owner)
@@ -202,12 +137,14 @@ class Player extends St.BoxLayout{
         if (!this._mprisProxy.g_name_owner)
             this._close();
     }
-    _onPlayerProxyReady(){
+
+    _onPlayerProxyReady() {
         this._playerProxy.connectObject(
             'g-properties-changed', () => this._updateState(), this);
         this._updateState();
     }
-    _updateState(){
+
+    _updateState() {
         let metadata = {};
         for (let prop in this._playerProxy.Metadata)
             metadata[prop] = this._playerProxy.Metadata[prop].deep_unpack();
@@ -232,217 +169,244 @@ class Player extends St.BoxLayout{
         this._canPlay = this._playerProxy.CanPlay;
 
         this._shuffle = this._playerProxy.Shuffle;
+        if (typeof this._shuffle !== 'boolean') {
+            this._shuffle = null;
+        }
         this._loopStatus = this._playerProxy.LoopStatus;
+        if (typeof this._loopStatus !== 'string') {
+            this._loopStatus = null;
+        }
         this._volume = this._playerProxy.Volume;
         if(typeof this._volume !== 'number'){
             this._volume = -1;
         }
 
+        this.emit('changed');
+    }
+};
+
+var PlayerUIElements = class PlayerUIElements{
+    constructor(){
+        //ELEMENTS
+        this.mediaCover = new St.Button({
+            y_align: Clutter.ActorAlign.CENTER,
+            x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'media-cover button',
+            reactive: true,
+            can_focus: true,
+        });
+        this.mediaCover.connect('clicked', () => this.player.raise()),
+
+        this._mediaTitle = new St.Label();
+        this._mediaArtist = new St.Label();
+
+        this._shuffleBtn   = this._addButton('media-playlist-shuffle-symbolic', () => this.player.shuffle());
+        this._prevBtn      = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
+        this._playPauseBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
+        this._nextBtn      = this._addButton('media-skip-forward-symbolic', () => this.player.next());
+        this._loopBtn      = this._addButton('media-playlist-repeat-symbolic', () => this.player.loop());
+
+        this._volumeIcon = new St.Icon({ icon_name: 'audio-volume-high-symbolic', });
+        this._volumeSlider = new Slider(0);
+        this._volumeSlider.connect('notify::value', () => this.player.setVolume(this._volumeSlider.value));
+        
+        //UI
+        this.style_class = 'media-container';
+        this.titleBox = new St.BoxLayout({
+            vertical: true,
+            style: 'text-align: center',
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        this._mediaTitle.y_align = Clutter.ActorAlign.END;
+        this._mediaArtist.y_align = Clutter.ActorAlign.START;
+        this.titleBox.add_child(this._mediaTitle);
+        this.titleBox.add_child(this._mediaArtist);
+
+        this.controlsBox = new St.BoxLayout({
+            style_class: 'media-container media-controls',
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        this.controlsBox.add_child(this._shuffleBtn);
+        this.controlsBox.add_child(this._prevBtn);
+        this.controlsBox.add_child(this._playPauseBtn);
+        this.controlsBox.add_child(this._nextBtn);
+        this.controlsBox.add_child(this._loopBtn);
+
+        this.volumeBox = new St.BoxLayout({
+            style_class: 'media-container media-volume',
+        });
+        this.volumeBox.add_child(this._volumeIcon);
+        this.volumeBox.add_child(this._volumeSlider);
+
+        //LAYOUT
+        //The layout must be assembled by the widget which constructed this.
+    }
+    setPlayer(player){
+        this.player = player;
+        this.player.connect('changed', () => this._sync());
         this._sync();
-        this.emit('updated');
+    }
+    _addButton(iconName, callback){
+        let btn = new St.Button({
+            can_focus: true,
+            y_align: Clutter.ActorAlign.CENTER,
+            x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'message-media-control',
+            reactive: false,
+            child: new St.Icon({
+                icon_name: iconName
+            })
+        })
+        btn.connect('clicked', callback);
+        return btn;
     }
     _sync(){
-        this.mediaArtist.text = this._trackArtists.join(', ');
-        this.mediaTitle.text = this._trackTitle;
+        this._mediaTitle.text = this.player.trackTitle;
+        this._mediaArtist.text = this.player.trackArtists.join(', ');
 
-        if(this._trackCoverUrl !== ''){
-            this.mediaCover.remove_all_children();
-            // this.mediaCover.style = 'background-image: url("' + this._trackCoverUrl + '"); background-size: cover;';
-            let cover = new St.Icon({
-                gicon: Gio.Icon.new_for_string(this._trackCoverUrl),
-                icon_size: this.mediaCover.width-4,
-            });
-            this.mediaCover.set_child(cover);
-        }
-        else {
-            this.mediaCover.remove_all_children();
-            // this.mediaCover.style = 'background-image: none';
-            let mediaCoverDummy = new St.Icon({
-                icon_name: 'applications-multimedia-symbolic',
-            });
-            this.mediaCover.set_child(mediaCoverDummy);
-        }
+        if(this.player.trackCoverUrl !== '')
+            this.mediaCover.set_child(new St.Icon({
+                gicon: Gio.Icon.new_for_string(this.player.trackCoverUrl),
+                icon_size: this.mediaCover.height,
+            }));
+        else
+            this.mediaCover.set_child(new St.Icon({
+                icon_name: 'applications-multimedia-symbolic'
+            }));
 
-        if(this._canGoNext){
-            this.nextBtn.reactive = true;
-            this.nextBtn.remove_style_pseudo_class('insensitive');
-        }else{
-            this.nextBtn.reactive = false;
-            this.nextBtn.add_style_pseudo_class('insensitive');
-        }
-        if(this._canGoPrev){
-            this.prevBtn.reactive = true;
-            this.prevBtn.remove_style_pseudo_class('insensitive');
-        }else{
-            this.prevBtn.reactive = false;
-            this.prevBtn.add_style_pseudo_class('insensitive');
-        }
-        if(this._canPlay){
-            this.playPauseBtn.reactive = true;
-            this.playPauseBtn.remove_style_pseudo_class('insensitive');
-            switch (this._playBackStatus) {
+        this.player.canGoNext ? this._nextBtn.reactive = true : this._nextBtn.reactive = false;
+        this.player.canGoPrev ? this._prevBtn.reactive = true : this._prevBtn.reactive = false;
+        
+        if(this.player.canPlay){
+            this._playPauseBtn.reactive = true;
+            switch (this.player.playBackStatus) {
                 case "Playing":
-                    this.playPauseIcon.icon_name = 'media-playback-pause-symbolic';
+                    this._playPauseBtn.get_child().icon_name = 'media-playback-pause-symbolic';
                     break;
                 case "Paused":
-                    this.playPauseIcon.icon_name = 'media-playback-start-symbolic';
+                    this._playPauseBtn.get_child().icon_name = 'media-playback-start-symbolic';
                     break;
                 case "Stopped":
-                    this.playPauseIcon.icon_name = 'media-playback-start-symbolic';
+                    this._playPauseBtn.get_child().icon_name = 'media-playback-start-symbolic';
                     break;
                 default:
                     break;
             }
         }else{
-            this.playPauseBtn.reactive = false;
-            this.playPauseBtn.add_style_pseudo_class('insensitive');
+            this._playPauseBtn.reactive = false;
         }
-        if(typeof this._shuffle !== 'undefined'){
-            this.shuffleBtn.show();
-            if(this._shuffle){
-                this.shuffleBtn.remove_style_pseudo_class('insensitive');
+
+        if(typeof this.player.shuffleStatus !== 'null'){
+            this._shuffleBtn.reactive = true;
+            this._shuffleBtn.show();
+            if(this.player.shuffleStatus){
+                this._shuffleBtn.remove_style_pseudo_class('insensitive');
             }else{
-                this.shuffleBtn.add_style_pseudo_class('insensitive');
+                this._shuffleBtn.add_style_pseudo_class('insensitive');
             }
         }else{
-            this.shuffleBtn.hide();
+            this._shuffleBtn.reactive = false;
+            this._shuffleBtn.hide();
         }
-        if(typeof this._loopStatus !== 'undefined'){
-            this.loopBtn.show();
-            switch (this._loopStatus) {
+
+        if(typeof this.player.loopStatus !== 'null'){
+            this._loopBtn.reactive = true;
+            this._loopBtn.show();
+            switch (this.player.loopStatus) {
                 case "None":
-                    this.loopIcon.icon_name = 'media-playlist-repeat-symbolic';
-                    this.loopBtn.add_style_pseudo_class('insensitive');
+                    this._loopBtn.get_child().icon_name = 'media-playlist-repeat-symbolic';
+                    this._loopBtn.add_style_pseudo_class('insensitive');
                     break;
                 case "Track":
-                    this.loopIcon.icon_name = 'media-playlist-repeat-symbolic';
-                    this.loopBtn.remove_style_pseudo_class('insensitive');
+                    this._loopBtn.get_child().icon_name = 'media-playlist-repeat-symbolic';
+                    this._loopBtn.remove_style_pseudo_class('insensitive');
                     break;
                 case "Playlist":
-                    this.loopIcon.icon_name = 'media-playlist-repeat-song-symbolic';
-                    this.loopBtn.remove_style_pseudo_class('insensitive');
+                    this._loopBtn.get_child().icon_name = 'media-playlist-repeat-song-symbolic';
+                    this._loopBtn.remove_style_pseudo_class('insensitive');
                     break;
                 default:
                     break;
             }
         }else{
-            this.loopBtn.hide();
+            this._loopBtn.reactive = false;
+            this._loopBtn.hide();
         }
-        if(this._volume > -1){
+
+        if(this.player.volume > -1){
             this.volumeBox.show();
-            this.volumeSlider.value = this._volume;
-            if(this._volume == 0) this.volumeIcon.icon_name = 'audio-volume-muted-symbolic';
-            if(this._volume >= 0 && this._volume < 0.33 ) this.volumeIcon.icon_name = 'audio-volume-low-symbolic';
-            if(this._volume >= 0.33 && this._volume < 0.66 ) this.volumeIcon.icon_name = 'audio-volume-medium-symbolic';
-            if(this._volume >= 0.66 ) this.volumeIcon.icon_name = 'audio-volume-high-symbolic';
+            this._volumeSlider.value = this.player.volume;
+            if(this.player.volume == 0) this._volumeIcon.icon_name = 'audio-volume-muted-symbolic';
+            if(this.player.volume >= 0 && this.player.volume < 0.33 ) this._volumeIcon.icon_name = 'audio-volume-low-symbolic';
+            if(this.player.volume >= 0.33 && this.player.volume < 0.66 ) this._volumeIcon.icon_name = 'audio-volume-medium-symbolic';
+            if(this.player.volume >= 0.66 ) this._volumeIcon.icon_name = 'audio-volume-high-symbolic';
         }
         else{
             this.volumeBox.hide();
         }
     }
-    playPause(){ this._playerProxy.PlayPauseRemote(); }
-    next(){ this._playerProxy.NextRemote(); }
-    prev(){ this._playerProxy.PreviousRemote(); }
-    shuffle(){ this._playerProxy.Shuffle = !this._playerProxy.Shuffle; }
-    loop(){
-        switch (this._playerProxy.LoopStatus) {
-          case "None":
-              this._playerProxy.LoopStatus = "Track";
-              break;
-          case "Track":
-              this._playerProxy.LoopStatus = "Playlist";
-              break;
-          case "Playlist":
-              this._playerProxy.LoopStatus = "None";
-              break;
-          default:
-              break;
-        }
-    }
-    raise() {
-        let app = null;
-        if (this._mprisProxy.DesktopEntry) {
-            let desktopId = `${this._mprisProxy.DesktopEntry}.desktop`;
-            app = Shell.AppSystem.get_default().lookup_app(desktopId);
-        }
+};
 
-        if (app)
-            app.activate();
-        else if (this._mprisProxy.CanRaise)
-            this._mprisProxy.RaiseRemote();
-    }
-});
+var Media = class Media extends EventEmitter{
+    constructor(prefer) {
+        super();
 
-const Media = GObject.registerClass({
-    Signals: {
-        'updated': {
-            flags: GObject.SignalFlags.RUN_FIRST,
-        },
-        'proxy-ready': {}
-    }
-}, class Media extends St.Bin{
-    _init(settings){
-        super._init();
-        this.settings = settings;
+        prefer ? this.prefered = prefer : this.prefered = '';
+
         this._players = new Map();
         this._proxy = new DBusProxy(Gio.DBus.session,
                                     'org.freedesktop.DBus',
                                     '/org/freedesktop/DBus',
                                     this._onProxyReady.bind(this));
-
-        this.connect('destroy', () => {
-            for (const [busName, player] of this._players)
-                player.destroy();
-        });
     }
+
     _addPlayer(busName) {
         if (this._players.get(busName))
             return;
 
-        let player = new Player(busName, this.settings);
-        this._players.set(busName, player);
+        let player = new MprisPlayer(busName);
         player.connect('closed',
             () => {
                 this._players.delete(busName);
                 this.emit('updated');
             });
-        player.connect('updated',
-            () => this.emit('updated'));
+        this._players.set(busName, player);
 
         this.emit('updated');
     }
-    _onProxyReady() {
-        this._proxy.ListNamesRemote(([names]) => {
-            names.forEach(name => {
-                if (!name.startsWith('org.mpris.MediaPlayer2.'))
-                    return;
 
-                this._addPlayer(name);
-            });
+    async _onProxyReady() {
+        const [names] = await this._proxy.ListNamesAsync();
+        names.forEach(name => {
+            if (!name.startsWith('org.mpris.MediaPlayer2.'))
+                return;
+
+            this._addPlayer(name);
         });
         this._proxy.connectSignal('NameOwnerChanged',
                                   this._onNameOwnerChanged.bind(this));
-        this.emit('proxy-ready');
     }
+
     _onNameOwnerChanged(proxy, sender, [name, oldOwner, newOwner]) {
         if (!name.startsWith('org.mpris.MediaPlayer2.'))
             return;
         if (newOwner && !oldOwner)
             this._addPlayer(name);
     }
-    getFavPlayer(){
+
+    getPlayer(){
         if(this._players.size === 0){
             return false;
         }
         for (const [busName, player] of this._players) {
-            if(busName.includes(this.settings.get_string('media-player-prefer'))){
+            if(busName.includes(this.prefered)){
                 return player;
             }
         }
         const iterator = this._players.values();
         return iterator.next().value;
     }
-});
+};
 
 const MediaButton = GObject.registerClass(
 class MediaButton extends PanelMenu.Button{
@@ -455,22 +419,45 @@ class MediaButton extends PanelMenu.Button{
             y_align: Clutter.ActorAlign.CENTER,
         });
         this.add_child(this.label);
+        let maxWidth = settings.get_int('media-player-max-width');
+        if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
 
         this.media = media;
         this.media.connect('updated', () => this.sync());
 
-        this.playerBin = new St.Bin({ style_class: 'media-player-content' });
-        this.menu.box.add_child(this.playerBin);
-
-        let maxWidth = settings.get_int('media-player-max-width');
-        if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
+        //UI
+        let elements = new PlayerUIElements();
+        let layout = settings.get_int('media-player-layout');
+        let box = new St.BoxLayout({ style_class: 'media-player', vertical: true });
+        box.style = `max-width: ${elements.controlsBox.width + 50}px`;
+        if(layout === 1){ //compact
+            elements.mediaCover.add_style_class_name('media-cover-compact');
+            elements.titleBox.x_align = Clutter.ActorAlign.START;
+            elements.titleBox.y_align = Clutter.ActorAlign.CENTER;
+            let vbox = new St.BoxLayout({ style_class: 'media-container' });
+            vbox.add_child(elements.mediaCover);
+            vbox.add_child(elements.titleBox);
+            box.add_child(vbox);
+            box.add_child(elements.controlsBox);
+            box.add_child(elements.volumeBox);
+        }else{ //normal
+            elements.mediaCover.add_style_class_name('media-cover-normal');
+            elements.mediaCover.x_align = Clutter.ActorAlign.CENTER;
+            box.add_child(elements.mediaCover);
+            box.add_child(elements.titleBox);
+            box.add_child(elements.controlsBox);
+            box.add_child(elements.volumeBox);
+        }
+        this.menu.box.add_child(box);
+        this.playerUI = elements;
     }
     sync(){
-        let player = this.media.getFavPlayer();
+        let player = this.media.getPlayer();
         if(player){
+            player.connect('changed', () => this.sync());
             this.show();
-            this.label.text = `${player._trackArtists.join(', ')} - ${player._trackTitle}`;
-            this.playerBin.set_child(player);
+            this.label.text = `${player.trackArtists.join(', ')} - ${player.trackTitle}`;
+            this.playerUI.setPlayer(player);
         }else{
             this.hide();
         }
@@ -482,13 +469,10 @@ class MediaControls extends St.BoxLayout{
     _init(media){
         super._init({ visible: false });
 
-        this.prevBtn = new St.Button({ style_class: 'panel-button', child: new St.Icon({ style_class: 'system-status-icon', icon_name: 'media-skip-backward-symbolic' }) });
-        this.playBtn = new St.Button({ style_class: 'panel-button', child: new St.Icon({ style_class: 'system-status-icon', icon_name: 'media-playback-start-symbolic' }) });
-        this.nextBtn = new St.Button({ style_class: 'panel-button', child: new St.Icon({ style_class: 'system-status-icon', icon_name: 'media-skip-forward-symbolic' }) });
-
-        this.prevBtn.connect('clicked', () => this.player.prev());
-        this.playBtn.connect('clicked', () => this.player.playPause());
-        this.nextBtn.connect('clicked', () => this.player.next());
+        this.hide();
+        this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.prev());
+        this.playBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
+        this.nextBtn = this._addButton('media-skip-forward-symbolic', () => this.player.next());
 
         this.add_child(this.prevBtn);
         this.add_child(this.playBtn);
@@ -497,18 +481,30 @@ class MediaControls extends St.BoxLayout{
         this.media = media;
         this.media.connect('updated', () => this.sync());
     }
+    _addButton(iconName, callback){
+        let btn = new St.Button({
+            style_class: 'panel-button',
+            child: new St.Icon({
+                style_class: 'system-status-icon',
+                icon_name: iconName
+            })
+        })
+        btn.connect('clicked', callback);
+        return btn;
+    }
     sync(){
-        let player = this.media.getFavPlayer();
+        let player = this.media.getPlayer();
         if(player){
             this.show();
             this.player = player;
+            player.connect('changed', () => this.sync());
 
-            player._canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
-            player._canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
+            player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
+            player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
 
-            if(player._canPlay){
+            if(player.canPlay){
                 this.playBtn.show();
-                switch (player._playBackStatus) {
+                switch (player.playBackStatus) {
                     case "Playing":
                         this.playBtn.child.icon_name = 'media-playback-pause-symbolic';
                         break;
@@ -542,6 +538,7 @@ var Extension = class Extension {
             Main.panel._centerBox,
             Main.panel._rightBox
         ]
+
         this.stockMpris = Main.panel.statusArea.dateMenu._messageList._mediaSection;
         this.shouldShow = this.stockMpris._shouldShow;
     }
@@ -551,6 +548,7 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-offset', () => this.reload());
         this.settings.connect('changed::media-player-position', () => this.reload());
         this.settings.connect('changed::media-player-layout', () => this.reload());
+        this.settings.connect('changed::media-player-prefer', () => this.reload());
         this.settings.connect('changed::media-player-controls-position', () => this.reload());
         this.settings.connect('changed::media-player-controls-offset', () => this.reload());
         this.settings.connect('changed::media-player-hide-controls', () => this.reload());
@@ -563,29 +561,28 @@ var Extension = class Extension {
     }
 
     disable() {
-        this.media.destroy();
+        this.media = null;
+        this.settings = null;
+
         this.panelButton.destroy();
         this.controls.destroy();
-        this.media = null;
         this.panelButton = null;
         this.controls = null;
-        this.settings = null;
-        this.loaded = false;
+        this.enabled = false;
         
         this.stockMpris._shouldShow = this.shouldShow;
         this.stockMpris.visible = this.stockMpris._shouldShow();
     }
 
     reload(){
-        if(this.loaded){
-            this.media.destroy();
+        if(this.enabled){
             this.media = null;     
             this.panelButton.destroy();
             this.panelButton = null;
             this.controls.destroy();
             this.controls = null;
         }
-        this.media = new Media(this.settings);
+        this.media = new Media(this.settings.get_boolean('media-player-prefer'));
         this.panelButton = new MediaButton(this.media, this.settings);
         this.controls = new MediaControls(this.media);
 
@@ -601,6 +598,6 @@ var Extension = class Extension {
         if(!this.settings.get_boolean('media-player-hide-controls'))
             this.panelBox[pos].insert_child_at_index(this.controls, offset);
     
-        this.loaded = true;
+        this.enabled = true;
     }
 }

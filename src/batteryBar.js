@@ -5,7 +5,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
-const Mainloop = imports.mainloop;
 
 const shellVersion = Math.floor(parseFloat(imports.misc.config.PACKAGE_VERSION));
 

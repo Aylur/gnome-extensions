@@ -78,7 +78,7 @@ const UsageLevel = GObject.registerClass(
 class UsageLevel extends St.BoxLayout{
     _init(vertical){
         super._init({
-            style_class: 'db-usage-level db-container',
+            style_class: 'usage-level db-container',
         });
         if(vertical) this.vertical = true;
         this.colorSwitchValues = [ 25, 50, 75, ];
@@ -214,7 +214,7 @@ class CpuLevel extends UsageLevel{
     _init(vertical){
         super._init(vertical);
 
-        this.icon.icon_name = 'computer-chip-symbolic';
+        this.icon.icon_name = 'org.gnome.SystemMonitor-symbolic';
         this.hoverLabel.text = 'CPU';
 
         this.lastCPUTotal = 0;
@@ -284,7 +284,7 @@ class RamLevel extends UsageLevel{
     _init(vertical){
         super._init(vertical);
 
-        this.icon.icon_name = 'application-x-firmware-symbolic';
+        this.icon.icon_name = 'drive-harddisk-solidstate-symbolic';
         this.hoverLabel.text = 'RAM';
 
     }

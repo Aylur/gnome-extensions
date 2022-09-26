@@ -4,7 +4,7 @@ const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const Widgets = Me.imports.dash.widgets;
+const Widgets = Me.imports.dashWidgets;
 
 const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
@@ -123,7 +123,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout3(){
         this.userBox = new Widgets.UserBox(false, 80);
         this.levelsBox = new Widgets.LevelsBox(true, this);
-        this.mediaBox = new Widgets.MediaBox(true, 160, this.settings);
+        this.mediaBox = new Widgets.MediaBox(true, 200, this.settings);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(3,3, this);

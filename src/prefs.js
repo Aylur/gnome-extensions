@@ -152,9 +152,10 @@ class DateMenuModPage extends Adw.PreferencesPage{
         this.add(group);
 
         group.add(new Switch('Remove Padding', settings, 'date-menu-remove-padding'));
-        group.add(new DropDown('Indicator Position', settings, 'date-menu-indicator-position', ["Left", "Right"]));
+        group.add(new DropDown('Indicator Position', settings, 'date-menu-indicator-position', ["Left", "Right", "Hide"]));
         group.add(new Entry('Date Format', settings, 'date-menu-date-format'));
         group.add(new Switch('Mirrored', settings, 'date-menu-mirror'));
+        group.add(new Switch('Hide Notifications', settings, 'date-menu-hide-notifications'));
     }
 });
 
@@ -181,6 +182,7 @@ class MediaPlayerPage extends Adw.PreferencesPage{
         trackGroup.add(new Switch('Hide', settings, 'media-player-hide-track'));
         trackGroup.add(new DropDown('Position', settings, 'media-player-position', ["Left", "Center", "Right"]));
         trackGroup.add(new SpinButton('Offset', settings, 'media-player-offset', 0, 12, 1));
+        trackGroup.add(new SpinButton('Max Width', settings, 'media-player-max-width', 0, 800, 10));
 
         controlsGroup.add(new Switch('Hide', settings, 'media-player-hide-controls'));
         controlsGroup.add(new DropDown('Position', settings, 'media-player-controls-position', ["Left", "Center", "Right"]));
@@ -188,7 +190,6 @@ class MediaPlayerPage extends Adw.PreferencesPage{
         
         playerGroup.add(new Entry('Prefer', settings, 'media-player-prefer'));
         playerGroup.add(new DropDown('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
-        playerGroup.add(new SpinButton('Max Width', settings, 'media-player-max-width', 0, 800, 10));
     }
 });
 
@@ -234,6 +235,20 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
     }
 });
 
+const QuickToggles = GObject.registerClass(
+class QuickToggles extends Adw.PreferencesPage{
+    _init(settings){
+        super._init({
+            title: 'Quick Toggles',
+            icon_name: 'open-menu-symbolic'
+        });
+
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Quick Toggles', settings, 'quick-toggles'));
+        this.add(toggleGroup);
+    }
+});
+
 function fillPreferencesWindow(window) {
     const settings = ExtensionUtils.getSettings();
     window.add(new BatteryBarPage(settings));
@@ -242,5 +257,6 @@ function fillPreferencesWindow(window) {
     window.add(new MediaPlayerPage(settings));
     window.add(new PowerMenuPage(settings));
     window.add(new WorkspaceIndicator(settings));
+    window.add(new QuickToggles(settings));
     window.search_enabled = true;    
 }

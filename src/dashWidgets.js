@@ -7,8 +7,8 @@ const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const SystemActions = imports.misc.systemActions;
-const { Media, Player } = Me.imports.dash.mediaPlayer;
-const SystemLevels = Me.imports.dash.systemLevels;
+const { Media, PlayerUIElements } = Me.imports.mediaPlayer;
+const SystemLevels = Me.imports.systemLevels;
 
 // USERBOX
 var UserBox = GObject.registerClass(
@@ -144,8 +144,49 @@ class MediaBox extends St.Bin{
             y_expand: true,
             style_class: 'events-button db-media-box',
             reactive: true,
-            child: new Media(vertical, coverSize, settings)
         });
+
+        this.media = new Media(settings.get_boolean('media-player-prefer'));
+        this.media.connect('updated', () => this._sync());
+
+        //UI
+        let elements = new PlayerUIElements();
+        elements.mediaCover.width = coverSize;
+        elements.mediaCover.height = coverSize;
+        this.box = new St.BoxLayout({
+            style_class: 'media-container',
+            vertical: vertical,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        let vbox = new St.BoxLayout({
+            style_class: 'media-container',
+            vertical: true,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            x_expand: true,
+        });
+        vbox.add_child(elements.titleBox);
+        vbox.add_child(elements.controlsBox);
+        vbox.add_child(elements.volumeBox);
+        this.box.add_child(elements.mediaCover);
+        this.box.add_child(vbox);
+        this.playerUI = elements;
+
+        this._sync();
+    }
+    _sync(){
+        let player = this.media.getPlayer();
+        if(player){
+            player.connect('changed', () => this._sync());
+            this.playerUI.setPlayer(player);
+            this.set_child(this.box);
+        }else{
+            this.set_child(new St.Label({
+                text: 'Nothing Playing',
+                x_align: Clutter.ActorAlign.CENTER,
+                y_align: Clutter.ActorAlign.CENTER
+            }));
+        }
     }
 });
 
