@@ -185,8 +185,13 @@ const MprisPlayer = class MprisPlayer extends EventEmitter {
     }
 };
 
-var PlayerUIElements = class PlayerUIElements{
-    constructor(){
+var Player = GObject.registerClass(
+class Player extends St.BoxLayout{
+    _init(player){
+        super._init();
+
+        this.player = player;
+
         //ELEMENTS
         this.mediaCover = new St.Button({
             y_align: Clutter.ActorAlign.CENTER,
@@ -211,7 +216,6 @@ var PlayerUIElements = class PlayerUIElements{
         this._volumeSlider.connect('notify::value', () => this.player.setVolume(this._volumeSlider.value));
         
         //UI
-        this.style_class = 'media-container';
         this.titleBox = new St.BoxLayout({
             vertical: true,
             style: 'text-align: center',
@@ -219,8 +223,8 @@ var PlayerUIElements = class PlayerUIElements{
         });
         this._mediaTitle.y_align = Clutter.ActorAlign.END;
         this._mediaArtist.y_align = Clutter.ActorAlign.START;
-        this.titleBox.add_child(this._mediaTitle);
         this.titleBox.add_child(this._mediaArtist);
+        this.titleBox.add_child(this._mediaTitle);
 
         this.controlsBox = new St.BoxLayout({
             style_class: 'media-container media-controls',
@@ -240,10 +244,9 @@ var PlayerUIElements = class PlayerUIElements{
 
         //LAYOUT
         //The layout must be assembled by the widget which constructed this.
-    }
-    setPlayer(player){
-        this.player = player;
-        this.player.connect('changed', () => this._sync());
+
+        this.binding = this.player.connect('changed', () => this._sync());
+        this.connect('destroy', () => this.player.disconnect(this.binding));
         this._sync();
     }
     _addButton(iconName, callback){
@@ -267,11 +270,12 @@ var PlayerUIElements = class PlayerUIElements{
         if(this.player.trackCoverUrl !== '')
             this.mediaCover.set_child(new St.Icon({
                 gicon: Gio.Icon.new_for_string(this.player.trackCoverUrl),
-                icon_size: this.mediaCover.height,
+                icon_size: this.mediaCover.width,
             }));
         else
             this.mediaCover.set_child(new St.Icon({
-                icon_name: 'applications-multimedia-symbolic'
+                icon_name: 'applications-multimedia-symbolic',
+                icon_size: Math.floor(this.mediaCover.width/3)
             }));
 
         this.player.canGoNext ? this._nextBtn.reactive = true : this._nextBtn.reactive = false;
@@ -296,7 +300,7 @@ var PlayerUIElements = class PlayerUIElements{
             this._playPauseBtn.reactive = false;
         }
 
-        if(typeof this.player.shuffleStatus !== 'null'){
+        if(this.player.shuffleStatus !== null){
             this._shuffleBtn.reactive = true;
             this._shuffleBtn.show();
             if(this.player.shuffleStatus){
@@ -309,7 +313,7 @@ var PlayerUIElements = class PlayerUIElements{
             this._shuffleBtn.hide();
         }
 
-        if(typeof this.player.loopStatus !== 'null'){
+        if(this.player.loopStatus !== null){
             this._loopBtn.reactive = true;
             this._loopBtn.show();
             switch (this.player.loopStatus) {
@@ -345,13 +349,19 @@ var PlayerUIElements = class PlayerUIElements{
             this.volumeBox.hide();
         }
     }
-};
+});
 
-var Media = class Media extends EventEmitter{
-    constructor(prefer) {
+var Media = GObject.registerClass({
+    Signals: { 'updated' : {} }
+},
+class Media extends St.Bin{
+    constructor() {
         super();
 
-        prefer ? this.prefered = prefer : this.prefered = '';
+        this.settings = ExtensionUtils.getSettings();
+        this.settings.connect('changed::media-player-prefer',
+            () => this.prefered = this.settings.get_string('media-player-prefer'));
+        this.prefered = this.settings.get_string('media-player-prefer');
 
         this._players = new Map();
         this._proxy = new DBusProxy(Gio.DBus.session,
@@ -406,13 +416,13 @@ var Media = class Media extends EventEmitter{
         const iterator = this._players.values();
         return iterator.next().value;
     }
-};
+});
 
 const MediaButton = GObject.registerClass(
 class MediaButton extends PanelMenu.Button{
-    _init(media, settings){
+    _init(settings){
         super._init(0.5, 'Media Player', false);
-        
+        this.settings = settings;
         this.hide();
         this.label = new St.Label({
             text: 'artist - title',
@@ -422,14 +432,51 @@ class MediaButton extends PanelMenu.Button{
         let maxWidth = settings.get_int('media-player-max-width');
         if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
 
-        this.media = media;
-        this.media.connect('updated', () => this.sync());
+        this.media = new Media();
+        this.media.connect('updated', () => this._sync());
 
         //UI
-        let elements = new PlayerUIElements();
-        let layout = settings.get_int('media-player-layout');
-        let box = new St.BoxLayout({ style_class: 'media-player', vertical: true });
+        this.playerContiner = new St.Bin();
+        this.menu.box.add_child(this.playerContiner);
+
+        this._sync();
+        this.connect('destroy', () => {
+            this.media.destroy();
+            this.media = null;
+        });
+    }
+
+    _sync(){
+        let mpris = this.media.getPlayer();
+        if(mpris){
+
+            this.player = new Player(mpris);
+            this._buildPlayerUI();
+            this.playerContiner.set_child(this.player);
+
+            this.player._mediaTitle.connect('notify::text', () => {
+                this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
+            });
+            this.player._mediaArtist.connect('notify::text', () => {
+                this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
+            });
+            this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
+
+
+            this.show();
+        }else{
+            this.hide();
+        }
+    }
+
+    _buildPlayerUI(){
+        let elements = this.player;
+        let box = this.player;
+        box.style_class = 'media-player';
+        box.vertical = true;
         box.style = `max-width: ${elements.controlsBox.width + 50}px`;
+
+        let layout = this.settings.get_int('media-player-layout');
         if(layout === 1){ //compact
             elements.mediaCover.add_style_class_name('media-cover-compact');
             elements.titleBox.x_align = Clutter.ActorAlign.START;
@@ -448,29 +495,17 @@ class MediaButton extends PanelMenu.Button{
             box.add_child(elements.controlsBox);
             box.add_child(elements.volumeBox);
         }
-        this.menu.box.add_child(box);
-        this.playerUI = elements;
-    }
-    sync(){
-        let player = this.media.getPlayer();
-        if(player){
-            player.connect('changed', () => this.sync());
-            this.show();
-            this.label.text = `${player.trackArtists.join(', ')} - ${player.trackTitle}`;
-            this.playerUI.setPlayer(player);
-        }else{
-            this.hide();
-        }
+
     }
 });
 
 const MediaControls = GObject.registerClass(
 class MediaControls extends St.BoxLayout{
-    _init(media){
+    _init(){
         super._init({ visible: false });
 
-        this.hide();
-        this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.prev());
+        // this.hide();
+        this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
         this.playBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
         this.nextBtn = this._addButton('media-skip-forward-symbolic', () => this.player.next());
 
@@ -478,9 +513,19 @@ class MediaControls extends St.BoxLayout{
         this.add_child(this.playBtn);
         this.add_child(this.nextBtn);
 
-        this.media = media;
-        this.media.connect('updated', () => this.sync());
+        this.media = new Media();
+        this.media.connect('updated', () => this._sync());
+
+        this._sync();
+        this._sync();
+        this.connect('destroy', () => {
+            if(this.player){
+                this.player.disconnect(this.binding);
+                this.player = null;
+            }
+        });
     }
+
     _addButton(iconName, callback){
         let btn = new St.Button({
             style_class: 'panel-button',
@@ -492,19 +537,27 @@ class MediaControls extends St.BoxLayout{
         btn.connect('clicked', callback);
         return btn;
     }
-    sync(){
-        let player = this.media.getPlayer();
-        if(player){
+
+    _sync(){
+        let mpris = this.media.getPlayer();
+        if(mpris){
+            this.player = mpris;
+            this.binding = this.player.connect('changed', () => this._syncControls());
+        }else{
+            this.player = null;
+        }
+    }
+    
+    _syncControls(){
+        if(this.player){
             this.show();
-            this.player = player;
-            player.connect('changed', () => this.sync());
 
-            player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
-            player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
+            this.player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
+            this.player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
 
-            if(player.canPlay){
+            if(this.player.canPlay){
                 this.playBtn.show();
-                switch (player.playBackStatus) {
+                switch (this.player.playBackStatus) {
                     case "Playing":
                         this.playBtn.child.icon_name = 'media-playback-pause-symbolic';
                         break;
@@ -548,7 +601,6 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-offset', () => this.reload());
         this.settings.connect('changed::media-player-position', () => this.reload());
         this.settings.connect('changed::media-player-layout', () => this.reload());
-        this.settings.connect('changed::media-player-prefer', () => this.reload());
         this.settings.connect('changed::media-player-controls-position', () => this.reload());
         this.settings.connect('changed::media-player-controls-offset', () => this.reload());
         this.settings.connect('changed::media-player-hide-controls', () => this.reload());
@@ -561,43 +613,45 @@ var Extension = class Extension {
     }
 
     disable() {
-        this.media = null;
         this.settings = null;
 
-        this.panelButton.destroy();
-        this.controls.destroy();
-        this.panelButton = null;
-        this.controls = null;
-        this.enabled = false;
+        if(this.panelButton){
+            this.panelButton.destroy();
+            this.panelButton = null;
+        }
+        if(this.controls){
+            this.controls.destroy();
+            this.controls = null;
+        }
         
         this.stockMpris._shouldShow = this.shouldShow;
         this.stockMpris.visible = this.stockMpris._shouldShow();
     }
 
     reload(){
-        if(this.enabled){
-            this.media = null;     
+        if(this.panelButton){
             this.panelButton.destroy();
             this.panelButton = null;
+        }
+        if(this.controls){
             this.controls.destroy();
             this.controls = null;
         }
-        this.media = new Media(this.settings.get_boolean('media-player-prefer'));
-        this.panelButton = new MediaButton(this.media, this.settings);
-        this.controls = new MediaControls(this.media);
 
         let pos, offset
 
         pos = this.settings.get_int('media-player-position');
         offset = this.settings.get_int('media-player-offset');
-        if(!this.settings.get_boolean('media-player-hide-track'))
+        if(!this.settings.get_boolean('media-player-hide-track')){
+            this.panelButton = new MediaButton(this.settings);
             Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
+        }
 
         pos = this.settings.get_int('media-player-controls-position');
         offset = this.settings.get_int('media-player-controls-offset');
-        if(!this.settings.get_boolean('media-player-hide-controls'))
+        if(!this.settings.get_boolean('media-player-hide-controls')){
+            this.controls = new MediaControls();
             this.panelBox[pos].insert_child_at_index(this.controls, offset);
-    
-        this.enabled = true;
+        }
     }
 }

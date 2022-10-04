@@ -53,7 +53,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout1(){
         this.userBox = new Widgets.UserBox(true);
         this.levelsBox = new Widgets.LevelsBox(false, this);
-        this.mediaBox = new Widgets.MediaBox(false, 150, this.settings);
+        this.mediaBox = new Widgets.MediaBox(false, 150);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(4,3, this);
@@ -89,7 +89,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout2(){
         this.userBox = new Widgets.UserBox(false, 80);
         this.levelsBox = new Widgets.LevelsBox(true, this);
-        this.mediaBox = new Widgets.MediaBox(false, 200, this.settings);
+        this.mediaBox = new Widgets.MediaBox(false, 200);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(2,3, this);
@@ -123,7 +123,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout3(){
         this.userBox = new Widgets.UserBox(false, 80);
         this.levelsBox = new Widgets.LevelsBox(true, this);
-        this.mediaBox = new Widgets.MediaBox(true, 200, this.settings);
+        this.mediaBox = new Widgets.MediaBox(true, 200);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(3,3, this);

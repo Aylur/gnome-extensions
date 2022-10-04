@@ -26,6 +26,9 @@
     <key name="quick-toggles" type="b">
       <default>true</default>
     </key>
+    <key name="notification-indicator" type="b">
+      <default>true</default>
+    </key>
 
 
     <!-- batter-bar -->
@@ -121,6 +124,34 @@
       <default>false</default> 
     </key>
 
+    <key name="date-menu-custom-menu" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="date-menu-hide-events" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="date-menu-hide-clocks" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="date-menu-hide-weather" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="date-menu-hide-media" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="date-menu-hide-system-levels" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="date-menu-hide-user" type="b">
+      <default>false</default>
+    </key>
+
     <!-- media-player -->
     <key name="media-player-position" type="i">
       <default>1</default> 
@@ -182,6 +213,44 @@
 
     <key name="workspace-indicator-show-names" type="b">
       <default>false</default> 
+    </key>
+
+    <!-- quick-toggles -->
+    <key name="quick-toggles-style" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="quick-toggles-hide-notifications" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-toggles-hide-system-levels" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-toggles-hide-media" type="b">
+      <default>false</default>
+    </key>
+
+    <!-- notification-indicator -->
+    <key name="notification-indicator-position" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="notification-indicator-offset" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="notification-indicator-hide-on-zero" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="notification-indicator-menu-width" type="i">
+      <default>500</default>
+    </key>
+
+    <key name="notification-indicator-hide-counter" type="b">
+      <default>false</default>
     </key>
 
   </schema>

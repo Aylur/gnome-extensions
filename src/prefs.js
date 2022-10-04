@@ -5,6 +5,8 @@ const { Adw, Gio, Gtk, GObject } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const { wsNamesGroup } = Me.imports.prefsWS; 
+
 function init() {}
 
 const SpinButton = GObject.registerClass(
@@ -150,12 +152,21 @@ class DateMenuModPage extends Adw.PreferencesPage{
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
-
         group.add(new Switch('Remove Padding', settings, 'date-menu-remove-padding'));
         group.add(new DropDown('Indicator Position', settings, 'date-menu-indicator-position', ["Left", "Right", "Hide"]));
         group.add(new Entry('Date Format', settings, 'date-menu-date-format'));
         group.add(new Switch('Mirrored', settings, 'date-menu-mirror'));
         group.add(new Switch('Hide Notifications', settings, 'date-menu-hide-notifications'));
+
+        const customMenuGroup = new Adw.PreferencesGroup({ title: 'Custom Menu' });
+        this.add(customMenuGroup);
+        customMenuGroup.add(new Switch('Enable Custom Menu', settings, 'date-menu-custom-menu'));
+        customMenuGroup.add(new Switch('Hide User Icon', settings, 'date-menu-hide-user'));
+        customMenuGroup.add(new Switch('Hide Events', settings, 'date-menu-hide-events'));
+        customMenuGroup.add(new Switch('Hide Clocks', settings, 'date-menu-hide-clocks'));
+        customMenuGroup.add(new Switch('Hide Weather', settings, 'date-menu-hide-weather'));
+        customMenuGroup.add(new Switch('Hide Media Player', settings, 'date-menu-hide-media'));
+        customMenuGroup.add(new Switch('Hide System Levels', settings, 'date-menu-hide-system-levels'));
     }
 });
 
@@ -214,8 +225,8 @@ class PowerMenuPage extends Adw.PreferencesPage{
     }
 });
 
-const WorkspaceIndicator = GObject.registerClass(
-class WorkspaceIndicator extends Adw.PreferencesPage{
+const WorkspaceIndicatorPage = GObject.registerClass(
+class WorkspaceIndicatorPage extends Adw.PreferencesPage{
     _init(settings){
         super._init({
             title: 'Workspace Indicator',
@@ -232,11 +243,13 @@ class WorkspaceIndicator extends Adw.PreferencesPage{
         group.add(new DropDown('Position', settings, 'workspace-indicator-position', ["Left", "Center", "Right"]));
         group.add(new SpinButton('Offset', settings, 'workspace-indicator-offset', 0, 12, 1));
         group.add(new Switch('Show Names', settings, 'workspace-indicator-show-names'));
+
+        this.add(new wsNamesGroup());
     }
 });
 
-const QuickToggles = GObject.registerClass(
-class QuickToggles extends Adw.PreferencesPage{
+const QuickTogglesPage = GObject.registerClass(
+class QuickTogglesPage extends Adw.PreferencesPage{
     _init(settings){
         super._init({
             title: 'Quick Toggles',
@@ -246,6 +259,37 @@ class QuickToggles extends Adw.PreferencesPage{
         const toggleGroup = new Adw.PreferencesGroup();
         toggleGroup.add(new Switch('Quick Toggles', settings, 'quick-toggles'));
         this.add(toggleGroup);
+
+        const group = new Adw.PreferencesGroup();
+        this.add(group);
+
+        group.add(new DropDown('Stlye', settings, 'quick-toggles-style', ["Normal", "Separated", "Compact"]));
+        group.add(new Switch('Hide Notifications', settings, 'quick-toggles-hide-notifications'));
+        group.add(new Switch('Hide System Levels', settings, 'quick-toggles-hide-system-levels'));
+        group.add(new Switch('Hide Media', settings, 'quick-toggles-hide-media'));
+    }
+});
+
+const NotificationIndicatorPage = GObject.registerClass(
+class NotificationIndicatorPage extends Adw.PreferencesPage{
+    _init(settings){
+        super._init({
+            title: 'Notification Indicator',
+            icon_name: 'org.gnome.Settings-notifications-symbolic'
+        });
+
+        const toggleGroup = new Adw.PreferencesGroup();
+        toggleGroup.add(new Switch('Notification Indicator', settings, 'notification-indicator'));
+        this.add(toggleGroup);
+
+        const group = new Adw.PreferencesGroup();
+        this.add(group);
+
+        group.add(new DropDown('Position', settings, 'notification-indicator-position', ["Left", "Center", "Right", "QuickSettings"]));
+        group.add(new SpinButton('Offset', settings, 'notification-indicator-offset', 0, 12, 1));
+        group.add(new Switch('Hide on Zero', settings, 'notification-indicator-hide-on-zero'));
+        group.add(new SpinButton('Menu Width', settings, 'notification-indicator-menu-width', 100, 1000, 10));
+        group.add(new Switch('Hide Counter', settings, 'notification-indicator-hide-counter'));
     }
 });
 
@@ -256,7 +300,8 @@ function fillPreferencesWindow(window) {
     window.add(new DateMenuModPage(settings));
     window.add(new MediaPlayerPage(settings));
     window.add(new PowerMenuPage(settings));
-    window.add(new WorkspaceIndicator(settings));
-    window.add(new QuickToggles(settings));
+    window.add(new WorkspaceIndicatorPage(settings));
+    window.add(new QuickTogglesPage(settings));
+    window.add(new NotificationIndicatorPage(settings));
     window.search_enabled = true;    
 }

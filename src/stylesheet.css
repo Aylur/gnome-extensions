@@ -15,6 +15,22 @@
     background-color: #33d17a;
 }
 
+/* usage-levels */
+.level-bar{
+    height: 16px; /* horizontal width */
+    width: 16px; /* vertical width */
+    border-radius: 12px;
+    margin: 0;
+}
+.level-fill{
+    border-radius: 12px;
+    border: none;
+    box-shadow: none;
+}
+.usage-level StIcon{ icon-size: 22px; }
+.usage-level StLabel{ width: 2.3em; }
+  
+
 /* Dash Board */
 .db-dashboard{}
 .db-dashboard-content{ margin: 20px; }
@@ -23,34 +39,9 @@
 
 /* user-box */
 .db-user-icon{
-  border-radius: 10px;
+    border-radius: 10px;
 }
 .db-user-box{}
-
-/* levels-box */
-.db-dashboard .usage-level StIcon{ icon-size: 22px; }
-.db-dashboard .usage-level StLabel{ width: 2.2em; }
-.db-dashboard .level-bar{
-  height: 16px; /* horizontal width */
-  width: 16px; /* vertical width */
-  border-radius: 12px;
-  margin: 0;
-}
-.db-dashboard .level-fill{
-  border-radius: 12px;
-}
-
-/* media-box */
-.db-dashboard .media-container{ spacing: 8px; }
-.db-dashboard .media-cover{
-    padding: 4px;
-    border-radius: 0;
-}
-.db-dashboard .message-media-control{ padding: 6px; margin: 0; }
-.db-dashboard .message-media-control StIcon{ icon-size: 24px; }
-.db-dashboard .message-media-control:first-child StIcon,
-.db-dashboard .message-media-control:last-child StIcon,
-.db-dashboard .media-volume StIcon{ icon-size: 18px; }
 
 /* clock-box */
 .db-clock{ font-size: 2.4em; width: 3em; text-align: center; }
@@ -62,18 +53,31 @@
 
 /* date-menu-mod */
 #panel .panel-button.clock-display{
-  -natural-hpadding: 0;
-  -minimum-hpadding: 0;
+    -natural-hpadding: 0;
+    -minimum-hpadding: 0;
 }
+.datemenu-calendar-column{ padding-left: 0; padding-right: 0; }
+
+.datemenu-menu-box{ spacing: 10px; }
+.datemenu-menu-box > .media-container{ padding: 20px; }
+
+.datemenu-user{ padding-top: 30px; }
+.datemenu-user > StButton{
+    width: 160px;
+    height: 160px;
+    padding: 2px;
+    border-radius: 99px;
+}
+.datemenu-user > StButton > StWidget{ border-radius: 99px; }
+
+.datemenu-date{ padding: 6px; padding-left: 20px; }
+.datemenu-date .day-label{ font-weight: 500; font-size: 1.2; }
+.datemenu-date .date-label{ font-weight: 700; font-size: 1.3em; }
+
+.date-menu-levels{ spacing: 8px; }
 
 /* media */
-.media-player{ padding: 16px; }
-.media-player,
-.media-player .media-container{ spacing: 8px; }
-.media-player .media-cover{
-    padding: 4px;
-    border-radius: 0;
-}
+.media-player{ padding: 16px; spacing: 8px }
 .media-player .media-cover-normal{
     width: 180px;
     height: 180px;
@@ -82,20 +86,16 @@
     width: 50px;
     height: 50px;
 }
-.media-player .message-media-control{
-    padding: 6px;
-    margin: 0;
-}
-.media-player .message-media-control StIcon{ icon-size: 24px; }
-.media-player .message-media-control:first-child StIcon,
-.media-player .message-media-control:last-child StIcon,
-.media-player .media-volume StIcon{ icon-size: 18px; }
 
-/* controls */
-.media-player-content .message-media-control{ padding: 8px; margin: 0;}
-.media-player-content .message-media-control StIcon{ icon-size: 2em; }
-.media-player-content .message-media-control:last-child StIcon{ icon-size: 1.6em; }
-.media-player-content .message-media-control:first-child StIcon{ icon-size: 1.6em; }
+/* player-ui */
+.media-container{ spacing: 8px; }
+.media-cover{ padding: 4px; border-radius: 0; }
+.media-container .message-media-control{ padding: 6px; margin: 0; }
+.media-container .message-media-control StIcon{ icon-size: 24px; }
+.media-container .message-media-control:first-child StIcon,
+.media-container .message-media-control:last-child StIcon,
+.media-volume StIcon{ icon-size: 18px; }
+
 
 /* power-menu */
 .power-menu-button:hover{ color: #f66151; }
@@ -148,17 +148,22 @@
     box-shadow: none;
     spacing: 10px;
 }
-.quick-settings-main .quick-settings{ width: 400px; spacing: 10px; }
-
+.quick-settings-main{ width: 420px; spacing: 10px; }
+.quick-settings-main .quick-settings{ spacing: 10px; }
 .quick-settings-main .quick-settings > .button{ border-radius: 14px;}
-.quick-settings-main .quick-settings .quick-toggle{ border-radius: 14px; }
-.quick-settings-main .quick-settings .quick-toggle .quick-toggle-arrow{ border-radius: 0 14px 14px 0; }
-.quick-settings-main .quick-settings .levels-container{ spacing: 10px; border-radius: 14px; padding: 8px; width: 120px; }
-
+.quick-settings-main .quick-toggle,
+.quick-settings-main .quick-power{ border-radius: 14px; }
+.quick-settings-main .quick-toggle .quick-toggle-arrow{ border-radius: 0 14px 14px 0; }
+.quick-settings-main .levels-container{ spacing: 10px; border-radius: 14px; padding: 8px; width: 120px; }
+.quick-settings-main .system-actions .button{
+    border-radius: 14px;
+    margin: 0;
+}
+.quick-settings-main .system-actions StIcon { icon-size: 30px; }
 /* system */
-.quick-settings-main .quick-settings .quick-toggles-system{ spacing: 8px; }
-.quick-settings-main .quick-settings .user-btn{ padding: 0; }
-.quick-settings-main .quick-settings .user-icon{
+.quick-settings-main .quick-toggles-system{ spacing: 8px; }
+.quick-settings-main .user-btn{ padding: 0; }
+.quick-settings-main .user-icon{
     margin: 2px;
     min-width:  60px;
     min-height: 60px;
@@ -168,62 +173,41 @@
 .quick-settings-main .quick-toggles-system .icon-button StIcon{ icon-size: 2em; margin: 8px; }
 
 /* media */
-.quick-settings-main .quick-settings .media-container{ spacing: 8px; }
-.quick-settings-main .quick-settings .media-cover{
+.quick-settings-main .media-cover{
     width: 120px;
     height: 120px;
-    padding: 0;
-    border-radius: 0;
 }
-.quick-settings-main .quick-settings .media-cover StIcon{ icon-size: 116px; }
-.quick-settings-main .quick-settings .message-media-control{
-    padding: 6px;
-    margin: 0;
-}
-.quick-settings-main .quick-settings .message-media-control StIcon{ icon-size: 24px; }
-.quick-settings-main .quick-settings .message-media-control:first-child StIcon,
-.quick-settings-main .quick-settings .message-media-control:last-child StIcon,
-.quick-settings-main .quick-settings .media-volume StIcon{ icon-size: 18px; }
 
 /* slider */
-.quick-settings-main .quick-settings .quick-slider .icon-button{ padding: 0; }
-.quick-settings-main .quick-settings .quick-toggle-menu{ margin: 10px 0; }
+.quick-settings-main .quick-slider .icon-button{ padding: 0; }
+.quick-settings-main .quick-toggle-menu{ margin: 10px 0; }
 
 /* quick-toggles */
-.quick-settings-main .quick-settings .quick-toggles-grid{ spacing: 10px; }
-.quick-settings-main .quick-settings .hbox{ spacing: 10px; height: 180px; }
-.quick-settings-main .quick-settings .quick-toggle{
+.quick-settings-main .container{ spacing: 10px; }
+.quick-settings-main .quick-toggle{
     min-width: 3em;
     min-height: 3em;
 }
-.quick-settings-main .quick-settings .quick-toggle > StBoxLayout { padding: 0; }
-.quick-settings-main .quick-settings .quick-toggle StIcon{ icon-size: 1.8em; }
-.quick-settings-main .quick-settings .quick-toggle-long > StBoxLayout > StIcon { padding-left: 1em; }
-.quick-settings-main .quick-settings .quick-toggle-long > StBoxLayout > StLabel { padding-right: 1em; }
-.quick-settings-main .quick-settings .usage-level{ spacing: 8px; }
+.quick-settings-main .quick-toggle > StBoxLayout { padding: 0; }
+.quick-settings-main .quick-toggle StIcon{ icon-size: 1.8em; }
+.quick-settings-main .quick-toggle-long > StBoxLayout > StIcon { padding-left: 1em; }
+.quick-settings-main .quick-toggle-long > StBoxLayout > StLabel { padding-right: 1em; }
+.quick-settings-main .usage-level{ spacing: 8px; }
 
 .quick-settings-main .quick-toggle .wifi-menu{ margin: 0; }
 
-/* system-levels */
-.quick-settings-main .quick-settings .usage-level StIcon{ icon-size: 22px; }
-.quick-settings-main .quick-settings .usage-level StLabel{ width: 2.2em; }
-.quick-settings-main .quick-settings .level-bar{
-    height: 16px; /* horizontal width */
-    width: 16px; /* vertical width */
-    border-radius: 12px;
-    margin: 0;
-}
-.quick-settings-main .quick-settings .level-fill{
-    border-radius: 12px;
-}
-
 /* bottom */
-.quick-settings-main .quick-settings .quick-toggles-bottom{ padding: 0 1em; }
-.quick-settings-main .quick-settings .quick-power StIcon{ icon-size: 1em; margin-right: 4px; }
+.quick-settings-main .quick-toggles-bottom{ padding: 0 1em; }
+.quick-settings-main .quick-power StIcon{ icon-size: 1em; margin-right: 4px; }
 
 /* notifications */
-.quick-settings-main .quick-settings .clear-button{
-    padding: 4px 12px;
+.quick-settings-main .message-list-clear-button{ padding: 4px 16px; }
+
+/* notification-indicator */
+.notification-indicator StIcon{
+    padding: 0;
     margin: 0;
-    border-radius: 10px;
 }
+.notification-indicator > StBoxLayout{ spacing: 4px; }
+.notifications .list{ margin-left: 8px; }
+.notifications .header-box{ padding: 10px; }

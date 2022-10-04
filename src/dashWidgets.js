@@ -7,7 +7,7 @@ const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const SystemActions = imports.misc.systemActions;
-const { Media, PlayerUIElements } = Me.imports.mediaPlayer;
+const MediaPlayer = Me.imports.mediaPlayer;
 const SystemLevels = Me.imports.systemLevels;
 
 // USERBOX
@@ -108,16 +108,13 @@ class LevelsBox extends St.BoxLayout{
         parentDialog.connect('closed', () => this.stopTimeout());
     }
     startTimeout(){
-        let levels = this;
-        function update(){
-            levels.updateLevels();
-            return true;
-        }
-        this.timeout = Mainloop.timeout_add_seconds(1.0, update);
+        this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
     }
     stopTimeout(){
-        if(this.timeout)
+        if(this.timeout){
             Mainloop.source_remove(this.timeout);
+            this.timeout = null;
+        }
     }
     updateLevels(){
         this.levels.forEach(l => {
@@ -138,7 +135,7 @@ class LevelsBox extends St.BoxLayout{
 //MEDIA
 var MediaBox = GObject.registerClass(
 class MediaBox extends St.Bin{
-    _init(vertical, coverSize, settings){
+    _init(vertical, coverSize){
         super._init({
             x_expand: true,
             y_expand: true,
@@ -146,18 +143,42 @@ class MediaBox extends St.Bin{
             reactive: true,
         });
 
-        this.media = new Media(settings.get_boolean('media-player-prefer'));
+        this.vertical = vertical;
+        this.coverSize = coverSize;
+
+        this.media = new MediaPlayer.Media();
         this.media.connect('updated', () => this._sync());
 
-        //UI
-        let elements = new PlayerUIElements();
-        elements.mediaCover.width = coverSize;
-        elements.mediaCover.height = coverSize;
-        this.box = new St.BoxLayout({
-            style_class: 'media-container',
-            vertical: vertical,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
+        this._sync();
+    }
+
+    _sync(){
+        let mpris = this.media.getPlayer();
+        if(mpris){
+
+            this.player = new MediaPlayer.Player(mpris);
+            this._buildPlayerUI();
+            this.set_child(this.player);
+            
+        }else{
+            this.set_child(new St.Label({
+                text: 'Nothing Playing',
+                x_align: Clutter.ActorAlign.CENTER,
+                y_align: Clutter.ActorAlign.CENTER
+            }));
+        }
+    }
+
+    _buildPlayerUI(){
+        let elements = this.player;
+        let box = this.player;
+
+        elements.mediaCover.width = this.coverSize;
+        elements.mediaCover.height = this.coverSize;
+        box.style_class = 'media-container';
+        box.vertical = this.vertical;
+        box.y_align = Clutter.ActorAlign.CENTER;
+
         let vbox = new St.BoxLayout({
             style_class: 'media-container',
             vertical: true,
@@ -168,25 +189,9 @@ class MediaBox extends St.Bin{
         vbox.add_child(elements.titleBox);
         vbox.add_child(elements.controlsBox);
         vbox.add_child(elements.volumeBox);
-        this.box.add_child(elements.mediaCover);
-        this.box.add_child(vbox);
-        this.playerUI = elements;
 
-        this._sync();
-    }
-    _sync(){
-        let player = this.media.getPlayer();
-        if(player){
-            player.connect('changed', () => this._sync());
-            this.playerUI.setPlayer(player);
-            this.set_child(this.box);
-        }else{
-            this.set_child(new St.Label({
-                text: 'Nothing Playing',
-                x_align: Clutter.ActorAlign.CENTER,
-                y_align: Clutter.ActorAlign.CENTER
-            }));
-        }
+        box.add_child(elements.mediaCover);
+        box.add_child(vbox);
     }
 });
 
