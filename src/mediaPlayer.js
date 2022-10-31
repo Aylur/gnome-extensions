@@ -187,10 +187,10 @@ const MprisPlayer = class MprisPlayer extends EventEmitter {
 
 var Player = GObject.registerClass(
 class Player extends St.BoxLayout{
-    _init(player){
+    _init(mprisPlayer){
         super._init();
 
-        this.player = player;
+        this.player = mprisPlayer;
 
         //ELEMENTS
         this.mediaCover = new St.Button({

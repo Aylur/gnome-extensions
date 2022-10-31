@@ -69,8 +69,6 @@ class CustomMenu extends St.BoxLayout{
         clocksItem.get_parent().remove_child(clocksItem);
         weatherItem.get_parent().remove_child(weatherItem);
 
-        calendar.add_style_class_name('events-button');
-
         //clock
         let clockBox = new St.BoxLayout({
             vertical: true,
@@ -114,40 +112,54 @@ class CustomMenu extends St.BoxLayout{
         userBox.add_child(userName);
         userBox.add_child(this.greet);
 
-        //media
-        this.media = new MediaPlayer.Media();
-        this.media.connect('updated', () => this._syncMedia());
-        this.mediaBox = new St.Bin({
-            style_class: 'events-button',
-        });
-        this._syncMedia();
-
         //calendar
-        let vbox = new St.BoxLayout({
+        let calendarBox = new St.Bin({
             x_align: Clutter.ActorAlign.CENTER,
-            vertical: true
+            style_class: 'events-button'
         });
-        vbox.add_child(clockBox);
-        vbox.add_child(calendar);
-        if(!settings.get_boolean('date-menu-hide-events'))
-            vbox.add_child(eventsItem);
-
+        calendarBox.set_child(calendar);
 
         //UI
+        let scrollView = new St.ScrollView({
+            x_expand: true,
+            overlay_scrollbars: false,
+            enable_mouse_scrolling: true,
+        });
+        scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.NEVER);
+
+        let scrollItems = new St.BoxLayout({
+            vertical: true,
+        });
+        scrollView.add_actor(scrollItems);
+
         if(!settings.get_boolean('date-menu-hide-user'))
             this.add_child(userBox);
-        this.add_child(vbox);
+
+        this.add_child(calendarBox);
+
+        if(!settings.get_boolean('date-menu-hide-events'))
+            scrollItems.add_child(eventsItem);
         if(!settings.get_boolean('date-menu-hide-clocks'))
-            this.add_child(clocksItem);
+            scrollItems.add_child(clocksItem);
         if(!settings.get_boolean('date-menu-hide-weather'))
-            this.add_child(weatherItem);
+            scrollItems.add_child(weatherItem);
 
-        if(!settings.get_boolean('date-menu-hide-media'))
-            this.add_child(this.mediaBox);
+        //media
+        if(!settings.get_boolean('date-menu-hide-media')){
+            this.media = new MediaPlayer.Media();
+            this.media.connect('updated', () => this._syncMedia());
+            this.mediaBox = new St.Bin({
+                style_class: 'events-button',
+            });
+            this._syncMedia();
 
+            scrollItems.add_child(this.mediaBox);
+        }
+
+        //system-levels
         if(!settings.get_boolean('date-menu-hide-system-levels')){
             this.levels = new LevelsBox();
-            this.add_child(this.levels);
+            scrollItems.add_child(this.levels);
 
             let bind = DateMenu.menu.connect('open-state-changed', (self, open) => {
                 if(open) this.levels.startTimeout();
@@ -161,6 +173,7 @@ class CustomMenu extends St.BoxLayout{
             });
         }
 
+        this.add_child(scrollView);
         this.updateTexts();
     }
 

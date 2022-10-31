@@ -197,6 +197,7 @@ class SystemActionsBox extends St.BoxLayout{
         this._addBtn('system-shutdown-symbolic',
             () => SystemActions.getDefault().activateAction('power-off'));
     }
+
     _addBtn(iconName, callback){
         let btn = new St.Button({
             style_class: 'button ',
@@ -225,17 +226,20 @@ class NightLightSlider extends QuickSlider {
         this.slider.connect('notify::value', () => this._sliderChanged());
         this._sync();
     }
+
     _sliderChanged(){
         let value = (1 - this.slider.value) * (NIGHT_LIGHT_MAX - NIGHT_LIGHT_MIN);
         value += NIGHT_LIGHT_MIN;
         this._settings.set_uint('night-light-temperature', value);
     }
+
     _settingsChanged(){
         let value = this._settings.get_uint('night-light-temperature');
         value -= NIGHT_LIGHT_MIN;
         value /= (NIGHT_LIGHT_MAX - NIGHT_LIGHT_MIN);
         this.slider.value = (1 - value);
     }
+    
     _sync() {
         this._settings.get_boolean('night-light-enabled')?
             this.show() : this.hide();
@@ -579,6 +583,9 @@ var Extension = class Extension {
         this.qs.menu.box.remove_style_class_name('quick-settings-main')
         this.qs.menu.box.style = '';
 
+        if(this.quickToggles.levels)
+            this.quickToggles.levels.stopTimeout();
+        
         this.qsChildren.forEach(ch => {
             this.qs.menu.box.add_child(ch);
         });

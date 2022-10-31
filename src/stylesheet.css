@@ -58,7 +58,6 @@
 }
 .datemenu-calendar-column{ padding-left: 0; padding-right: 0; }
 
-.datemenu-menu-box{ spacing: 10px; }
 .datemenu-menu-box > .media-container{ padding: 20px; }
 
 .datemenu-user{ padding-top: 30px; }
@@ -67,6 +66,7 @@
     height: 160px;
     padding: 2px;
     border-radius: 99px;
+    margin-bottom: 10px;
 }
 .datemenu-user > StButton > StWidget{ border-radius: 99px; }
 

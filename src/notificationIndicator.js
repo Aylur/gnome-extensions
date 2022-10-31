@@ -125,7 +125,7 @@ class PanelButton extends PanelMenu.Button{
         this.connect('destroy', () => settings.disconnect(bind));
 
         let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height -20;
-        this.menu.box.style = `max-height: ${maxHeight}px; `;
+        this.menu.box.style = `max-height: ${maxHeight}px;`;
     }
 });
 

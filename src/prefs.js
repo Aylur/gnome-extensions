@@ -135,6 +135,9 @@ class DashBoardPage extends Adw.PreferencesPage{
         this.add(dashGroup);
 
         dashGroup.add(new SpinButton('Layout', settings, 'dash-layout', 1, 3, 1));
+        dashGroup.add(new SpinButton('App Launcher Rows', settings, 'dash-apps-rows', 1, 5, 1));
+        dashGroup.add(new SpinButton('App Launcher Columns', settings, 'dash-apps-cols', 1, 5, 1));
+        dashGroup.add(new SpinButton('App Launcher Size', settings, 'dash-app-icon-size', 16, 64, 2));
     }
 });
 
@@ -293,6 +296,68 @@ class NotificationIndicatorPage extends Adw.PreferencesPage{
     }
 });
 
+const BackgroundClockPage = GObject.registerClass(
+class BackgroundClockPage extends Adw.PreferencesPage{
+    _init(settings){
+        super._init({
+            title: 'Background Clock',
+            icon_name: 'org.gnome.clocks-symbolic'
+        });
+
+        const group = new Adw.PreferencesGroup();
+        this.add(group);
+        
+        group.add(new DropDown('Position', settings, 'background-clock-position',
+        ['Top Left', 'Top Center', 'Top Right',
+        'Middle Left', 'Middle Center', 'Middle Right',
+        'Bottom Left', 'Bottom Center', 'Bottom Right']));
+
+        group.add(new SpinButton('Offset', settings, 'background-clock-offset', 0, 500, 5));
+        group.add(new SpinButton('Clock Size', settings, 'background-clock-clock-size', 1, 200, 2));
+        group.add(new SpinButton('Date Size', settings, 'background-clock-date-size', 1, 200, 2));
+
+        group.add(new Entry('Clock Format', settings, 'background-clock-clock-format'));
+        group.add(new Entry('Date Format', settings, 'background-clock-date-format'));
+        group.add(new Entry('Color', settings, 'background-clock-color'));
+
+        let cssRow = new Entry('Other CSS', settings, 'background-clock-other-css');
+        cssRow.subtitle = "Text Shadow might be glitchy sometimes";
+        group.add(cssRow);
+
+        let textBox = new Gtk.Box();
+        textBox.append(new Gtk.Label({
+            xalign: 0,
+            label:`
+            Date Formats:
+
+            %M - minutes 00-59
+            %H - hour 00-23
+            %I - hour 01-12
+            %k - hour 0-23
+            %l - hour 1-12
+            %p - AM PM
+            %P - am pm
+
+            %C - century 00-99
+            %j - day of year 001-366`
+        }));
+        textBox.append(new Gtk.Label({
+            xalign: 0,
+            label:`
+            %a - weekday abr
+            %A - weekday name
+            %b - monthname abr
+            %B - monthname name
+            %Y - year 2000
+            %d - day 01-31
+            %e - day 1-31
+            %m - month 01-12`
+        }));
+
+        group.add(textBox);
+   }
+});
+
 function fillPreferencesWindow(window) {
     const settings = ExtensionUtils.getSettings();
     window.add(new BatteryBarPage(settings));
@@ -303,5 +368,6 @@ function fillPreferencesWindow(window) {
     window.add(new WorkspaceIndicatorPage(settings));
     window.add(new QuickTogglesPage(settings));
     window.add(new NotificationIndicatorPage(settings));
+    window.add(new BackgroundClockPage(settings));
     window.search_enabled = true;    
 }

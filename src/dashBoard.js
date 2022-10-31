@@ -56,7 +56,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.mediaBox = new Widgets.MediaBox(false, 150);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(4,3, this);
+        this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(false, 32, this);
         this.sysActionsBox = new Widgets.SysActionsBox(0, 32, this);
 
@@ -92,7 +92,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.mediaBox = new Widgets.MediaBox(false, 200);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(2,3, this);
+        this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(false, 34, this);
         this.sysActionsBox = new Widgets.SysActionsBox(2, 50, this);
 
@@ -126,7 +126,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.mediaBox = new Widgets.MediaBox(true, 200);
         this.linksBox = new Widgets.LinksBox(false, this.settings, this);
         this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(3,3, this);
+        this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(true, 40, this);
         this.sysActionsBox = new Widgets.SysActionsBox(1, 58, this);
 
@@ -191,6 +191,7 @@ class DashBoardPanelButton extends St.Button{
         this.buttonIcon.visible = !this.settings.get_boolean('dash-button-icon-hide')
         this.settings.connect('changed::dash-button-icon-hide', 
             () => this.buttonIcon.visible = !this.settings.get_boolean('dash-button-icon-hide'));
+        box.add_child(this.buttonIcon);
         
         //LABEL
         this.buttonLabel = new St.Label({
@@ -203,7 +204,6 @@ class DashBoardPanelButton extends St.Button{
             'text',
             Gio.SettingsBindFlags.DEFAULT
         );
-        box.add_child(this.buttonIcon);
         box.add_child(this.buttonLabel);
 
         //SHORTCUT
@@ -211,39 +211,47 @@ class DashBoardPanelButton extends St.Button{
         Main.wm.addKeybinding('dash-shortcut', this.settings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.ALL,
-            () => this.toggleDash());
-
-        this.connect('destroy', () => Main.wm.removeKeybinding('dash-shortcut'));
+            () => this._toggleDash());
 
         // DASH
-        this.dash = new DashBoardModal(this.settings);
-        this.dash.connect('closed', () => this.remove_style_pseudo_class('active'));
-        this.dash.connect('opened', () => {this.opened = true});
-        this.dash.connect('closed', () => {this.opened = false});
+        this._reloadDash();
+        this.settings.connect('changed::dash-layout', this._reloadDash.bind(this));
 
-        this.settings.connect('changed::dash-layout',
-            () => {
-                this.dash.destroy();
-                this.dash = new DashBoardModal(this.settings);
-                this.dash.connect('closed', () => this.remove_style_pseudo_class('active'));
-            }
-        );
+        this.connect('destroy', this._onDestroy.bind(this));
     }
-    openDash(){
+
+    _reloadDash(){
+        if(this.dash) this.dash.destroy()
+
+        this.dash = new DashBoardModal(this.settings);
+        this.dash.connectObject(
+            'closed', () => {
+                this.remove_style_pseudo_class('active');
+                this.opened = false;
+            },
+            'opened', () => this.opened = true,
+            this 
+        )
+    }
+
+    _openDash(){
         this.opened = true;
         this.dash.open();
         this.add_style_pseudo_class('active');
     }
-    closeDash(){
+
+    _closeDash(){
         this.opened = false;
         this.dash.close();
         this.remove_style_pseudo_class('active');
     }
-    toggleDash(){
-        if(this.opened)
-            this.closeDash();
-        else
-            this.openDash();
+
+    _toggleDash(){
+        this.opened ? this._closeDash() : this._openDash()
+    }
+
+    _onDestroy(){
+        Main.wm.removeKeybinding('dash-shortcut');
     }
 });
 
@@ -272,7 +280,7 @@ var Extension = class Extension {
         this._panelButton.destroy();
         this._panelButton = null;
         this.activitiesBin.set_child(this.activities);
-        this.settings = false;
+        this.settings = null;
     }
 
     addButtonToPanel(){

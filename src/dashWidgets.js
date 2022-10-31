@@ -6,6 +6,7 @@ const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
+const Dash = imports.ui.dash;
 const SystemActions = imports.misc.systemActions;
 const MediaPlayer = Me.imports.mediaPlayer;
 const SystemLevels = Me.imports.systemLevels;
@@ -310,67 +311,99 @@ class ClockBox extends St.BoxLayout{
 });
 
 const AppBtn = GObject.registerClass(
-class AppBtn extends St.Button{
-    _init(app, parentDialog){
-        super._init({
-            style_class: 'popup-menu-item db-app-btn',
-            x_expand: true,
-            child: new St.Icon({
-                gicon: app.get_icon(),
-                style_class: 'db-app-icon',
-            }),
-            can_focus: true,
-        });
+class AppBtn extends Dash.DashIcon{
+    _init(app, parentDialog, settings, pos){
+        super._init(app);
+
+        this.app = app;
+        this.pos = pos;
+        this.settings = settings;
+
         this.connect('clicked', () => {
-            app.activate();
             parentDialog.close();
         });
+
+        this._changeIconSize();
+        this.settings.connect('changed::dash-app-icon-size', this._changeIconSize.bind(this));
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        this.settings.run_dispose();
+        this.settings = null;
+    }
+
+    _changeIconSize(){
+        this.icon.setIconSize(this.settings.get_int('dash-app-icon-size'));
+    }
+
+    acceptDrop(source){
+        AppFavorites.getAppFavorites().moveFavoriteToPos(
+            source.app.get_id(),
+            this.pos
+        )
     }
 });
 
 var AppBox = GObject.registerClass(
 class AppBox extends St.BoxLayout{
-    _init(cols, rows, parentDialog){
+    _init(settings, parentDialog){
         super._init({
             vertical: true,
-            style_class: 'events-button db-container db-app-box',
+            style_class: 'events-button db-container',
             y_expand: true,
             x_expand: true,
             reactive: true,
         });
-        this.cols = cols;
-        this.rows = rows;
+
+        this.settings = settings;
         this.parentDialog = parentDialog;
+
+        this.settings.connect('changed::dash-apps-rows', this._reload.bind(this));
+        this.settings.connect('changed::dash-apps-cols', this._reload.bind(this));
+        AppFavorites.getAppFavorites().connectObject('changed', this._reload.bind(this), this);
+        this._reload();
         
-        this.parentDialog.connect('opened', () => this.reload());
+        this.connect('destroy', this._onDestroy.bind(this));
     }
-    reload(){
-        this.hboxes = [];
+
+    _reload(){
+        this.rows = [];
         this.remove_all_children();
         this._buildUI();
     }
+
     _buildUI(){
+        let rows = this.settings.get_int('dash-apps-rows');
+        let cols = this.settings.get_int('dash-apps-cols');
+
         let favs = AppFavorites.getAppFavorites().getFavorites();
-        for (let i = 0; i < this.rows; i++) {
-            let box = new St.BoxLayout({
+        for (let i = 0; i < rows; i++) {
+            let row = new St.BoxLayout({
                 style_class: 'db-container',
                 y_expand: true,
                 x_expand: true,
                 y_align: Clutter.ActorAlign.CENTER,
                 x_align: Clutter.ActorAlign.CENTER,
             });
-            this.hboxes.push(box);
-            this.add_child(box);
+            this.rows.push(row);
+            this.add_child(row);
         }
         let k = 0;
         for (let i = 0; i < favs.length; i++) {
-            if(i !== 0 && i%this.cols === 0) k++;
-            if(this.hboxes[k]){
-                this.hboxes[k].add_child(new AppBtn(favs[i], this.parentDialog));
+            if(i !== 0 && i%cols === 0) k++;
+            if(this.rows[k]){
+                this.rows[k].add_child(new AppBtn(favs[i], this.parentDialog, this.settings, i));
             }else{
                 return;
             }
         }
+    }
+
+    _onDestroy(){
+        AppFavorites.getAppFavorites().disconnectObject(this);
+        this.settings.run_dispose();
+        this.settings = null;
     }
 });
 
@@ -385,7 +418,8 @@ class SysBtn extends St.Button{
                 icon_size: iconSize
             }),
             y_expand: true,
-            can_focus: true,
+            x_expand: true,
+            can_focus: true
         });
         this.connect('clicked', callback);
         this.connect('clicked', () => parentDialog.close());

@@ -29,6 +29,9 @@
     <key name="notification-indicator" type="b">
       <default>true</default>
     </key>
+    <key name="background-clock" type="b">
+      <default>true</default>
+    </key>
 
 
     <!-- batter-bar -->
@@ -101,6 +104,18 @@
     <key name="dash-link-urls" type="as">
       <default>['https://www.reddit.com/', 'https://www.youtube.com/', 'https://www.gmail.com/', 'https://twitter.com/', 'https://www.github.com/']</default>
       <description>needs shell reload for this</description>
+    </key>
+
+    <key name="dash-apps-rows" type="i">
+      <default>3</default>
+    </key>
+
+    <key name="dash-apps-cols" type="i">
+      <default>3</default>
+    </key>
+    
+    <key name="dash-app-icon-size" type="i">
+      <default>42</default>
     </key>
 
     <!-- date-menu-mod -->
@@ -251,6 +266,64 @@
 
     <key name="notification-indicator-hide-counter" type="b">
       <default>false</default>
+    </key>
+
+    <!-- background-clock -->
+    <key name="background-clock-position" type="i">
+      <default>8</default>
+    </key>
+
+    <key name="background-clock-offset" type="i">
+      <default>24</default>
+    </key>
+
+    <key name="background-clock-clock-size" type="i">
+      <default>36</default>
+    </key>
+
+    <key name="background-clock-date-size" type="i">
+      <default>30</default>
+    </key>
+
+    <key name="background-clock-color" type="s">
+      <default>"#fff"</default>
+    </key>
+
+    <key name="background-clock-other-css" type="s">
+      <default>"text-shadow: 0 0 1px black"</default>
+    </key>
+
+    <key name="background-clock-clock-format" type="s">
+      <default>"%H:%M"</default>
+      <description>
+        M - minutes 00-59
+        H - hour 00-23
+        I - hour 01-12
+        k - hour 0-23
+        l - hour 1-12
+        p - AM PM
+        P - am pm
+
+        n - newline
+      </description>
+    </key>
+
+    <key name="background-clock-date-format" type="s">
+      <default>"%A %b"</default>
+      <description>
+        a - weekday abr
+        A - weekday name
+        b - monthname abr
+        B - monthname name
+        C - century 00-99
+        d - day 01-31
+        e - day 1-31
+        Y - year 2000
+        m - month 01-12
+        j - day of year 001-366
+
+        n - newline
+      </description>
     </key>
 
   </schema>

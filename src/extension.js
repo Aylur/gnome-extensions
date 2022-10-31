@@ -27,6 +27,7 @@ const PowerMenu = Me.imports.powerMenu;
 const WorkspaceIndicator = Me.imports.workspaceIndicator;
 const QuickToggles = Me.imports.quickToggles;
 const NotificationIndicator = Me.imports.notificationIndicator;
+const BackgroundClock = Me.imports.backgroundClock;
 
 class Extension {
     constructor() {}
@@ -41,6 +42,7 @@ class Extension {
         this.workspaceIndicator = new WorkspaceIndicator.Extension();
         this.quickToggles = new QuickToggles.Extension();
         this.notificationIndicator = new NotificationIndicator.Extension();
+        this.backgroundClock = new BackgroundClock.Extension();
 
         if(this.settings.get_boolean('battery-bar')) this.toggleExtension(this.batteryBar);
         if(this.settings.get_boolean('dash-board')) this.toggleExtension(this.dashBoard);
@@ -50,6 +52,7 @@ class Extension {
         if(this.settings.get_boolean('workspace-indicator')) this.toggleExtension(this.workspaceIndicator);
         if(this.settings.get_boolean('quick-toggles')) this.toggleExtension(this.quickToggles);
         if(this.settings.get_boolean('notification-indicator')) this.toggleExtension(this.notificationIndicator);
+        if(this.settings.get_boolean('background-clock')) this.toggleExtension(this.backgroundClock);
         
         this.settings.connect('changed::battery-bar', () => this.toggleExtension(this.batteryBar));
         this.settings.connect('changed::dash-board', () => this.toggleExtension(this.dashBoard));
@@ -59,6 +62,7 @@ class Extension {
         this.settings.connect('changed::workspace-indicator', () => this.toggleExtension(this.workspaceIndicator));
         this.settings.connect('changed::quick-toggles', () => this.toggleExtension(this.quickToggles));
         this.settings.connect('changed::notification-indicator', () => this.toggleExtension(this.notificationIndicator));
+        this.settings.connect('changed::background-color', () => this.toggleExtension(this.backgroundClock));
     }
 
     disable() {
@@ -70,6 +74,7 @@ class Extension {
         if(this.workspaceIndicator.enabled) this.workspaceIndicator.disable();
         if(this.quickToggles.enabled) this.quickToggles.disable();
         if(this.notificationIndicator.enabled) this.notificationIndicator.disable();
+        if(this.backgroundClock.enabled) this.backgroundClock.disable();
 
         this.batteryBar = null;
         this.dashBoard = null;
@@ -79,6 +84,7 @@ class Extension {
         this.workspaceIndicator = null;
         this.quickToggles = null;
         this.notificationIndicator = null;
+        this.backgroundClock = null;
     }
 
     toggleExtension(extension){
