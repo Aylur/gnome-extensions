@@ -21,13 +21,13 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const BatteryBar = Me.imports.batteryBar;
 const DashBoard = Me.imports.dashBoard;
-const DateMenuMod = Me.imports.dateMenuMod;
 const MediaPlayer = Me.imports.mediaPlayer;
 const PowerMenu = Me.imports.powerMenu;
 const WorkspaceIndicator = Me.imports.workspaceIndicator;
 const QuickToggles = Me.imports.quickToggles;
 const NotificationIndicator = Me.imports.notificationIndicator;
 const BackgroundClock = Me.imports.backgroundClock;
+const DateMenuMod = Me.imports.dateMenuMod;
 
 class Extension {
     constructor() {}
@@ -36,55 +36,55 @@ class Extension {
 
         this.batteryBar = new BatteryBar.Extension();
         this.dashBoard = new DashBoard.Extension();
-        this.dateMenuMod = new DateMenuMod.Extension();
         this.mediaPlayer = new MediaPlayer.Extension();
         this.powerMenu = new PowerMenu.Extension();
         this.workspaceIndicator = new WorkspaceIndicator.Extension();
         this.quickToggles = new QuickToggles.Extension();
         this.notificationIndicator = new NotificationIndicator.Extension();
         this.backgroundClock = new BackgroundClock.Extension();
+        this.dateMenuMod = new DateMenuMod.Extension();
 
         if(this.settings.get_boolean('battery-bar')) this.toggleExtension(this.batteryBar);
         if(this.settings.get_boolean('dash-board')) this.toggleExtension(this.dashBoard);
-        if(this.settings.get_boolean('date-menu-mod')) this.toggleExtension(this.dateMenuMod);
         if(this.settings.get_boolean('media-player')) this.toggleExtension(this.mediaPlayer);
         if(this.settings.get_boolean('power-menu')) this.toggleExtension(this.powerMenu);
         if(this.settings.get_boolean('workspace-indicator')) this.toggleExtension(this.workspaceIndicator);
         if(this.settings.get_boolean('quick-toggles')) this.toggleExtension(this.quickToggles);
         if(this.settings.get_boolean('notification-indicator')) this.toggleExtension(this.notificationIndicator);
         if(this.settings.get_boolean('background-clock')) this.toggleExtension(this.backgroundClock);
+        if(this.settings.get_boolean('date-menu-mod')) this.toggleExtension(this.dateMenuMod);
         
         this.settings.connect('changed::battery-bar', () => this.toggleExtension(this.batteryBar));
         this.settings.connect('changed::dash-board', () => this.toggleExtension(this.dashBoard));
-        this.settings.connect('changed::date-menu-mod', () => this.toggleExtension(this.dateMenuMod));
         this.settings.connect('changed::media-player', () => this.toggleExtension(this.mediaPlayer));
         this.settings.connect('changed::power-menu', () => this.toggleExtension(this.powerMenu));
         this.settings.connect('changed::workspace-indicator', () => this.toggleExtension(this.workspaceIndicator));
         this.settings.connect('changed::quick-toggles', () => this.toggleExtension(this.quickToggles));
         this.settings.connect('changed::notification-indicator', () => this.toggleExtension(this.notificationIndicator));
         this.settings.connect('changed::background-color', () => this.toggleExtension(this.backgroundClock));
+        this.settings.connect('changed::date-menu-mod', () => this.toggleExtension(this.dateMenuMod));
     }
 
     disable() {
         if(this.batteryBar.enabled) this.batteryBar.disable();
         if(this.dashBoard.enabled) this.dashBoard.disable();
-        if(this.dateMenuMod.enabled) this.dateMenuMod.disable();
         if(this.mediaPlayer.enabled) this.mediaPlayer.disable();
         if(this.powerMenu.enabled) this.powerMenu.disable();
         if(this.workspaceIndicator.enabled) this.workspaceIndicator.disable();
         if(this.quickToggles.enabled) this.quickToggles.disable();
         if(this.notificationIndicator.enabled) this.notificationIndicator.disable();
         if(this.backgroundClock.enabled) this.backgroundClock.disable();
+        if(this.dateMenuMod.enabled) this.dateMenuMod.disable();
 
         this.batteryBar = null;
         this.dashBoard = null;
-        this.dateMenuMod = null;
         this.mediaPlayer = null;
         this.powerMenu = null;
         this.workspaceIndicator = null;
         this.quickToggles = null;
         this.notificationIndicator = null;
         this.backgroundClock = null;
+        this.dateMenuMod = null;
     }
 
     toggleExtension(extension){

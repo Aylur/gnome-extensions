@@ -138,6 +138,10 @@ class DashBoardPage extends Adw.PreferencesPage{
         dashGroup.add(new SpinButton('App Launcher Rows', settings, 'dash-apps-rows', 1, 5, 1));
         dashGroup.add(new SpinButton('App Launcher Columns', settings, 'dash-apps-cols', 1, 5, 1));
         dashGroup.add(new SpinButton('App Launcher Size', settings, 'dash-app-icon-size', 16, 64, 2));
+        dashGroup.add(new Adw.ActionRow({
+            title: 'Other Settings',
+            subtitle:`Dash Boards shortcut is Super+d by default, however, you can change it through dconf.\nYou can change the links aswell through dconf editor.\nIf you want your own icon: find an svg and name it theNameYouGaveItInDconf-symbolic.svg.\nI haven't figured out GTK to have a nice setting for it yet, sorry.`
+        }));
     }
 });
 
@@ -155,8 +159,10 @@ class DateMenuModPage extends Adw.PreferencesPage{
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
+        group.add(new DropDown('Position', settings, 'date-menu-position', ['Left', 'Center', 'Right']));
+        group.add(new SpinButton('Offset', settings, 'date-menu-offset', 0, 12, 1));
         group.add(new Switch('Remove Padding', settings, 'date-menu-remove-padding'));
-        group.add(new DropDown('Indicator Position', settings, 'date-menu-indicator-position', ["Left", "Right", "Hide"]));
+        group.add(new DropDown('Indicator Position', settings, 'date-menu-indicator-position', ['Left', 'Right', 'Hide']));
         group.add(new Entry('Date Format', settings, 'date-menu-date-format'));
         group.add(new Switch('Mirrored', settings, 'date-menu-mirror'));
         group.add(new Switch('Hide Notifications', settings, 'date-menu-hide-notifications'));
@@ -202,7 +208,9 @@ class MediaPlayerPage extends Adw.PreferencesPage{
         controlsGroup.add(new DropDown('Position', settings, 'media-player-controls-position', ["Left", "Center", "Right"]));
         controlsGroup.add(new SpinButton('Offset', settings, 'media-player-controls-offset', 0, 12, 1));
         
-        playerGroup.add(new Entry('Prefer', settings, 'media-player-prefer'));
+        let preferEntry = new Entry('Prefer', settings, 'media-player-prefer');
+        preferEntry.subtitle = 'It is the players d-bus name, though the full name is not needed, but capitals matter(? im not sure), examples: Amberol, firefox, spotify, Spot.\nThis setting is also for dash board and date menu.'
+        playerGroup.add(preferEntry);
         playerGroup.add(new DropDown('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
     }
 });

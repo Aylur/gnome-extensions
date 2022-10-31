@@ -504,7 +504,6 @@ class MediaControls extends St.BoxLayout{
     _init(){
         super._init({ visible: false });
 
-        // this.hide();
         this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
         this.playBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
         this.nextBtn = this._addButton('media-skip-forward-symbolic', () => this.player.next());
@@ -516,7 +515,6 @@ class MediaControls extends St.BoxLayout{
         this.media = new Media();
         this.media.connect('updated', () => this._sync());
 
-        this._sync();
         this._sync();
         this.connect('destroy', () => {
             if(this.player){
@@ -543,38 +541,36 @@ class MediaControls extends St.BoxLayout{
         if(mpris){
             this.player = mpris;
             this.binding = this.player.connect('changed', () => this._syncControls());
+            this.show();
         }else{
             this.player = null;
+            this.hide();
         }
     }
     
     _syncControls(){
-        if(this.player){
-            this.show();
+        if(!this.player) return;
 
-            this.player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
-            this.player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
-
-            if(this.player.canPlay){
-                this.playBtn.show();
-                switch (this.player.playBackStatus) {
-                    case "Playing":
-                        this.playBtn.child.icon_name = 'media-playback-pause-symbolic';
-                        break;
-                    case "Paused":
-                        this.playBtn.child.icon_name = 'media-playback-start-symbolic';
-                        break;
-                    case "Stopped":
-                        this.playBtn.child.icon_name = 'media-playback-start-symbolic';
-                        break;
-                    default:
-                        break;
-                }
-            }else{
-                this.playBtn.hide();
+        this.player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
+        this.player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
+        
+        if(this.player.canPlay){
+            this.playBtn.show();
+            switch (this.player.playBackStatus) {
+                case "Playing":
+                    this.playBtn.child.icon_name = 'media-playback-pause-symbolic';
+                    break;
+                case "Paused":
+                    this.playBtn.child.icon_name = 'media-playback-start-symbolic';
+                    break;
+                case "Stopped":
+                    this.playBtn.child.icon_name = 'media-playback-start-symbolic';
+                    break;
+                default:
+                    break;
             }
         }else{
-            this.hide();
+            this.playBtn.hide();
         }
     }
 });

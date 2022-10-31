@@ -207,7 +207,7 @@ class DashBoardPanelButton extends St.Button{
         box.add_child(this.buttonLabel);
 
         //SHORTCUT
-        this.connect('clicked', () => this.openDash());
+        this.connect('clicked', () => this._openDash());
         Main.wm.addKeybinding('dash-shortcut', this.settings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.ALL,

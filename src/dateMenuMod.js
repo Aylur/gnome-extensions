@@ -240,6 +240,11 @@ class CustomMenu extends St.BoxLayout{
 
 var Extension = class Extension {
     constructor() {
+        this.panel = [
+            Main.panel._leftBox,
+            Main.panel._centerBox,
+            Main.panel._rightBox
+        ]
         this.panelBox = DateMenu.get_first_child();
         this.padding = this.panelBox.get_first_child();
         this.indicator = DateMenu._indicator;
@@ -253,6 +258,8 @@ var Extension = class Extension {
 
     enable() {
         this.settings = ExtensionUtils.getSettings();
+        this.settings.connect('changed::date-menu-position', () => this.reload());
+        this.settings.connect('changed::date-menu-offset', () => this.reload());
         this.settings.connect('changed::date-menu-remove-padding', () => this.reload());
         this.settings.connect('changed::date-menu-indicator-position', () => this.reload());
         this.settings.connect('changed::date-menu-mirror', () => this.reload());
@@ -288,6 +295,9 @@ var Extension = class Extension {
             this.customMenu = null;
         }
 
+        DateMenu.get_parent().remove_child(DateMenu);
+        this.panel[1].insert_child_at_index(DateMenu, 0);
+
         this.settings = null;
         this.wallclock = null;
     }
@@ -299,7 +309,11 @@ var Extension = class Extension {
     reload(){
         this.reset();
 
-        //position
+        DateMenu.get_parent().remove_child(DateMenu);
+        this.panel[this.settings.get_int('date-menu-position')]
+            .insert_child_at_index(DateMenu, this.settings.get_int('date-menu-offset'));
+
+        //indicator & padding
         this.panelBox.remove_all_children();
 
         let pos = this.settings.get_int('date-menu-indicator-position');
