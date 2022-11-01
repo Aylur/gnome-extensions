@@ -245,6 +245,7 @@ var Extension = class Extension {
             Main.panel._centerBox,
             Main.panel._rightBox
         ]
+        this.dateMenu = DateMenu.get_parent();
         this.panelBox = DateMenu.get_first_child();
         this.padding = this.panelBox.get_first_child();
         this.indicator = DateMenu._indicator;
@@ -295,8 +296,8 @@ var Extension = class Extension {
             this.customMenu = null;
         }
 
-        DateMenu.get_parent().remove_child(DateMenu);
-        this.panel[1].insert_child_at_index(DateMenu, 0);
+        this.dateMenu.get_parent().remove_child(this.dateMenu);
+        this.panel[1].insert_child_at_index(this.dateMenu, 0);
 
         this.settings = null;
         this.wallclock = null;
@@ -309,9 +310,9 @@ var Extension = class Extension {
     reload(){
         this.reset();
 
-        DateMenu.get_parent().remove_child(DateMenu);
+        this.dateMenu.get_parent().remove_child(this.dateMenu);
         this.panel[this.settings.get_int('date-menu-position')]
-            .insert_child_at_index(DateMenu, this.settings.get_int('date-menu-offset'));
+            .insert_child_at_index(this.dateMenu, this.settings.get_int('date-menu-offset'));
 
         //indicator & padding
         this.panelBox.remove_all_children();
