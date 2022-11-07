@@ -13,7 +13,7 @@ const LevelsBox = GObject.registerClass(
 class LevelsBox extends St.BoxLayout{
     _init(){
         super._init({
-            style_class: 'events-button date-menu-levels',
+            style_class: 'events-button datemenu-levels',
             vertical: true,
             reactive: true
         });
@@ -57,6 +57,9 @@ class CustomMenu extends St.BoxLayout{
             style_class: 'datemenu-menu-box'
         });
 
+        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
+        this.style = `max-height: ${maxHeight}px; `;
+
         let datemenu = new imports.ui.dateMenu.DateMenuButton();
 
         let calendar = datemenu._calendar;
@@ -68,20 +71,6 @@ class CustomMenu extends St.BoxLayout{
         eventsItem.get_parent().remove_child(eventsItem);
         clocksItem.get_parent().remove_child(clocksItem);
         weatherItem.get_parent().remove_child(weatherItem);
-
-        //clock
-        let clockBox = new St.BoxLayout({
-            vertical: true,
-            style_class: 'datemenu-date'
-        });
-        this.day = new St.Label({ style_class: 'day-label' });
-        this.date = new St.Label({ style_class: 'date-label' });
-        clockBox.add_child(this.day);
-        clockBox.add_child(this.date);
-        let wallclock = new GnomeDesktop.WallClock();
-        wallclock.connect(
-            'notify::clock',
-            () =>  this.updateTexts());
 
         //userIcon
         let userBtn = new St.Button({
@@ -97,11 +86,13 @@ class CustomMenu extends St.BoxLayout{
 
         let userName = new St.Label({
             x_align: Clutter.ActorAlign.CENTER,
-            text: GLib.get_user_name()
+            text: GLib.get_user_name(),
+            style_class: 'datemenu-user-name'
         });
 
         this.greet = new St.Label({
             x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'datemenu-greet'
         });
 
         let userBox = new St.BoxLayout({
@@ -121,11 +112,12 @@ class CustomMenu extends St.BoxLayout{
 
         //UI
         let scrollView = new St.ScrollView({
+            style_class: 'vfade',
             x_expand: true,
             overlay_scrollbars: false,
             enable_mouse_scrolling: true,
         });
-        scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.NEVER);
+        scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.EXTERNAL);
 
         let scrollItems = new St.BoxLayout({
             vertical: true,
@@ -174,17 +166,20 @@ class CustomMenu extends St.BoxLayout{
         }
 
         this.add_child(scrollView);
-        this.updateTexts();
+
+        DateMenu.menu.connectObject('open-state-changed', (menu, isOpen) => {
+            if(!isOpen) return;
+            let now = new Date();
+            calendar.setDate(now);
+            eventsItem.setDate(now);
+            this._setGreet();
+        }, this);
+
+        this.connect('destroy', () => DateMenu.menu.disconnectObject(this));
     }
 
     stopTimeout(){ if(this.levels) this.levels.stopTimeout() }
     startTimeout(){ if(this.levels) this.levels.startTimeout() }
-
-    updateTexts(){
-        this.day.text = GLib.DateTime.new_now_local().format('%A');
-        this.date.text = GLib.DateTime.new_now_local().format('%d. %m. %Y');
-        this._setGreet();
-    }
 
     _setGreet(){
         let time = new Date();

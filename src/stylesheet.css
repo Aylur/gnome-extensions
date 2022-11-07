@@ -70,11 +70,9 @@
 }
 .datemenu-user > StButton > StWidget{ border-radius: 99px; }
 
-.datemenu-date{ padding: 6px; padding-left: 20px; }
-.datemenu-date .day-label{ font-weight: 500; font-size: 1.2; }
-.datemenu-date .date-label{ font-weight: 700; font-size: 1.3em; }
+.datemenu-greet{ margin-bottom: 16px; }
 
-.date-menu-levels{ spacing: 8px; }
+.datemenu-levels{ spacing: 8px; }
 
 /* media */
 .media-player{ padding: 16px; spacing: 8px }
