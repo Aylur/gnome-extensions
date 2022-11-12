@@ -3,9 +3,9 @@
 
 Battery Bar, Dash Board, DateMenu Mod, Media Player, Power Menu, Workspace Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
 
-<img src="https://github.com/Aylur/gnome-extensions/data/screenshot.png">
+<img src="https://github.com/Aylur/gnome-extensions/blob/main/data/screenshot.png">
 
-[<img src="https://github.com/Aylur/gnome-extensions/data/get-it-on-ego.svg" height="100">](https://extensions.gnome.org/extension/5338/aylurs-widgets/)
+[<img src="https://github.com/Aylur/gnome-extensions/blob/main/data/get-it-on-ego.svg" height="100">](https://extensions.gnome.org/extension/5338/aylurs-widgets/)
 
 ## Took code from these projects
 * [ArcMenu by andrew.zaech](https://extensions.gnome.org/extension/3628/arcmenu/)
