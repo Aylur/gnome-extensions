@@ -1,20 +1,3 @@
-/* Battery Bar */
-.battery-bar .level-bar{
-    background-color: rgba(255,255,255,0.2);
-    border-radius: 99px;
-}
-.battery-bar .level-fill{
-    background-color: #62a0ea;
-    color: black;
-    border-radius: 99px;
-}
-.battery-bar:low .level-fill{
-    background-color: #f66151;
-}
-.battery-bar:charging .level-fill{
-    background-color: #33d17a;
-}
-
 /* usage-levels */
 .level-bar{
     height: 16px; /* horizontal width */
@@ -96,41 +79,9 @@
 
 
 /* power-menu */
-.power-menu-button:hover{ color: #f66151; }
-.power-menu-button:active{ color: #e01b24; }
-
-/* content */
-.power-menu-content{
-    margin: 36px;
-    spacing: 16px;
-}
-.power-menu .container{
-    spacing: 16px;
-}
-
-/* round */
-.power-menu .button-round-container{
-    width: 120px;
-    height: 130px;
-}
-.power-menu .button-round{
-    padding: 0;
-    border-radius: 50px;
-}
-.power-menu .button-round StIcon{
-    icon-size: 50px;
-    margin: 26px;
-}
-
-/* rectangle */
-.power-menu .button-rectangle{
-    padding: 0;
-    width: 120px;
-    height: 120px;
-}
-.power-menu .button-rectangle StIcon{
-    icon-size: 70px;
-}
+.power-menu-panel-button:hover{ color: #f66151; }
+.power-menu-panel-button:active{ color: #e01b24; }
+.power-menu .button{ padding: 0; }
 
 /* workspace-indicator */
 .workspace-indicator StIcon{ margin: 0; }
@@ -209,3 +160,67 @@
 .notification-indicator > StBoxLayout{ spacing: 4px; }
 .notifications .list{ margin-left: 8px; }
 .notifications .header-box{ padding: 10px; }
+
+/* .quick-settings */
+.quick-settings-main{ 
+    padding: 0; 
+    background-color: transparent;
+    border: none; 
+    box-shadow: none;
+    spacing: 10px;
+}
+.quick-settings-main{ width: 420px; spacing: 10px; }
+.quick-settings-main .quick-settings{ spacing: 10px; }
+.quick-settings-main .quick-settings > .button{ border-radius: 14px;}
+.quick-settings-main .quick-toggle,
+.quick-settings-main .quick-power{ border-radius: 14px; }
+.quick-settings-main .quick-toggle .quick-toggle-arrow{ border-radius: 0 14px 14px 0; }
+.quick-settings-main .levels-container{ spacing: 10px; border-radius: 14px; padding: 8px; width: 120px; }
+.quick-settings-main .system-actions .button{
+    border-radius: 14px;
+    margin: 0;
+}
+.quick-settings-main .system-actions StIcon { icon-size: 30px; }
+
+/* system */
+.quick-settings-main .quick-toggles-system{ spacing: 8px; }
+.quick-settings-main .user-btn{ padding: 0; }
+.quick-settings-main .user-icon{
+    margin: 2px;
+    min-width:  60px;
+    min-height: 60px;
+    border-radius: 99px;
+}
+.quick-settings-main .quick-toggles-system .icon-button{ padding: 0; }
+.quick-settings-main .quick-toggles-system .icon-button StIcon{ icon-size: 2em; margin: 8px; }
+
+/* media */
+.quick-settings-main .media-cover{
+    width: 120px;
+    height: 120px;
+}
+
+/* slider */
+.quick-settings-main .quick-slider .icon-button{ padding: 0; }
+.quick-settings-main .quick-toggle-menu{ margin: 10px 0; }
+
+/* quick-toggles */
+.quick-settings-main .container{ spacing: 10px; }
+.quick-settings-main .quick-toggle{
+    min-width: 3em;
+    min-height: 3em;
+}
+.quick-settings-main .quick-toggle > StBoxLayout { padding: 0; }
+.quick-settings-main .quick-toggle StIcon{ icon-size: 1.8em; }
+.quick-settings-main .quick-toggle-long > StBoxLayout > StIcon { padding-left: 1em; }
+.quick-settings-main .quick-toggle-long > StBoxLayout > StLabel { padding-right: 1em; }
+.quick-settings-main .usage-level{ spacing: 8px; }
+
+.quick-settings-main .quick-toggle .wifi-menu{ margin: 0; }
+
+/* bottom */
+.quick-settings-main .quick-toggles-bottom{ padding: 0 1em; }
+.quick-settings-main .quick-power StIcon{ icon-size: 1em; margin-right: 4px; }
+
+/* notifications */
+.quick-settings-main .message-list-clear-button{ padding: 4px 16px; }

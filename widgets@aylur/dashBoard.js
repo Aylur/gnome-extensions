@@ -10,7 +10,8 @@ const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _init(settings){
         super._init({
-            destroyOnClose: false
+            destroyOnClose: false,
+            shellReactive: true,
         });
         this.settings = settings;
         
@@ -170,9 +171,9 @@ class DashBoardPanelButton extends St.Button{
 
         this.settings = settings;
 
-        this.visible = !this.settings.get_boolean('dash-button-hide');
-        this.settings.connect('changed::dash-button-hide', 
-            () => this.visible = !this.settings.get_boolean('dash-button-hide'));
+        this.visible = this.settings.get_boolean('dash-button-enable');
+        this.settings.connect('changed::dash-button-enable', 
+            () => this.visible = this.settings.get_boolean('dash-button-enable'));
         
         //ICON
         this.buttonIcon = new St.Icon({
@@ -188,9 +189,9 @@ class DashBoardPanelButton extends St.Button{
                 )
             )
         );
-        this.buttonIcon.visible = !this.settings.get_boolean('dash-button-icon-hide')
-        this.settings.connect('changed::dash-button-icon-hide', 
-            () => this.buttonIcon.visible = !this.settings.get_boolean('dash-button-icon-hide'));
+        this.buttonIcon.visible = this.settings.get_boolean('dash-button-show-icon')
+        this.settings.connect('changed::dash-button-show-icon', 
+            () => this.buttonIcon.visible = this.settings.get_boolean('dash-button-show-icon'));
         box.add_child(this.buttonIcon);
         
         //LABEL
@@ -257,8 +258,12 @@ class DashBoardPanelButton extends St.Button{
 
 var Extension = class Extension {
     constructor() {
-        this.activities = Main.panel.statusArea.activities;
-        this.activitiesBin = this.activities.get_parent();
+        this.panelBox = [
+            Main.panel._leftBox,
+            Main.panel._centerBox,
+            Main.panel._rightBox
+        ]
+        this.activities = Main.panel.statusArea.activities.get_parent();
     }
 
     enable() {
@@ -267,47 +272,37 @@ var Extension = class Extension {
         //so it comes up in dconf editor
         this.settings.set_strv('dash-link-names', this.settings.get_strv('dash-link-names'));
         this.settings.set_strv('dash-link-urls', this.settings.get_strv('dash-link-urls'));
-        this.settings.set_strv('dash-shortcut', this.settings.get_strv('dash-shortcut'));
 
-        this.settings.connect('changed::dash-button-position', () => this.addButtonToPanel());
-        this.settings.connect('changed::dash-button-offset', () => this.addButtonToPanel());
-        this.settings.connect('changed::dash-replace-activities-button', () => this.addButtonToPanel());
-
-        this.addButtonToPanel();
+        this.settings.connect('changed::dash-button-position', () => this._addButtonToPanel());
+        this.settings.connect('changed::dash-button-offset', () => this._addButtonToPanel());
+        this.settings.connect('changed::dash-hide-activities', () => this._activites());
+        
+        this._activites();
+        this._addButtonToPanel();
     }
 
     disable() {
         this._panelButton.destroy();
         this._panelButton = null;
-        this.activitiesBin.set_child(this.activities);
         this.settings = null;
+        this.activities.hide();
     }
 
-    addButtonToPanel(){
+    _activites(){
+        this.settings.get_boolean('dash-hide-activities') ?
+            this.activities.hide():
+            this.activities.show();
+    }
+
+    _addButtonToPanel(){
         if(this._panelButton){
             this._panelButton.destroy();
             this._panelButton = null;
         }
         this._panelButton = new DashBoardPanelButton(this.settings);
 
-        if(this.settings.get_boolean('dash-replace-activities-button')){
-            this.activitiesBin.set_child(this._panelButton);
-        }else{
-            this.activitiesBin.set_child(this.activities);
-            let pos = this.settings.get_int('dash-button-position');
-            let offset = this.settings.get_int('dash-button-offset');
-            switch (pos) {
-                case 0:
-                    Main.panel._leftBox.insert_child_at_index(this._panelButton, offset);
-                    break;
-                case 1:
-                    Main.panel._centerBox.insert_child_at_index(this._panelButton, offset);
-                    break;
-                case 2:
-                    Main.panel._rightBox.insert_child_at_index(this._panelButton, offset);
-                default:
-                    break;
-            }
-        }    
+        let pos = this.settings.get_int('dash-button-position');
+        let offset = this.settings.get_int('dash-button-offset');
+        this.panelBox[pos].insert_child_at_index(this._panelButton, offset);
     }
 }

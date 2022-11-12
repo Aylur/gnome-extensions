@@ -23,13 +23,13 @@
     <key name="workspace-indicator" type="b">
       <default>true</default>
     </key>
-    <key name="quick-toggles" type="b">
-      <default>true</default>
-    </key>
     <key name="notification-indicator" type="b">
       <default>true</default>
     </key>
     <key name="background-clock" type="b">
+      <default>true</default>
+    </key>
+    <key name="quick-toggles" type="b">
       <default>true</default>
     </key>
 
@@ -40,7 +40,7 @@
     </key>
 
     <key name="battery-bar-offset" type="i">
-      <default>0</default>
+      <default>8</default>
     </key>
 
     <key name="battery-bar-show-icon" type="b">
@@ -55,16 +55,48 @@
       <default>true</default>
     </key>
 
+    <key name="battery-bar-font-color" type="s">
+      <default>"#000"</default>
+    </key>
+
+    <key name="battery-bar-font-bg-color" type="s">
+      <default>"#000"</default>
+    </key>
+
     <key name="battery-bar-width" type="i">
-      <default>200</default>
+      <default>140</default>
+    </key>
+
+    <key name="battery-bar-height" type="i">
+      <default>34</default>
+    </key>
+
+    <key name="battery-bar-roundness" type="i">
+      <default>99</default>
+    </key>
+
+    <key name="battery-bar-low-threshold" type="i">
+      <default>30</default>
+    </key>
+
+    <key name="battery-bar-charging-color" type="s">
+      <default>"#33d17a"</default>
+    </key>
+
+    <key name="battery-bar-low-color" type="s">
+      <default>"#f66151"</default>
+    </key>
+
+    <key name="battery-bar-color" type="s">
+      <default>"#62a0ea"</default>
+    </key>
+
+    <key name="battery-bar-bg-color" type="s">
+      <default>"rgba(255,255,255,0.2)"</default>
     </key>
 
     <!-- dash -->
-    <key name="dash-button-hide" type="b">
-      <default>false</default>
-    </key>
-
-    <key name="dash-replace-activities-button" type="b">
+    <key name="dash-hide-activities" type="b">
       <default>false</default> 
     </key>
 
@@ -76,6 +108,10 @@
       <default>0</default> 
     </key>
 
+    <key name="dash-button-enable" type="b">
+      <default>true</default>
+    </key>
+
     <key name="dash-button-label" type="s">
       <default>"Dash"</default>
     </key>
@@ -84,8 +120,8 @@
       <default>""</default>
     </key>
 
-    <key name="dash-button-icon-hide" type="b">
-      <default>true</default>
+    <key name="dash-button-show-icon" type="b">
+      <default>false</default>
     </key>
 
     <key name="dash-shortcut" type="as">
@@ -128,7 +164,7 @@
     </key>
 
     <key name="date-menu-remove-padding" type="b">
-      <default>true</default> 
+      <default>false</default> 
     </key>
 
     <key name="date-menu-indicator-position" type="i">
@@ -200,29 +236,66 @@
       <default>0</default> 
     </key>
 
-    <key name="media-player-hide-controls" type="b">
-      <default>false</default> 
+    <key name="media-player-enable-controls" type="b">
+      <default>true</default> 
     </key>
 
     <key name="media-player-max-width" type="i">
       <default>0</default> 
     </key>
 
-    <key name="media-player-hide-track" type="b">
-      <default>false</default>
+    <key name="media-player-enable-track" type="b">
+      <default>true</default>
     </key>
 
     <!-- power-menu -->
     <key name="power-menu-position" type="i">
-      <default>0</default> 
+      <default>2</default> 
+    </key>
+
+    <key name="power-menu-offset" type="i">
+      <default>12</default> 
     </key>
     
     <key name="power-menu-layout" type="i">
       <default>0</default> 
     </key>
 
-    <key name="power-menu-style" type="i">
-      <default>0</default> 
+    <key name="power-menu-label-position" type="i">
+      <default>2</default>
+      <summary>
+        0 - inside
+        1 - outside
+        2 - hidden
+      </summary>
+    </key>
+
+    <key name="power-menu-button-roundness" type="i">
+      <default>56</default> 
+    </key>
+
+    <key name="power-menu-icon-size" type="i">
+      <default>70</default> 
+    </key>
+
+    <key name="power-menu-icon-padding" type="i">
+      <default>24</default> 
+    </key>
+
+    <key name="power-menu-dialog-padding" type="i">
+      <default>36</default>
+    </key>
+
+    <key name="power-menu-dialog-spacing" type="i">
+      <default>16</default>
+    </key>
+
+    <key name="power-menu-dialog-roundness" type="i">
+      <default>16</default>
+    </key>
+
+    <key name="power-menu-dialog-show-bg" type="b">
+      <default>true</default>
     </key>
 
     <!-- workspace-indicator -->
@@ -236,23 +309,6 @@
 
     <key name="workspace-indicator-show-names" type="b">
       <default>false</default> 
-    </key>
-
-    <!-- quick-toggles -->
-    <key name="quick-toggles-style" type="i">
-      <default>0</default>
-    </key>
-
-    <key name="quick-toggles-hide-notifications" type="b">
-      <default>false</default>
-    </key>
-
-    <key name="quick-toggles-hide-system-levels" type="b">
-      <default>false</default>
-    </key>
-
-    <key name="quick-toggles-hide-media" type="b">
-      <default>false</default>
     </key>
 
     <!-- notification-indicator -->
@@ -281,24 +337,76 @@
       <default>8</default>
     </key>
 
-    <key name="background-clock-offset" type="i">
+    <key name="background-clock-x-offset" type="i">
       <default>80</default>
     </key>
 
+    <key name="background-clock-y-offset" type="i">
+      <default>80</default>
+    </key>
+
+    <key name="background-clock-enable-clock" type="b">
+      <default>true</default>
+    </key>
+
     <key name="background-clock-clock-size" type="i">
-      <default>66</default>
+      <default>78</default>
     </key>
 
-    <key name="background-clock-date-size" type="i">
-      <default>38</default>
-    </key>
-
-    <key name="background-clock-color" type="s">
+    <key name="background-clock-clock-color" type="s">
       <default>"#fff"</default>
     </key>
 
-    <key name="background-clock-other-css" type="s">
-      <default>"text-shadow: 0 0 0 1px black"</default>
+    <key name="background-clock-clock-shadow-x" type="i">
+      <default>2</default>
+    </key>
+
+    <key name="background-clock-clock-shadow-y" type="i">
+      <default>2</default>
+    </key>
+
+    <key name="background-clock-clock-shadow-blur" type="i">
+      <default>4</default>
+    </key>
+
+    <key name="background-clock-clock-shadow-width" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-clock-shadow-color" type="s">
+      <default>"#000"</default>
+    </key>
+
+    <key name="background-clock-enable-date" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="background-clock-date-size" type="i">
+      <default>48</default>
+    </key>
+
+    <key name="background-clock-date-color" type="s">
+      <default>"#fff"</default>
+    </key>
+
+    <key name="background-clock-date-shadow-x" type="i">
+      <default>2</default>
+    </key>
+
+    <key name="background-clock-date-shadow-y" type="i">
+      <default>2</default>
+    </key>
+
+    <key name="background-clock-date-shadow-blur" type="i">
+      <default>4</default>
+    </key>
+
+    <key name="background-clock-date-shadow-width" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-date-shadow-color" type="s">
+      <default>"#000"</default>
     </key>
 
     <key name="background-clock-clock-format" type="s">
@@ -332,6 +440,67 @@
 
         n - newline
       </description>
+    </key>
+
+    <key name="background-clock-bg-color" type="s">
+      <default>"rgba(0,0,0,0)"</default>
+    </key>
+
+    <key name="background-clock-bg-padding" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-border-size" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-border-color" type="s">
+      <default>"#000"</default>
+    </key>
+
+    <key name="background-clock-bg-border-radius" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-inset" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-x" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-y" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-blur" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-width" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="background-clock-bg-shadow-color" type="s">
+      <default>"rgba(0,0,0,0)"</default>
+    </key>
+
+    <!-- quick-toggles -->
+    <key name="quick-toggles-style" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="quick-toggles-hide-notifications" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-toggles-hide-system-levels" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-toggles-hide-media" type="b">
+      <default>false</default>
     </key>
 
   </schema>

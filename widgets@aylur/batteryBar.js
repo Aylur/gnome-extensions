@@ -4,9 +4,6 @@ const { GObject, St, Clutter, Gio, UPowerGlib: UPower } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-
-const shellVersion = Math.floor(parseFloat(imports.misc.config.PACKAGE_VERSION));
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -18,12 +15,12 @@ class LevelBar extends St.Bin{
         super._init({
             y_expand: true,
             x_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.FILL,
         });
         this.background = new St.BoxLayout({
             style_class: 'level-bar',
-            y_align: Clutter.ActorAlign.FILL, //remove this if you want to set fixed heigth
+            x_align: Clutter.ActorAlign.FILL,
         });
         this.fillLevel = new St.Bin({
             style_class: 'level-fill',
@@ -44,31 +41,67 @@ class LevelBar extends St.Bin{
             y_align: Clutter.ActorAlign.CENTER,
         });
 
-        this.value = 0;
+        this._value = 0;
         this.settings = settings;
 
+        settings.connectObject(
+            'changed::battery-bar-show-percentage', () => this._updateStyle(),
+            'changed::battery-bar-font-color', () => this._updateStyle(),
+            'changed::battery-bar-font-bg-color', () => this._updateStyle(),
+            'changed::battery-bar-charging-color', () => this._updateStyle(),
+            'changed::battery-bar-low-color', () => this._updateStyle(),
+            'changed::battery-bar-color', () => this._updateStyle(),
+            'changed::battery-bar-bg-color', () => this._updateStyle(),
+            'changed::battery-bar-low-threshold', () => this._updateStyle(),
+            'changed::battery-bar-roundness', () => this._updateStyle(),
+            'changed::battery-bar-width', () => this._updateStyle(),
+            'changed::battery-bar-height', () => this._updateStyle(),
+            this
+        );
+        this.connect('destroy', () => settings.disconnectObject(this) );
+        this._updateStyle(false);
         this.background.connect('stage-views-changed', () => this.repaint());
     }
-    repaint(){
-        if(this.fillLevel.has_allocation()){
-            let max = this.background.width;
-            let zero = this.background.height;
-            //So it doesn't go beyond the border-radius
-            //If the border radius isn't 99px (50%)
-            //set zero to border-radius*2
+
+    set value(value){
+        this._value = value;
+        this.repaint();
+    }
+
+    _updateStyle(repaint = true){
+        this.width = this.settings.get_int('battery-bar-width');
+        this.background.height = this.settings.get_int('battery-bar-height');
+
+        this.showLabel = this.settings.get_boolean('battery-bar-show-percentage');
+        this.chargingColor = this.settings.get_string('battery-bar-charging-color');
+        this.lowColor = this.settings.get_string('battery-bar-low-color');
+        this.color = this.settings.get_string('battery-bar-color');
+        this.lowThreshold = this.settings.get_int('battery-bar-low-threshold');
+
+        this.radius = this.settings.get_int('battery-bar-roundness');
+        this.background.style = `
+            border-radius: ${this.radius}px;
+            color: ${this.settings.get_string('battery-bar-font-bg-color')};
+            background-color: ${this.settings.get_string('battery-bar-bg-color')};
+        `;
+
+        if(repaint) this.repaint();
+    }
+
+    repaint(recursive = true){
+        if(this.fillLevel.has_allocation() && this.background.has_allocation()){
+            let max = this.width;
+            let zero = Math.min(this.radius*2, this.background.height);
     
-            // let border_radius = 10;
-            // zero = border_radius*2;
+            this.fillLevel.width = Math.floor( (max-zero)*this._value + zero );
     
-            this.fillLevel.width = Math.floor( (max-zero)*this.value + zero );
-    
-            let label = Math.floor(this.value*100).toString() + "%";
+            let label = Math.floor(this._value*100).toString() + "%";
             this.fillLevel.label.text = label;
             this.background.label.text = label;
 
             
             if(this.settings.get_boolean('battery-bar-show-percentage')){
-                if(this.value >= 0.5){
+                if(this._value >= 0.5){
                     if(!this.fillLevel.hasLabel){
                         this.fillLevel.set_child(this.fillLevel.label);
                         this.fillLevel.hasLabel = true;
@@ -97,6 +130,31 @@ class LevelBar extends St.Bin{
                     this.background.hasLabel = false;
                 }
             }
+
+            if(this.charging){
+                this.fillLevel.style = `
+                    border-radius: ${this.radius}px;
+                    color: ${this.settings.get_string('battery-bar-font-color')};
+                    background-color: ${this.chargingColor};
+                `;
+            }else if(this._value*100 <= this.lowThreshold){
+                this.fillLevel.style = `
+                    border-radius: ${this.radius}px;
+                    color: ${this.settings.get_string('battery-bar-font-color')};
+                    background-color: ${this.lowColor};
+                `;
+            }else{
+                this.fillLevel.style = `
+                    border-radius: ${this.radius}px;
+                    color: ${this.settings.get_string('battery-bar-font-color')};
+                    background-color: ${this.color};
+                `;
+            }
+            
+        }
+        else{
+            if(recursive)
+                setTimeout(() => this.repaint(false), 2000);
         }
     }
 });
@@ -109,21 +167,18 @@ class BatteryBar extends St.Bin{
         });
 
         this.settings = settings;
-        this.width = this.settings.get_int('battery-bar-width');
 
         this._proxy = new PowerManagerProxy(
             Gio.DBus.system,
             'org.freedesktop.UPower',
             '/org/freedesktop/UPower/devices/DisplayDevice'
         );
-
         this.binding = this._proxy.connect('g-properties-changed', () => this._sync());
-        this.connect('destroy', () => this._proxy.disconnect(this.binding));
+        this.connect('destroy', () => {this._proxy.disconnect(this.binding); this._proxy = null});
 
         this.level = new LevelBar(this.settings);
-        this.icon = new St.Icon({
-            style_class: 'system-status-icon'
-        });
+        this.icon = new St.Icon({ style_class: 'system-status-icon' });
+
         let box = new St.BoxLayout();
         if(this.settings.get_int('battery-bar-icon-position') === 0){
             if(this.settings.get_boolean('battery-bar-show-icon')) box.add_child(this.icon);
@@ -136,6 +191,7 @@ class BatteryBar extends St.Bin{
 
         this._sync();
     }
+
     _sync(){
         if(this._proxy.IsPresent){
             let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
@@ -151,18 +207,12 @@ class BatteryBar extends St.Bin{
     
             this.icon.fallback_icon_name = this._proxy.IconName;
     
-            if(this._proxy.Percentage < 30)
-                this.add_style_pseudo_class('low');
-            else
-                this.remove_style_pseudo_class('low');
-    
-            if(this._proxy.State === UPower.DeviceState.CHARGING || this._proxy.State === UPower.DeviceState.FULLY_CHARGED)
-                this.add_style_pseudo_class('charging');
-            else
-                this.remove_style_pseudo_class('charging');
+            this._proxy.State === UPower.DeviceState.CHARGING ||
+            this._proxy.State === UPower.DeviceState.FULLY_CHARGED ?
+                this.level.charging = true :
+                this.level.charging = false;
             
             this.level.value = this._proxy.Percentage/100;
-            this.level.repaint();
         }else{
             this.hide();
         }
@@ -176,10 +226,12 @@ var Extension = class Extension{
             Main.panel._centerBox,
             Main.panel._rightBox
         ]
-        if(shellVersion == 42)
-            this.stockIndicator = Main.panel.statusArea.aggregateMenu._power;
-        if(shellVersion == 43)
+
+        if(Main.panel.statusArea.quickSettings)
             this.stockIndicator = Main.panel.statusArea.quickSettings._system;
+
+        if(Main.panel.statusArea.aggregateMenu)
+            this.stockIndicator = Main.panel.statusArea.aggregateMenu._power;
     }
     enable(){
         this.settings = ExtensionUtils.getSettings();
@@ -187,8 +239,6 @@ var Extension = class Extension{
         this.settings.connect('changed::battery-bar-offset', () => this.addToPanel());
         this.settings.connect('changed::battery-bar-show-icon', () => this.addToPanel());
         this.settings.connect('changed::battery-bar-icon-position', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-show-percentage', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-width', () => this.addToPanel());
         this.addToPanel();
         this.stockIndicator.hide();
     }

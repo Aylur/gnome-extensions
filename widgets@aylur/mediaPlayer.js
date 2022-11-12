@@ -6,7 +6,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
-const { EventEmitter } = imports.misc.signals;
 
 const PlayerIFace =
 `<node>
@@ -47,10 +46,15 @@ const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(PlayerIFace);
 const MprisProxy = Gio.DBusProxy.makeProxyWrapper(MprisIFace);
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(imports.misc.fileUtils.loadInterfaceXML('org.freedesktop.DBus'));
 
-
-const MprisPlayer = class MprisPlayer extends EventEmitter {
-    constructor(busName) {
-        super();
+const MprisPlayer = GObject.registerClass({
+    Signals: {
+        'changed' : {},
+        'closed': {}
+    }
+},
+class MprisPlayer extends St.Widget {
+    _init(busName) {
+        super._init();
 
         this._mprisProxy = new MprisProxy(Gio.DBus.session, busName,
             '/org/mpris/MediaPlayer2',
@@ -87,9 +91,9 @@ const MprisPlayer = class MprisPlayer extends EventEmitter {
     get volume(){ return this._volume; }
 
     setVolume(value){ this._playerProxy.Volume = value; }
-    playPause() { this._playerProxy.PlayPauseAsync().catch(logError); }
-    next() { this._playerProxy.NextAsync().catch(logError); }
-    previous() { this._playerProxy.PreviousAsync().catch(logError); }
+    playPause() { this._playerProxy.PlayPauseRemote(); }
+    next() { this._playerProxy.NextRemote(); }
+    previous() { this._playerProxy.PreviousRemote(); }
     shuffle(){ this._playerProxy.Shuffle = !this._playerProxy.Shuffle; }
     loop(){
         switch (this._playerProxy.LoopStatus) {
@@ -183,7 +187,7 @@ const MprisPlayer = class MprisPlayer extends EventEmitter {
 
         this.emit('changed');
     }
-};
+});
 
 var Player = GObject.registerClass(
 class Player extends St.BoxLayout{
@@ -355,8 +359,8 @@ var Media = GObject.registerClass({
     Signals: { 'updated' : {} }
 },
 class Media extends St.Bin{
-    constructor() {
-        super();
+    _init() {
+        super._init();
 
         this.settings = ExtensionUtils.getSettings();
         this.settings.connect('changed::media-player-prefer',
@@ -385,13 +389,14 @@ class Media extends St.Bin{
         this.emit('updated');
     }
 
-    async _onProxyReady() {
-        const [names] = await this._proxy.ListNamesAsync();
-        names.forEach(name => {
-            if (!name.startsWith('org.mpris.MediaPlayer2.'))
-                return;
+    _onProxyReady() {
+        this._proxy.ListNamesRemote(([names]) => {
+            names.forEach(name => {
+                if (!name.startsWith('org.mpris.MediaPlayer2.'))
+                    return;
 
-            this._addPlayer(name);
+                this._addPlayer(name);
+            });
         });
         this._proxy.connectSignal('NameOwnerChanged',
                                   this._onNameOwnerChanged.bind(this));
@@ -599,9 +604,9 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-layout', () => this.reload());
         this.settings.connect('changed::media-player-controls-position', () => this.reload());
         this.settings.connect('changed::media-player-controls-offset', () => this.reload());
-        this.settings.connect('changed::media-player-hide-controls', () => this.reload());
+        this.settings.connect('changed::media-player-enable-controls', () => this.reload());
         this.settings.connect('changed::media-player-max-width', () => this.reload());
-        this.settings.connect('changed::media-player-hide-track', () => this.reload());
+        this.settings.connect('changed::media-player-enable-track', () => this.reload());
         this.reload();
 
         this.stockMpris.visible = false;
@@ -638,14 +643,14 @@ var Extension = class Extension {
 
         pos = this.settings.get_int('media-player-position');
         offset = this.settings.get_int('media-player-offset');
-        if(!this.settings.get_boolean('media-player-hide-track')){
+        if(this.settings.get_boolean('media-player-enable-track')){
             this.panelButton = new MediaButton(this.settings);
             Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
         }
 
         pos = this.settings.get_int('media-player-controls-position');
         offset = this.settings.get_int('media-player-controls-offset');
-        if(!this.settings.get_boolean('media-player-hide-controls')){
+        if(this.settings.get_boolean('media-player-enable-controls')){
             this.controls = new MediaControls();
             this.panelBox[pos].insert_child_at_index(this.controls, offset);
         }

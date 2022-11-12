@@ -168,7 +168,12 @@ var Extension = class Extension{
 
         if(position === 3){
             this.indicator = new Indicator(this.settings);
-            Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this.indicator, offset);
+
+            if(Main.panel.statusArea.quickSettings)
+                Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this.indicator, offset);
+    
+            if(Main.panel.statusArea.aggregateMenu)
+                Main.panel.statusArea.aggregateMenu._indicators.insert_child_at_index(this.indicator, offset);
         }else{
             this.indicator = new PanelButton(this.settings);
             Main.panel.addToStatusArea('Notifications', this.indicator, offset, this.pos[position]);
