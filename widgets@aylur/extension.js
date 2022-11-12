@@ -27,7 +27,8 @@ const WorkspaceIndicator = Me.imports.workspaceIndicator;
 const NotificationIndicator = Me.imports.notificationIndicator;
 const BackgroundClock = Me.imports.backgroundClock;
 const DateMenuMod = Me.imports.dateMenuMod;
-const QuickToggles = Me.imports.quickToggles;
+
+const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
 
 class Extension {
     constructor() {}
@@ -42,7 +43,6 @@ class Extension {
         this.notificationIndicator = new NotificationIndicator.Extension();
         this.backgroundClock = new BackgroundClock.Extension();
         this.dateMenuMod = new DateMenuMod.Extension();
-        this.quickToggles = new QuickToggles.Extension();
 
         if(this.settings.get_boolean('battery-bar')) this.toggleExtension(this.batteryBar);
         if(this.settings.get_boolean('dash-board')) this.toggleExtension(this.dashBoard);
@@ -52,7 +52,6 @@ class Extension {
         if(this.settings.get_boolean('notification-indicator')) this.toggleExtension(this.notificationIndicator);
         if(this.settings.get_boolean('background-clock')) this.toggleExtension(this.backgroundClock);
         if(this.settings.get_boolean('date-menu-mod')) this.toggleExtension(this.dateMenuMod);
-        if(this.settings.get_boolean('quick-toggles')) this.toggleExtension(this.quickToggles);
         
         this.settings.connect('changed::battery-bar', () => this.toggleExtension(this.batteryBar));
         this.settings.connect('changed::dash-board', () => this.toggleExtension(this.dashBoard));
@@ -62,7 +61,12 @@ class Extension {
         this.settings.connect('changed::notification-indicator', () => this.toggleExtension(this.notificationIndicator));
         this.settings.connect('changed::background-clock', () => this.toggleExtension(this.backgroundClock));
         this.settings.connect('changed::date-menu-mod', () => this.toggleExtension(this.dateMenuMod));
-        this.settings.connect('changed::quick-toggles', () => this.toggleExtension(this.quickToggles));
+
+        if(GnomeVersion >= 43){
+            this.quickToggles = new Me.imports.quickToggles.Extension();
+            if(this.settings.get_boolean('quick-toggles')) this.toggleExtension(this.quickToggles);
+            this.settings.connect('changed::quick-toggles', () => this.toggleExtension(this.quickToggles));
+        }
     }
 
     disable() {
@@ -74,7 +78,6 @@ class Extension {
         if(this.notificationIndicator.enabled){ this.notificationIndicator.disable(); this.notificationIndicator.enabled = false; }
         if(this.backgroundClock.enabled){ this.backgroundClock.disable(); this.backgroundClock.enabled = false; }
         if(this.dateMenuMod.enabled){ this.dateMenuMod.disable(); this.dateMenuMod.enabled = false; }
-        if(this.quickToggles.enabled){ this.quickToggles.disable(); this.quickToggles.enabled = false; }
 
         this.batteryBar = null;
         this.dashBoard = null;
@@ -84,7 +87,11 @@ class Extension {
         this.notificationIndicator = null;
         this.backgroundClock = null;
         this.dateMenuMod = null;
-        this.quickToggles = null;
+
+        if(GnomeVersion >= 43){
+            if(this.quickToggles.enabled){ this.quickToggles.disable(); this.quickToggles.enabled = false; }
+            this.quickToggles = null;
+        }
     }
 
     toggleExtension(extension){

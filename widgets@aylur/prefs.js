@@ -5,6 +5,8 @@ const { Adw, Gio, Gtk, GObject, Gdk, GdkPixbuf } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
+
 const { wsNamesGroup } = Me.imports.prefsWS; 
 
 function init() {}
@@ -760,6 +762,8 @@ class MainPage extends Adw.PreferencesPage{
         group.add(new ToggleRow(new WorkspaceIndicatorPage(settings), 'workspace-indicator'));
         group.add(new ToggleRow(new NotificationIndicatorPage(settings), 'notification-indicator'));
         group.add(new ToggleRow(new BackgroundClockPage(settings), 'background-clock'));
+
+        if(GnomeVersion >= 43)
         group.add(new ToggleRow(new QuickTogglesPage(settings), 'quick-toggles'));
     }
 });
