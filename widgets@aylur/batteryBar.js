@@ -34,12 +34,16 @@ class LevelBar extends St.Bin{
         this.fillLevel.label = new St.Label({
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
-            x_expand: false,
+            x_expand: false
         });
         this.background.label = new St.Label({
             x_align: Clutter.ActorAlign.START,
-            y_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER
         });
+
+        this.fillLevel.set_child(this.fillLevel.label);
+        this.background.add_child(this.background.label);
+
 
         this._value = 0;
         this.settings = settings;
@@ -88,7 +92,7 @@ class LevelBar extends St.Bin{
         if(repaint) this.repaint();
     }
 
-    repaint(recursive = true){
+    repaint(){
         if(this.fillLevel.has_allocation() && this.background.has_allocation()){
             let max = this.width;
             let zero = Math.min(this.radius*2, this.background.height);
@@ -100,36 +104,24 @@ class LevelBar extends St.Bin{
             this.background.label.text = label;
 
             
-            if(this.settings.get_boolean('battery-bar-show-percentage')){
-                if(this._value >= 0.5){
-                    if(!this.fillLevel.hasLabel){
-                        this.fillLevel.set_child(this.fillLevel.label);
-                        this.fillLevel.hasLabel = true;
-                    }
-                    if(this.background.hasLabel){
-                        this.background.remove_child(this.background.label);
-                        this.background.hasLabel = false;
-                    }
+            if(this.showLabel){
+                if(this._value >= 0.4){
+                    this.fillLevel.label.show();
+                    this.background.label.hide();
+                    log('1');
                 }else{
-                    if(this.fillLevel.hasLabel){
-                        this.fillLevel.remove_child(this.fillLevel.label);
-                        this.fillLevel.hasLabel = false;
-                    }
-                    if(!this.background.hasLabel){
-                        this.background.add_child(this.background.label);
-                        this.background.hasLabel = true;
-                    }
+                    this.fillLevel.label.hide();
+                    this.background.label.show();
+                    log('2')
                 }
             }else{
-                if(this.fillLevel.hasLabel){
-                    this.fillLevel.remove_child(this.fillLevel.label);
-                    this.fillLevel.hasLabel = false;
-                }
-                if(this.background.hasLabel){
-                    this.background.remove_child(this.background.label);
-                    this.background.hasLabel = false;
-                }
+                this.fillLevel.label.hide();
+                this.background.label.hide();
+                log('3')
             }
+
+            log(this._value);
+
 
             if(this.charging){
                 this.fillLevel.style = `
@@ -150,11 +142,6 @@ class LevelBar extends St.Bin{
                     background-color: ${this.color};
                 `;
             }
-            
-        }
-        else{
-            if(recursive)
-                setTimeout(() => this.repaint(false), 2000);
         }
     }
 });
@@ -233,6 +220,7 @@ var Extension = class Extension{
         if(Main.panel.statusArea.aggregateMenu)
             this.stockIndicator = Main.panel.statusArea.aggregateMenu._power;
     }
+
     enable(){
         this.settings = ExtensionUtils.getSettings();
         this.settings.connect('changed::battery-bar-position', () => this.addToPanel());
@@ -242,12 +230,14 @@ var Extension = class Extension{
         this.addToPanel();
         this.stockIndicator.hide();
     }
+
     disable(){
         this.settings = null;
         this.panelButton.destroy();
         this.panelButton = null;
         this.stockIndicator.show();
     }
+    
     addToPanel(){
         if(this.panelButton){
             this.panelButton.destroy();
@@ -259,6 +249,5 @@ var Extension = class Extension{
         let offset = this.settings.get_int('battery-bar-offset');
 
         this.panel[pos].insert_child_at_index(this.panelButton, offset);
-
     }
 }

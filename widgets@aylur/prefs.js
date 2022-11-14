@@ -151,6 +151,47 @@ class PositionRow extends Adw.ActionRow{
 
 });
 
+const FileChooserButton = GObject.registerClass(
+class FileChooserButton extends Gtk.Button{
+    _init(settings, settingName){
+        super._init({
+            icon_name: 'folder-open-symbolic',
+            valign: Gtk.Align.CENTER
+        })
+
+        this.settings = settings;
+        this.settingName = settingName;
+
+        this.connect('clicked', this._onClick.bind(this));
+    }
+
+    _onClick(){
+        this.dialog = new Gtk.FileChooserDialog({ title: 'Select File' });
+        let window = this.get_root();
+        this.dialog.set_transient_for(window)
+        let header = this.dialog.get_header_bar();
+        header.show_title_buttons = false;
+
+        let selectBtn = new Gtk.Button({ label: 'Select' });
+        let cancelBtn = new Gtk.Button({ label: 'Cancel' });
+        selectBtn.get_style_context().add_class('suggested-action');
+
+        selectBtn.connect('clicked', () => this._onSelect());
+        cancelBtn.connect('clicked', () => this.dialog.close());
+
+        header.pack_end(selectBtn);
+        header.pack_start(cancelBtn);
+
+        this.dialog.show();
+    }
+
+    _onSelect(){
+        let path = this.dialog.get_file().file.get_path();
+        this.settings.set_string(this.settingName, path);
+        this.dialog.close();
+    }
+});
+
 // https://gitlab.com/arcmenu/ArcMenu
 const HotkeyDialog = GObject.registerClass({
     Signals: {
@@ -427,16 +468,9 @@ class DashBoardPage extends SubPage{
         buttonGroup.add(new SwitchRow('Hide Activities Button', settings, 'dash-hide-activities'));
         let enableExpander = new ExpanderRow('Enable Panel Button', settings, 'dash-button-enable');
         enableExpander.add_row(new PositionRow('Position', settings, 'dash-button-position', 'dash-button-offset'));
-        let showIconExpander = new ExpanderRow('Show Icon', settings, 'dash-button-show-icon');
-        enableExpander.add_row(showIconExpander);
-        let pathRow = new Adw.EntryRow({
-            title: 'Icon Path',
-            text: settings.get_string('dash-button-icon-path'),
-            input_purpose: Gtk.InputPurpose.URL
-        });
-        pathRow.connect('notify::text', () =>
-            settings.set_string('dash-button-icon-path', pathRow.text));
-        showIconExpander.add_row(pathRow);
+        let showIcon = new SwitchRow('Show Icon', settings, 'dash-button-show-icon');
+        showIcon.add_suffix(new FileChooserButton(settings, 'dash-button-icon-path'));
+        enableExpander.add_row(showIcon);
         enableExpander.add_row(new EntryRow('Label', settings, 'dash-button-label'));
         buttonGroup.add(enableExpander);
 

@@ -114,14 +114,6 @@ class ClockWidget extends St.BoxLayout{
     }
 
     _updateStyle(){
-        let xOffset = this._settings.get_int('background-clock-x-offset');
-        let yOffset = this._settings.get_int('background-clock-y-offset');
-
-        this.margin_left = xOffset * this.scaling;
-        this.margin_right = xOffset * this.scaling;
-        this.margin_top = yOffset * this.scaling;
-        this.margin_bottom = yOffset * this.scaling;
-
         this.style = `
             background-color: ${this._settings.get_string('background-clock-bg-color')};
             border: ${this._settings.get_int('background-clock-bg-border-size') * this.scaling}px
@@ -135,6 +127,10 @@ class ClockWidget extends St.BoxLayout{
                         ${this._settings.get_int('background-clock-bg-shadow-width') * this.scaling}px
                         ${this._settings.get_string('background-clock-bg-shadow-color')};
             padding: ${this._settings.get_int('background-clock-bg-padding') * this.scaling}px;
+            margin-left: ${this._settings.get_int('background-clock-x-offset') * this.scaling}px;
+            margin-right: ${this._settings.get_int('background-clock-x-offset') * this.scaling}px;
+            margin-top: ${this._settings.get_int('background-clock-y-offset') * this.scaling}px;
+            margin-bottom: ${this._settings.get_int('background-clock-y-offset') * this.scaling}px;
         `;
 
         this._clock.style = `
