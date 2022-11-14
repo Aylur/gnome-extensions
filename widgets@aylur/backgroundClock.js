@@ -18,8 +18,6 @@ class ClockWidget extends St.BoxLayout{
 
         this._clock = new St.Label({ x_expand: true });
         this._date = new St.Label({ x_expand: true });
-        this._clock.clutter_text.use_markup = true;
-        this._date.clutter_text.use_markup = true;
 
         this._settings = ExtensionUtils.getSettings();
         this._settings.connect('changed::background-clock-position', this._settingsChanged.bind(this));
@@ -29,6 +27,8 @@ class ClockWidget extends St.BoxLayout{
         this._settings.connect('changed::background-clock-enable-clock', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-clock-format', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-clock-size', this._settingsChanged.bind(this));
+        this._settings.connect('changed::background-clock-clock-custom-font', this._settingsChanged.bind(this));
+        this._settings.connect('changed::background-clock-clock-font', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-clock-color', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-clock-shadow-x', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-clock-shadow-y', this._settingsChanged.bind(this));
@@ -39,6 +39,8 @@ class ClockWidget extends St.BoxLayout{
         this._settings.connect('changed::background-clock-enable-date', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-date-format', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-date-size', this._settingsChanged.bind(this));
+        this._settings.connect('changed::background-clock-date-custom-font', this._settingsChanged.bind(this));
+        this._settings.connect('changed::background-clock-date-font', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-date-color', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-date-shadow-x', this._settingsChanged.bind(this));
         this._settings.connect('changed::background-clock-date-shadow-y', this._settingsChanged.bind(this));
@@ -134,6 +136,7 @@ class ClockWidget extends St.BoxLayout{
         `;
 
         this._clock.style = `
+            font-size: ${this._settings.get_int('background-clock-clock-size') * this.scaling}pt;
             color: ${this._settings.get_string('background-clock-clock-color')};
             text-shadow:${this._settings.get_int('background-clock-clock-shadow-x') * this.scaling}px
                         ${this._settings.get_int('background-clock-clock-shadow-y') * this.scaling}px
@@ -141,8 +144,11 @@ class ClockWidget extends St.BoxLayout{
                         ${this._settings.get_int('background-clock-clock-shadow-width') * this.scaling}px
                         ${this._settings.get_string('background-clock-clock-shadow-color')};
         `;
+        if(this._settings.get_boolean('background-clock-clock-custom-font'))
+            this._clock.style += `font-family: ${this._settings.get_string('background-clock-clock-font')};`;
 
         this._date.style = `
+            font-size: ${this._settings.get_int('background-clock-date-size') * this.scaling}pt;
             color: ${this._settings.get_string('background-clock-date-color')};
             text-shadow:${this._settings.get_int('background-clock-date-shadow-x') * this.scaling}px
                         ${this._settings.get_int('background-clock-date-shadow-y') * this.scaling}px
@@ -150,21 +156,21 @@ class ClockWidget extends St.BoxLayout{
                         ${this._settings.get_int('background-clock-date-shadow-width') * this.scaling}px
                         ${this._settings.get_string('background-clock-date-shadow-color')};
         `;
+        if(this._settings.get_boolean('background-clock-date-custom-font'))
+            this._date.style += `font-family: ${this._settings.get_string('background-clock-date-font')};`;
     }
 
     _updateClock(){
         let clock = GLib.DateTime.new_now_local().format(this._clockFormat);
         let date = GLib.DateTime.new_now_local().format(this._dateFormat);
 
-        let clockSize = this._settings.get_int('background-clock-clock-size') * this.scaling;
-        let dateSize = this._settings.get_int('background-clock-date-size') * this.scaling;
-
-        this._clock.clutter_text.text = `<span size="${clockSize}pt" >${clock}</span>`;
-        this._date.clutter_text.text = `<span size="${dateSize}pt" >${date}</span>`;
+        this._clock.set_text(clock);
+        this._date.set_text(date);
     }
 
     _onDestroy() {
         this._wallclock.disconnectObject(this);
+        this._wallclock.run_dispose();
         this._wallclock = null;
         this._settings.run_dispose();
         this._settings = null;

@@ -349,6 +349,14 @@
       <default>true</default>
     </key>
 
+    <key name="background-clock-clock-custom-font" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="background-clock-clock-font" type="s">
+      <default>"Cantarell"</default>
+    </key>
+
     <key name="background-clock-clock-size" type="i">
       <default>78</default>
     </key>
@@ -379,6 +387,14 @@
 
     <key name="background-clock-enable-date" type="b">
       <default>true</default>
+    </key>
+
+    <key name="background-clock-date-custom-font" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="background-clock-date-font" type="s">
+      <default>"Cantarell"</default>
     </key>
 
     <key name="background-clock-date-size" type="i">

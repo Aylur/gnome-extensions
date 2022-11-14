@@ -18,10 +18,8 @@ class SpinButtonRow extends Adw.ActionRow{
     
         let gspin = Gtk.SpinButton.new_with_range(low, high, step);
         gspin.valign = Gtk.Align.CENTER;
-        settings.bind(
-            settingName,
-            gspin,
-            'value',
+        settings.bind( settingName,
+            gspin, 'value',
             Gio.SettingsBindFlags.DEFAULT
         );
         this.add_suffix(gspin);
@@ -37,10 +35,8 @@ class EntryRow extends Adw.ActionRow{
         let gentry = new Gtk.Entry({ valign: Gtk.Align.CENTER, });
         gentry.connect('activate',
             () => settings.set_string(settingName, gentry.buffer.text));
-        settings.bind(
-            settingName,
-            gentry.buffer,
-            'text',
+        settings.bind( settingName,
+            gentry.buffer, 'text',
             Gio.SettingsBindFlags.DEFAULT
         );
         this.add_suffix(gentry);
@@ -55,10 +51,8 @@ class DropDownRow extends Adw.ActionRow{
     
         let glist = Gtk.DropDown.new_from_strings(list);
         glist.valign = Gtk.Align.CENTER;
-        settings.bind(
-            settingName,
-            glist,
-            'selected',
+        settings.bind( settingName,
+            glist, 'selected',
             Gio.SettingsBindFlags.DEFAULT
         );
         this.add_suffix(glist);
@@ -75,10 +69,8 @@ class SwitchRow extends Adw.ActionRow{
             active: settings.get_boolean(settingName),
             valign: Gtk.Align.CENTER,
         });
-        settings.bind(
-            settingName,
-            this.switch,
-            'active',
+        settings.bind( settingName,
+            this.switch, 'active',
             Gio.SettingsBindFlags.DEFAULT
         );
         this.add_suffix(this.switch);
@@ -639,6 +631,7 @@ class BackgroundClockPage extends SubPage{
         let clockExpander = new ExpanderRow('Clock', settings, 'background-clock-enable-clock');
         clockExpander.add_row(new EntryRow('Clock Format', settings, 'background-clock-clock-format'));
         clockExpander.add_row(new SpinButtonRow('Clock Size', settings, 'background-clock-clock-size', 1, 200, 2));
+        clockExpander.add_row(this._addCustomFontRow(settings, 'background-clock-clock-custom-font', 'background-clock-clock-font'));
         clockExpander.add_row(new ColorRow('Clock Color', settings, 'background-clock-clock-color'));
         clockExpander.add_row(new SpinButtonRow('Text Shadow x Offset', settings, 'background-clock-clock-shadow-x', 0, 50, 1));
         clockExpander.add_row(new SpinButtonRow('Text Shadow y Offset', settings, 'background-clock-clock-shadow-y', 0, 50, 1));
@@ -649,6 +642,7 @@ class BackgroundClockPage extends SubPage{
         let dateExpander = new ExpanderRow('Date', settings, 'background-clock-enable-date');
         dateExpander.add_row(new EntryRow('Date Format', settings, 'background-clock-date-format'));
         dateExpander.add_row(new SpinButtonRow('Date Size', settings, 'background-clock-date-size', 1, 200, 2));
+        dateExpander.add_row(this._addCustomFontRow(settings, 'background-clock-date-custom-font', 'background-clock-date-font'));
         dateExpander.add_row(new ColorRow('Date Color', settings, 'background-clock-date-color'));
         dateExpander.add_row(new SpinButtonRow('Text Shadow x Offset', settings, 'background-clock-date-shadow-x', 0, 50, 1));
         dateExpander.add_row(new SpinButtonRow('Text Shadow y Offset', settings, 'background-clock-date-shadow-y', 0, 50, 1));
@@ -704,6 +698,23 @@ class BackgroundClockPage extends SubPage{
         }));
 
         group.add(textBox);
+   }
+
+   _addCustomFontRow(settings, switchName, settingName){
+        let row = new SwitchRow('Custom Font', settings, switchName);
+        let fontBtn = new Gtk.FontButton({
+            valign: Gtk.Align.CENTER,
+            use_size: false,
+            use_font: true,
+            level: Gtk.FontChooserLevel.FAMILY,
+            font: settings.get_string(settingName)
+        });
+        fontBtn.connect('font-set', () => {
+            let font = fontBtn.get_font_family().get_name();
+            settings.set_string(settingName, font);
+        });
+        row.add_suffix(fontBtn);
+        return row;
    }
 });
 
