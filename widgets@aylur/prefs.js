@@ -726,7 +726,7 @@ class QuickTogglesPage extends SubPage{
         const group = new Adw.PreferencesGroup({ title: 'Quick Toggles' });
         this.add(group);
 
-        group.add(new DropDownRow('Stlye', settings, 'quick-toggles-style', ["Normal", "Separated", "Compact"]));
+        group.add(new DropDownRow('Style', settings, 'quick-toggles-style', ["Normal", "Separated", "Compact"]));
         group.add(new SwitchRow('Hide Notifications', settings, 'quick-toggles-hide-notifications'));
         group.add(new SwitchRow('Hide System Levels', settings, 'quick-toggles-hide-system-levels'));
         group.add(new SwitchRow('Hide Media', settings, 'quick-toggles-hide-media'));
