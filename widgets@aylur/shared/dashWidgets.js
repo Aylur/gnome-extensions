@@ -8,8 +8,8 @@ const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const Dash = imports.ui.dash;
 const SystemActions = imports.misc.systemActions;
-const MediaPlayer = Me.imports.mediaPlayer;
-const SystemLevels = Me.imports.systemLevels;
+const Media = Me.imports.shared.media;
+const SystemLevels = Me.imports.shared.systemLevels;
 
 // USERBOX
 var UserBox = GObject.registerClass(
@@ -135,7 +135,7 @@ class LevelsBox extends St.BoxLayout{
 
 //MEDIA
 var MediaBox = GObject.registerClass(
-class MediaBox extends St.Bin{
+class MediaBox extends Media.Media{
     _init(vertical, coverSize){
         super._init({
             x_expand: true,
@@ -147,19 +147,19 @@ class MediaBox extends St.Bin{
         this.vertical = vertical;
         this.coverSize = coverSize;
 
-        this.media = new MediaPlayer.Media();
-        this.media.connect('updated', () => this._sync());
-
+        this.connect('updated', () => this._sync());
         this._sync();
     }
 
     _sync(){
-        let mpris = this.media.getPlayer();
+        let mpris = this.getPlayer();
         if(mpris){
-
-            this.player = new MediaPlayer.Player(mpris);
-            this._buildPlayerUI();
+            if(!this.player){
+                this.player = new Media.PlayerWidget(mpris);
+                this._buildPlayerUI();
+            }
             this.set_child(this.player);
+            this.player.setMpris(mpris);
             
         }else{
             this.set_child(new St.Label({

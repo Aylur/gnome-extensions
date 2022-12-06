@@ -58,19 +58,18 @@
 .datemenu-levels{ spacing: 8px; }
 
 /* media */
-.media-player{ padding: 16px; spacing: 8px }
+.media-player > StBoxLayout{ padding: 16px; spacing: 8px }
 .media-player .media-cover-normal{
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
 }
 .media-player .media-cover-compact{
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
 }
 
-/* player-ui */
+/* media-player-ui */
 .media-container{ spacing: 8px; }
-.media-cover{ padding: 4px; border-radius: 0; }
 .media-container .message-media-control{ padding: 6px; margin: 0; }
 .media-container .message-media-control StIcon{ icon-size: 24px; }
 .media-container .message-media-control:first-child StIcon,

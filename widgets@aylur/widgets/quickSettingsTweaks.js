@@ -9,8 +9,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Mainloop = imports.mainloop;
 const Calendar = imports.ui.calendar;
 
-const SystemLevels = Me.imports.systemLevels;
-const MediaPlayer = Me.imports.mediaPlayer;
+const SystemLevels = Me.imports.shared.systemLevels;
+const MediaPlayer = Me.imports.shared.media;
 
 const Network = imports.ui.status.network;
 const Bluetooth = imports.ui.status.bluetooth;
@@ -33,7 +33,7 @@ const NIGHT_LIGHT_MIN = 1400;
 const QuickSettingsSystem = GObject.registerClass(
 class QuickSettingsSystem extends St.BoxLayout{
     _init(){
-        super._init({ style_class: 'quick-toggles-system' });
+        super._init({ style_class: 'quick-settings-system' });
 
         //userBtn
         let userBtn = this._addBtn('', 
@@ -158,7 +158,7 @@ class PowerButton extends St.Button{
 const QuickTogglesBottom = GObject.registerClass(
 class QuickTogglesBottom extends St.BoxLayout{
     _init(){
-        super._init({ style_class: 'quick-toggles-bottom' });
+        super._init({ style_class: 'quick-settings-bottom' });
 
         //clock
         this.clock = new St.Label({
@@ -561,10 +561,10 @@ var Extension = class Extension {
 
     enable() {
         this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::quick-toggles-style', () => this._buildUI());
-        this.settings.connect('changed::quick-toggles-hide-notifications', () => this._buildUI());
-        this.settings.connect('changed::quick-toggles-hide-system-levels', () => this._buildUI());
-        this.settings.connect('changed::quick-toggles-hide-media', () => this._buildUI());
+        this.settings.connect('changed::quick-settings-style', () => this._buildUI());
+        this.settings.connect('changed::quick-settings-hide-notifications', () => this._buildUI());
+        this.settings.connect('changed::quick-settings-hide-system-levels', () => this._buildUI());
+        this.settings.connect('changed::quick-settings-hide-media', () => this._buildUI());
         this.qs.menu.box.remove_all_children();
         this.qs.menu.box.add_style_class_name('quick-settings-main');
 
@@ -594,10 +594,10 @@ var Extension = class Extension {
     _buildUI(){
         this.qs.menu.box.remove_all_children();
 
-        let systemLevels = !this.settings.get_boolean('quick-toggles-hide-system-levels');
+        let systemLevels = !this.settings.get_boolean('quick-settings-hide-system-levels');
         this.quickToggles = new QuickToggles(systemLevels, !systemLevels);
 
-        if(!this.settings.get_boolean('quick-toggles-hide-media'))
+        if(!this.settings.get_boolean('quick-settings-hide-media'))
             this.mediaBox = new MediaBox();
         else if(this.mediaBox) this.mediaBox = null;
 
@@ -606,7 +606,7 @@ var Extension = class Extension {
         this.systemBox = new QuickSettingsSystem();
         this.bottom = new QuickTogglesBottom();
 
-        let layout = this.settings.get_int('quick-toggles-style');
+        let layout = this.settings.get_int('quick-settings-style');
         switch (layout) {
             case 0:  this._layout0(); break;
             case 1:  this._layout1(); break;
@@ -614,7 +614,7 @@ var Extension = class Extension {
             default: this._layout0(); break;
         }
 
-        if(!this.settings.get_boolean('quick-toggles-hide-notifications')){
+        if(!this.settings.get_boolean('quick-settings-hide-notifications')){
             this.notifications = new Notifications();
             this.qs.menu.box.add_child(this.notifications);
         }

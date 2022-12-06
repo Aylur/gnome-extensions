@@ -3,7 +3,6 @@
 const { St, GLib, Shell, Gio, Clutter, GObject, GnomeDesktop, UPowerGlib: UPower } = imports.gi;
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension()
-const DateMenu = Main.panel.statusArea.dateMenu;
 const Mainloop = imports.mainloop;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;

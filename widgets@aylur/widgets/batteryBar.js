@@ -103,25 +103,18 @@ class LevelBar extends St.Bin{
             this.fillLevel.label.text = label;
             this.background.label.text = label;
 
-            
             if(this.showLabel){
                 if(this._value >= 0.4){
                     this.fillLevel.label.show();
                     this.background.label.hide();
-                    log('1');
                 }else{
                     this.fillLevel.label.hide();
                     this.background.label.show();
-                    log('2')
                 }
             }else{
                 this.fillLevel.label.hide();
                 this.background.label.hide();
-                log('3')
             }
-
-            log(this._value);
-
 
             if(this.charging){
                 this.fillLevel.style = `

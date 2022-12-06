@@ -5,8 +5,8 @@ const Main = imports.ui.main;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const DateMenu = Main.panel.statusArea.dateMenu;
-const MediaPlayer = Me.imports.mediaPlayer;
-const SystemLevels = Me.imports.systemLevels;
+const Media = Me.imports.shared.media;
+const SystemLevels = Me.imports.shared.systemLevels;
 const Mainloop = imports.mainloop;
 
 const LevelsBox = GObject.registerClass(
@@ -105,10 +105,12 @@ class CustomMenu extends St.BoxLayout{
 
         //calendar
         let calendarBox = new St.Bin({
-            x_align: Clutter.ActorAlign.CENTER,
+            x_expand: true,
             style_class: 'events-button'
         });
         calendarBox.set_child(calendar);
+        calendar.x_expand = true;
+        calendar.x_align = Clutter.ActorAlign.CENTER;
 
         //UI
         let scrollView = new St.ScrollView({
@@ -138,14 +140,10 @@ class CustomMenu extends St.BoxLayout{
 
         //media
         if(!settings.get_boolean('date-menu-hide-media')){
-            this.media = new MediaPlayer.Media();
+            this.media = new Media.Media({ style_class: 'events-button' });
             this.media.connect('updated', () => this._syncMedia());
-            this.mediaBox = new St.Bin({
-                style_class: 'events-button',
-            });
             this._syncMedia();
-
-            scrollItems.add_child(this.mediaBox);
+            scrollItems.add_child(this.media);
         }
 
         //system-levels
@@ -196,13 +194,15 @@ class CustomMenu extends St.BoxLayout{
     _syncMedia(){
         let mpris = this.media.getPlayer();
         if(mpris){
-            this.mediaBox.show();
-
-            this.player = new MediaPlayer.Player(mpris);
-            this._buildPlayerUI();
-            this.mediaBox.set_child(this.player);
+            if(!this.player){
+                this.player = new Media.PlayerWidget(mpris);
+                this._buildPlayerUI();
+                this.media.set_child(this.player);
+            }
+            this.player.setMpris(mpris);
+            this.media.show();
         }else{
-            this.mediaBox.hide();
+            this.media.hide();
         }
     }
 
@@ -211,14 +211,16 @@ class CustomMenu extends St.BoxLayout{
 
         elements.mediaCover.x_align = Clutter.ActorAlign.CENTER;
         elements.mediaCover.y_expand = true;
-        elements.mediaCover.height = 200;
-        elements.mediaCover.width = 200;
+        elements.mediaCover.height = 220;
+        elements.mediaCover.width = 220;
         elements.controlsBox.vertical = true;
         elements.controlsBox.y_align = Clutter.ActorAlign.CENTER;
         elements.titleBox.vertical = false;
-        elements.titleBox.x_align = Clutter.ActorAlign.START;
+        elements.titleBox.x_expand = true;
         elements.titleBox.insert_child_at_index(new St.Label({ text: ' - ' }), 1);
-        elements.titleBox.width = 230;
+        elements.titleBox.insert_child_at_index(new St.Widget({ x_expand: true }), 0);
+        elements.titleBox.insert_child_at_index(new St.Widget({ x_expand: true }), 4);
+        elements.titleBox.width = elements.mediaCover.width + elements.controlsBox.width;
 
         let hbox = new St.BoxLayout({ style_class: 'media-container' });
         hbox.add_child(elements.mediaCover);

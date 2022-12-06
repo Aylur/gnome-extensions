@@ -1,3 +1,5 @@
+'use strict';
+
 const { Clutter, GObject, GLib, St, Meta, GnomeDesktop } = imports.gi;
 
 const Background = imports.ui.background;

@@ -11,7 +11,7 @@
     <key name="dash-board" type="b">
       <default>true</default>
     </key>
-    <key name="date-menu-mod" type="b">
+    <key name="date-menu-tweaks" type="b">
       <default>true</default>
     </key>
     <key name="media-player" type="b">
@@ -29,7 +29,7 @@
     <key name="background-clock" type="b">
       <default>true</default>
     </key>
-    <key name="quick-toggles" type="b">
+    <key name="quick-settings-tweaks" type="b">
       <default>true</default>
     </key>
 
@@ -154,7 +154,7 @@
       <default>42</default>
     </key>
 
-    <!-- date-menu-mod -->
+    <!-- date-menu-tweak -->
     <key name="date-menu-position" type="i">
       <default>1</default> 
     </key>
@@ -246,6 +246,14 @@
 
     <key name="media-player-enable-track" type="b">
       <default>true</default>
+    </key>
+
+    <key name="media-player-cover-padding" type="i">
+      <default>3</default>
+    </key>
+
+    <key name="media-player-cover-roundness" type="i">
+      <default>12</default>
     </key>
 
     <!-- power-menu -->
@@ -503,19 +511,19 @@
     </key>
 
     <!-- quick-toggles -->
-    <key name="quick-toggles-style" type="i">
+    <key name="quick-settings-style" type="i">
       <default>0</default>
     </key>
 
-    <key name="quick-toggles-hide-notifications" type="b">
+    <key name="quick-settings-hide-notifications" type="b">
       <default>false</default>
     </key>
 
-    <key name="quick-toggles-hide-system-levels" type="b">
+    <key name="quick-settings-hide-system-levels" type="b">
       <default>false</default>
     </key>
 
-    <key name="quick-toggles-hide-media" type="b">
+    <key name="quick-settings-hide-media" type="b">
       <default>false</default>
     </key>
 

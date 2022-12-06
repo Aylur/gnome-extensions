@@ -1,11 +1,8 @@
 'use strict';
 
-const { GObject, St, Gio, Clutter, Shell } = imports.gi;
+const { GObject, St, Gio, Clutter, Shell, GLib } = imports.gi;
 const { Slider } = imports.ui.slider;
 const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension()
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
 
 const PlayerIFace =
 `<node>
@@ -46,6 +43,8 @@ const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(PlayerIFace);
 const MprisProxy = Gio.DBusProxy.makeProxyWrapper(MprisIFace);
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(imports.misc.fileUtils.loadInterfaceXML('org.freedesktop.DBus'));
 
+const blackListVolumeSlider = [ 'Spot' ];
+
 const MprisPlayer = GObject.registerClass({
     Signals: {
         'changed' : {},
@@ -67,17 +66,15 @@ class MprisPlayer extends St.Widget {
         this._trackArtists = [];
         this._trackTitle = '';
         this._trackCoverUrl = '';
-
         this._playBackStatus = '';
         this._canGoNext = false;
         this._canGoPrev = false; 
         this._canPlay = false;
-
         this._shuffle = false;
         this._loopStatus = '';
-
         this._volume = -1;
     }
+
     get busName(){ return this._busName; }
     get trackArtists(){ return this._trackArtists; }
     get trackTitle(){ return this._trackTitle; }
@@ -91,10 +88,15 @@ class MprisPlayer extends St.Widget {
     get volume(){ return this._volume; }
 
     setVolume(value){ this._playerProxy.Volume = value; }
+
     playPause() { this._playerProxy.PlayPauseRemote(); }
+    
     next() { this._playerProxy.NextRemote(); }
+    
     previous() { this._playerProxy.PreviousRemote(); }
+    
     shuffle(){ this._playerProxy.Shuffle = !this._playerProxy.Shuffle; }
+
     loop(){
         switch (this._playerProxy.LoopStatus) {
           case "None":
@@ -110,6 +112,7 @@ class MprisPlayer extends St.Widget {
               break;
         }
     }
+
     raise() {
         let app = null;
         if (this._mprisProxy.DesktopEntry) {
@@ -189,14 +192,14 @@ class MprisPlayer extends St.Widget {
     }
 });
 
-var Player = GObject.registerClass(
-class Player extends St.BoxLayout{
+var PlayerWidget = GObject.registerClass(
+class PlayerWidget extends St.BoxLayout{
     _init(mprisPlayer){
         super._init();
 
         this.player = mprisPlayer;
 
-        //ELEMENTS
+        //control widgets
         this.mediaCover = new St.Button({
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
@@ -204,10 +207,14 @@ class Player extends St.BoxLayout{
             reactive: true,
             can_focus: true,
         });
+        this.coverDummy = new St.Icon({
+            icon_name: 'applications-multimedia-symbolic',
+            icon_size: Math.floor(this.mediaCover.width/3)
+        });
         this.mediaCover.connect('clicked', () => this.player.raise()),
 
-        this._mediaTitle = new St.Label();
-        this._mediaArtist = new St.Label();
+        this._mediaTitle = new St.Label({ text: '' });
+        this._mediaArtist = new St.Label({ text: '' });
 
         this._shuffleBtn   = this._addButton('media-playlist-shuffle-symbolic', () => this.player.shuffle());
         this._prevBtn      = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
@@ -219,7 +226,7 @@ class Player extends St.BoxLayout{
         this._volumeSlider = new Slider(0);
         this._volumeSlider.connect('notify::value', () => this.player.setVolume(this._volumeSlider.value));
         
-        //UI
+        //ui containers
         this.titleBox = new St.BoxLayout({
             vertical: true,
             style: 'text-align: center',
@@ -246,13 +253,36 @@ class Player extends St.BoxLayout{
         this.volumeBox.add_child(this._volumeIcon);
         this.volumeBox.add_child(this._volumeSlider);
 
-        //LAYOUT
-        //The layout must be assembled by the widget which constructed this.
+        //the layout must be assembled by the widget which constructed this.
+
+        //settings
+        this.settings = ExtensionUtils.getSettings();
+        this.coverPadding = this.settings.get_int('media-player-cover-padding');
+        this.coverRadius = this.settings.get_int('media-player-cover-roundness');
+        this.settings.connect('changed::media-player-cover-padding', () => {
+            this.coverPadding = this.settings.get_int('media-player-cover-padding');
+            this._sync();
+        });
+        this.settings.connect('changed::media-player-cover-roundness', () => {
+            this.coverRadius = this.settings.get_int('media-player-cover-roundness');
+            this._sync();
+        });
 
         this.binding = this.player.connect('changed', () => this._sync());
-        this.connect('destroy', () => this.player.disconnect(this.binding));
+        this.connect('destroy', () => {
+            this.player.disconnect(this.binding);
+            this.settings.run_dispose();
+            this.settings = null;
+        });
+
         this._sync();
     }
+
+    setMpris(mpris){
+        this.player = mpris;
+        this._sync();
+    }
+
     _addButton(iconName, callback){
         let btn = new St.Button({
             can_focus: true,
@@ -267,21 +297,53 @@ class Player extends St.BoxLayout{
         btn.connect('clicked', callback);
         return btn;
     }
+
     _sync(){
-        this._mediaTitle.text = this.player.trackTitle;
+        //artists - title
         this._mediaArtist.text = this.player.trackArtists.join(', ');
+        this._mediaTitle.text = this.player.trackTitle;
 
-        if(this.player.trackCoverUrl !== '')
-            this.mediaCover.set_child(new St.Icon({
-                gicon: Gio.Icon.new_for_string(this.player.trackCoverUrl),
-                icon_size: this.mediaCover.width,
-            }));
-        else
-            this.mediaCover.set_child(new St.Icon({
-                icon_name: 'applications-multimedia-symbolic',
-                icon_size: Math.floor(this.mediaCover.width/3)
-            }));
 
+        //track cover
+        this.mediaCover.style = `
+            padding: ${this.coverPadding}px;
+            border-radius: ${this.coverRadius == 1 ? 1 : this.coverRadius+this.coverPadding}px;
+        `;
+        if(this.player.trackCoverUrl === '')
+            this.mediaCover.set_child(this.coverDummy);
+        else{
+            let widget = new St.Widget({
+                width: this.mediaCover.width,
+                height: this.mediaCover.height,
+            });
+            //The reason for copying the file seemingly for no reason is that I use spotify
+            //and sometimes it freezes gnome shell, while it is trying to
+            //set the background-image for the widget.
+            //Why not use St.Icon? Because I want to make it rounded.
+            Gio.File.new_for_uri(this.player.trackCoverUrl).copy_async(
+                Gio.File.new_for_path('/tmp/widgets_aylur_media_cover'),
+                Gio.FileCopyFlags.OVERWRITE,
+                GLib.PRIORITY_DEFAULT,
+                null,
+                null,
+                (source, result) => {
+                    try {
+                        source.copy_finish(result);
+                        widget.style = `
+                            border-radius: ${this.coverRadius}px;
+                            background-image: url("file:///tmp/widgets_aylur_media_cover");
+                            background-size: cover;
+                        `;
+                        this.mediaCover.set_child(widget);
+                    } catch (e) {
+                        log("widgets@aylur: Failed to copy file: " + e.message);
+                        this.mediaCover.set_child(this.coverDummy);
+                    }
+                }
+            );
+        }
+
+        //next, prev, playPause buttons
         this.player.canGoNext ? this._nextBtn.reactive = true : this._nextBtn.reactive = false;
         this.player.canGoPrev ? this._prevBtn.reactive = true : this._prevBtn.reactive = false;
         
@@ -304,6 +366,7 @@ class Player extends St.BoxLayout{
             this._playPauseBtn.reactive = false;
         }
 
+        //shuffle button
         if(this.player.shuffleStatus !== null){
             this._shuffleBtn.reactive = true;
             this._shuffleBtn.show();
@@ -317,6 +380,7 @@ class Player extends St.BoxLayout{
             this._shuffleBtn.hide();
         }
 
+        //loop button
         if(this.player.loopStatus !== null){
             this._loopBtn.reactive = true;
             this._loopBtn.show();
@@ -341,16 +405,22 @@ class Player extends St.BoxLayout{
             this._loopBtn.hide();
         }
 
-        if(this.player.volume > -1){
+        //volume
+        let blackList = false;
+        for (const item of blackListVolumeSlider) {
+            if(this.player.busName.includes(item))
+                blackList = true;
+        }
+        if(blackList || this.player.volume === -1){
+            this.volumeBox.hide();
+        }
+        else{
             this.volumeBox.show();
             this._volumeSlider.value = this.player.volume;
             if(this.player.volume == 0) this._volumeIcon.icon_name = 'audio-volume-muted-symbolic';
             if(this.player.volume >= 0 && this.player.volume < 0.33 ) this._volumeIcon.icon_name = 'audio-volume-low-symbolic';
             if(this.player.volume >= 0.33 && this.player.volume < 0.66 ) this._volumeIcon.icon_name = 'audio-volume-medium-symbolic';
             if(this.player.volume >= 0.66 ) this._volumeIcon.icon_name = 'audio-volume-high-symbolic';
-        }
-        else{
-            this.volumeBox.hide();
         }
     }
 });
@@ -359,8 +429,8 @@ var Media = GObject.registerClass({
     Signals: { 'updated' : {} }
 },
 class Media extends St.Bin{
-    _init() {
-        super._init();
+    _init(params) {
+        super._init(params);
 
         this.settings = ExtensionUtils.getSettings();
         this.settings.connect('changed::media-player-prefer',
@@ -422,237 +492,3 @@ class Media extends St.Bin{
         return iterator.next().value;
     }
 });
-
-const MediaButton = GObject.registerClass(
-class MediaButton extends PanelMenu.Button{
-    _init(settings){
-        super._init(0.5, 'Media Player', false);
-        this.settings = settings;
-        this.hide();
-        this.label = new St.Label({
-            text: 'artist - title',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this.add_child(this.label);
-        let maxWidth = settings.get_int('media-player-max-width');
-        if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
-
-        this.media = new Media();
-        this.media.connect('updated', () => this._sync());
-
-        //UI
-        this.playerContiner = new St.Bin();
-        this.menu.box.add_child(this.playerContiner);
-
-        this._sync();
-        this.connect('destroy', () => {
-            this.media.destroy();
-            this.media = null;
-        });
-    }
-
-    _sync(){
-        let mpris = this.media.getPlayer();
-        if(mpris){
-
-            this.player = new Player(mpris);
-            this._buildPlayerUI();
-            this.playerContiner.set_child(this.player);
-
-            this.player._mediaTitle.connect('notify::text', () => {
-                this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
-            });
-            this.player._mediaArtist.connect('notify::text', () => {
-                this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
-            });
-            this.label.text = `${mpris.trackArtists.join(', ')} - ${mpris.trackTitle}`;
-
-
-            this.show();
-        }else{
-            this.hide();
-        }
-    }
-
-    _buildPlayerUI(){
-        let elements = this.player;
-        let box = this.player;
-        box.style_class = 'media-player';
-        box.vertical = true;
-        box.style = `max-width: ${elements.controlsBox.width + 50}px`;
-
-        let layout = this.settings.get_int('media-player-layout');
-        if(layout === 1){ //compact
-            elements.mediaCover.add_style_class_name('media-cover-compact');
-            elements.titleBox.x_align = Clutter.ActorAlign.START;
-            elements.titleBox.y_align = Clutter.ActorAlign.CENTER;
-            let vbox = new St.BoxLayout({ style_class: 'media-container' });
-            vbox.add_child(elements.mediaCover);
-            vbox.add_child(elements.titleBox);
-            box.add_child(vbox);
-            box.add_child(elements.controlsBox);
-            box.add_child(elements.volumeBox);
-        }else{ //normal
-            elements.mediaCover.add_style_class_name('media-cover-normal');
-            elements.mediaCover.x_align = Clutter.ActorAlign.CENTER;
-            box.add_child(elements.mediaCover);
-            box.add_child(elements.titleBox);
-            box.add_child(elements.controlsBox);
-            box.add_child(elements.volumeBox);
-        }
-
-    }
-});
-
-const MediaControls = GObject.registerClass(
-class MediaControls extends St.BoxLayout{
-    _init(){
-        super._init({ visible: false });
-
-        this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
-        this.playBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
-        this.nextBtn = this._addButton('media-skip-forward-symbolic', () => this.player.next());
-
-        this.add_child(this.prevBtn);
-        this.add_child(this.playBtn);
-        this.add_child(this.nextBtn);
-
-        this.media = new Media();
-        this.media.connect('updated', () => this._sync());
-
-        this._sync();
-        this.connect('destroy', () => {
-            if(this.player){
-                this.player.disconnect(this.binding);
-                this.player = null;
-            }
-        });
-    }
-
-    _addButton(iconName, callback){
-        let btn = new St.Button({
-            style_class: 'panel-button',
-            child: new St.Icon({
-                style_class: 'system-status-icon',
-                icon_name: iconName
-            })
-        })
-        btn.connect('clicked', callback);
-        return btn;
-    }
-
-    _sync(){
-        let mpris = this.media.getPlayer();
-        if(mpris){
-            this.player = mpris;
-            this.binding = this.player.connect('changed', () => this._syncControls());
-            this.show();
-        }else{
-            this.player = null;
-            this.hide();
-        }
-    }
-    
-    _syncControls(){
-        if(!this.player) return;
-
-        this.player.canGoNext ? this.nextBtn.show() : this.nextBtn.hide();
-        this.player.canGoPrev ? this.prevBtn.show() : this.prevBtn.hide();
-        
-        if(this.player.canPlay){
-            this.playBtn.show();
-            switch (this.player.playBackStatus) {
-                case "Playing":
-                    this.playBtn.child.icon_name = 'media-playback-pause-symbolic';
-                    break;
-                case "Paused":
-                    this.playBtn.child.icon_name = 'media-playback-start-symbolic';
-                    break;
-                case "Stopped":
-                    this.playBtn.child.icon_name = 'media-playback-start-symbolic';
-                    break;
-                default:
-                    break;
-            }
-        }else{
-            this.playBtn.hide();
-        }
-    }
-});
-
-var Extension = class Extension {
-    constructor() {
-        this.pos = [
-            'left',
-            'center',
-            'right'
-        ];
-        this.panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
-        ]
-
-        this.stockMpris = Main.panel.statusArea.dateMenu._messageList._mediaSection;
-        this.shouldShow = this.stockMpris._shouldShow;
-    }
-
-    enable() {
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::media-player-offset', () => this.reload());
-        this.settings.connect('changed::media-player-position', () => this.reload());
-        this.settings.connect('changed::media-player-layout', () => this.reload());
-        this.settings.connect('changed::media-player-controls-position', () => this.reload());
-        this.settings.connect('changed::media-player-controls-offset', () => this.reload());
-        this.settings.connect('changed::media-player-enable-controls', () => this.reload());
-        this.settings.connect('changed::media-player-max-width', () => this.reload());
-        this.settings.connect('changed::media-player-enable-track', () => this.reload());
-        this.reload();
-
-        this.stockMpris.visible = false;
-        this.stockMpris._shouldShow = () => false;
-    }
-
-    disable() {
-        this.settings = null;
-
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
-        }
-        if(this.controls){
-            this.controls.destroy();
-            this.controls = null;
-        }
-        
-        this.stockMpris._shouldShow = this.shouldShow;
-        this.stockMpris.visible = this.stockMpris._shouldShow();
-    }
-
-    reload(){
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
-        }
-        if(this.controls){
-            this.controls.destroy();
-            this.controls = null;
-        }
-
-        let pos, offset
-
-        pos = this.settings.get_int('media-player-position');
-        offset = this.settings.get_int('media-player-offset');
-        if(this.settings.get_boolean('media-player-enable-track')){
-            this.panelButton = new MediaButton(this.settings);
-            Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
-        }
-
-        pos = this.settings.get_int('media-player-controls-position');
-        offset = this.settings.get_int('media-player-controls-offset');
-        if(this.settings.get_boolean('media-player-enable-controls')){
-            this.controls = new MediaControls();
-            this.panelBox[pos].insert_child_at_index(this.controls, offset);
-        }
-    }
-}
