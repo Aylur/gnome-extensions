@@ -212,6 +212,10 @@
     </key>
 
     <!-- media-player -->
+    <key name="media-player-hide-stock" type="b">
+      <default>true</default>
+    </key>
+
     <key name="media-player-position" type="i">
       <default>1</default> 
     </key>

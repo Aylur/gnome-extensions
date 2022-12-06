@@ -194,12 +194,10 @@ class CustomMenu extends St.BoxLayout{
     _syncMedia(){
         let mpris = this.media.getPlayer();
         if(mpris){
-            if(!this.player){
-                this.player = new Media.PlayerWidget(mpris);
-                this._buildPlayerUI();
-                this.media.set_child(this.player);
-            }
-            this.player.setMpris(mpris);
+            this.player = new Media.PlayerWidget(mpris);
+            this._buildPlayerUI();
+            this.media.set_child(this.player);
+            
             this.media.show();
         }else{
             this.media.hide();

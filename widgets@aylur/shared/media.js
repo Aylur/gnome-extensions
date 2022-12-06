@@ -278,11 +278,6 @@ class PlayerWidget extends St.BoxLayout{
         this._sync();
     }
 
-    setMpris(mpris){
-        this.player = mpris;
-        this._sync();
-    }
-
     _addButton(iconName, callback){
         let btn = new St.Button({
             can_focus: true,

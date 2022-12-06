@@ -11,7 +11,6 @@ const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
 
-// USERBOX
 var UserBox = GObject.registerClass(
 class UserBox extends St.Bin{
     _init(vertical, iconSize){
@@ -83,7 +82,6 @@ class UserBox extends St.Bin{
     }
 });
 
-//SYSTEM LEVELS
 var LevelsBox = GObject.registerClass(
 class LevelsBox extends St.BoxLayout{
     _init(vertical, parentDialog){
@@ -133,7 +131,6 @@ class LevelsBox extends St.BoxLayout{
     }
 });
 
-//MEDIA
 var MediaBox = GObject.registerClass(
 class MediaBox extends Media.Media{
     _init(vertical, coverSize){
@@ -154,12 +151,9 @@ class MediaBox extends Media.Media{
     _sync(){
         let mpris = this.getPlayer();
         if(mpris){
-            if(!this.player){
-                this.player = new Media.PlayerWidget(mpris);
-                this._buildPlayerUI();
-            }
+            this.player = new Media.PlayerWidget(mpris);
+            this._buildPlayerUI();
             this.set_child(this.player);
-            this.player.setMpris(mpris);
             
         }else{
             this.set_child(new St.Label({
@@ -196,7 +190,6 @@ class MediaBox extends Media.Media{
     }
 });
 
-//LINKS
 const LinkButton = GObject.registerClass(
 class LinkButton extends St.Button{
     _init(name, link, parentDialog){
@@ -246,7 +239,6 @@ class LinksBox extends St.BoxLayout{
     }
 });
 
-//CLOCK
 var ClockBox = GObject.registerClass(
 class ClockBox extends St.BoxLayout{
     _init(vertical){

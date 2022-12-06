@@ -195,16 +195,20 @@ class MediaPlayerPage extends SubPage{
     _init(settings){
         super._init('Media Player', settings);
 
-        const group = new Adw.PreferencesGroup({ title: 'Panel Button'});
-        this.add(group);
+        const stockGroup = new Adw.PreferencesGroup();
+        this.add(stockGroup);
+        stockGroup.add(new SwitchRow('Hide Stock Mpris', settings, 'media-player-hide-stock', "Hides the media players in the notification list"));
+
+        const buttonGroup = new Adw.PreferencesGroup({ title: 'Panel Button'});
+        this.add(buttonGroup);
 
         let trackBtnExpander = new ExpanderRow('Track Button', settings, 'media-player-enable-track');
         trackBtnExpander.add_row(new PositionRow('Position', settings, 'media-player-position', 'media-player-offset'));
         trackBtnExpander.add_row(new SpinButtonRow('Max Width', settings, 'media-player-max-width', 0, 1200, 10, '0 to unset'));
         let controlsExpander = new ExpanderRow('Controls', settings, 'media-player-enable-controls');
         controlsExpander.add_row(new PositionRow('Position', settings, 'media-player-controls-position', 'media-player-controls-offset'));
-        group.add(trackBtnExpander);
-        group.add(controlsExpander);
+        buttonGroup.add(trackBtnExpander);
+        buttonGroup.add(controlsExpander);
 
         const playerGroup = new Adw.PreferencesGroup({ title: 'Player' });
         this.add(playerGroup);

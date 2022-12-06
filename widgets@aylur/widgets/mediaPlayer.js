@@ -39,15 +39,12 @@ class MediaButton extends PanelMenu.Button{
     _sync(){
         let mpris = this.media.getPlayer();
         if(mpris){
-            if(!this.player){
-                this.player = new Media.PlayerWidget(mpris);
-                this._buildPlayerUI();
-                this.media.set_child(this.player);
-                this.player._mediaTitle.connect('notify::text', () => this._syncLabel());
-                this.player._mediaArtist.connect('notify::text', () => this._syncLabel());
-                this._syncLabel();
-            }
-            this.player.setMpris(mpris);
+            this.player = new Media.PlayerWidget(mpris);
+            this._buildPlayerUI();
+            this.media.set_child(this.player);
+            this.player._mediaTitle.connect('notify::text', () => this._syncLabel());
+            this.player._mediaArtist.connect('notify::text', () => this._syncLabel());
+            this._syncLabel();
             this.show();
         }else{
             this.hide();
@@ -190,8 +187,8 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-enable-track', () => this._reload());
         this._reload();
 
-        this.stockMpris.visible = false;
-        this.stockMpris._shouldShow = () => false;
+        this.settings.connect('changed::media-player-hide-stock', () => this._hideStock());
+        this._hideStock();
     }
 
     disable() {
@@ -206,8 +203,16 @@ var Extension = class Extension {
             this.controls = null;
         }
         
-        this.stockMpris._shouldShow = this.shouldShow;
-        this.stockMpris.visible = this.stockMpris._shouldShow();
+    }
+
+    _hideStock(show){
+        if(show || !this.settings.get_boolean('media-player-hide-stock')){
+            this.stockMpris._shouldShow = this.shouldShow;
+            this.stockMpris.visible = this.stockMpris._shouldShow();
+        }else{
+            this.stockMpris.visible = false;
+            this.stockMpris._shouldShow = () => false;
+        }
     }
 
     _reload(){
