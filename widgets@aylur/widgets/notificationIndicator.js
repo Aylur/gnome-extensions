@@ -6,18 +6,12 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
+const { NotificationList } = Me.imports.shared.notificationList;
 
 const Indicator = GObject.registerClass(
 class Indicator extends St.BoxLayout{
     _init(settings){
         super._init();
-
-        this.settings = settings;
-        this.settings.connect('changed::notification-indicator-hide-counter', () => {
-            if(this.settings.get_boolean('notification-indicator-hide-counter'))
-                this.counter.hide();
-            else this.counter.show();
-        });
 
         this.icon = new St.Icon({ style_class: 'system-status-icon' });
         this.counter = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
@@ -31,23 +25,32 @@ class Indicator extends St.BoxLayout{
             this
         );
 
-        this._settings = new Gio.Settings({ schema_id: 'org.gnome.desktop.notifications' });
-        this._settings.connect('changed::show-banners', () => this._syncIcon());
+        this._bannerSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.notifications' });
+        let bind = this._bannerSettings.connect('changed::show-banners', () => this._syncIcon());
         
-        this.settingsBind = this.settings.connect(
-            'changed::notification-indicator-hide-on-zero', () => this._syncCounter()
+        this.settings = settings;
+        this.settings.connectObject(
+            'changed::notification-indicator-hide-counter', () => this._syncIndicatorVisibility(),
+            'changed::notification-indicator-hide-on-zero', () => this._syncCounter(),
+            this
         );
         this._syncIcon();
         this._syncCounter();
 
         this.connect('destroy', () => {
             this.list._list.disconnectObject(this);
-            this.settings.disconnect(this.settingsBind);
+            this.settings.disconnectObject(this);
+            this._bannerSettings.disconnect(bind);
+            this._bannerSettings = null;
         });
     }
 
+    _syncIndicatorVisibility(){
+        this.counter.visible = !this.settings.get_boolean('notification-indicator-hide-counter');
+    }
+
     _syncIcon(){
-        if(this._settings.get_boolean('show-banners')){
+        if(this._bannerSettings.get_boolean('show-banners')){
             this.icon.icon_name = 'org.gnome.Settings-notifications-symbolic';
             if(!this.settings.get_boolean('notification-indicator-hide-counter'))
                 this.counter.show();
@@ -89,42 +92,19 @@ class PanelButton extends PanelMenu.Button{
         this.indicator._syncCounter();
 
         //UI
-        let datemenu = new imports.ui.dateMenu.DateMenuButton();
-        this.notificationList = datemenu._messageList._notificationSection;
-
-        this.clearBtn = datemenu._messageList._clearButton;
-        this.clearBtn.get_parent().remove_child(this.clearBtn);
-
-        this.list = datemenu._messageList._scrollView;
-        this.list.get_parent().remove_child(this.list);
-        this.list.add_style_class_name('list');
-
-        this.mediaSection = datemenu._messageList._mediaSection;
-        this.mediaSection.get_parent().remove_child(this.mediaSection);
-
-        let hbox = new St.BoxLayout({ style_class: 'header-box' });
-        hbox.add_child(new St.Label({ text: _('Notifications'), y_align: Clutter.ActorAlign.CENTER }));
-        hbox.add_child(this.clearBtn)
-
-        this.menu.box.add_child(hbox);
+        this.list = new NotificationList(settings.get_boolean('notification-indicator-show-dnd'));
         this.menu.box.add_child(this.list);
-        this.menu.box.add_style_class_name('notifications');
-
-        //sync notifications
-        let stockNotifications = Main.panel.statusArea.dateMenu._messageList._notificationSection;
-        let notifications = stockNotifications._messages;
-        notifications.forEach(n => {
-            let notification = new Calendar.NotificationMessage(n.notification);
-            this.notificationList.addMessage(notification);
-        });
-
+        settings.connect('changed::notification-indicator-show-dnd', () => {
+            this.list.destroy();
+            this.list = new NotificationList(settings.get_boolean('notification-indicator-show-dnd'));
+            this.menu.box.add_child(this.list);
+        })
+        
         this.menu.box.width = settings.get_int('notification-indicator-menu-width');
-        let bind = settings.connect('changed::notification-indicator-menu-width',
-            () => this.menu.box.width = settings.get_int('notification-indicator-menu-width'));
+        settings.connect('changed::notification-indicator-menu-width', () =>
+            this.menu.box.width = settings.get_int('notification-indicator-menu-width'));
 
-        this.connect('destroy', () => settings.disconnect(bind));
-
-        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height -20;
+        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height-20;
         this.menu.box.style = `max-height: ${maxHeight}px;`;
     }
 });

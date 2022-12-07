@@ -344,6 +344,10 @@
       <default>false</default>
     </key>
 
+    <key name="notification-indicator-show-dnd" type="b">
+      <default>false</default>
+    </key>
+
     <!-- background-clock -->
     <key name="background-clock-position" type="i">
       <default>8</default>

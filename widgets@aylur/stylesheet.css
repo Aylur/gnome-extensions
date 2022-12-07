@@ -57,6 +57,17 @@
 
 .datemenu-levels{ spacing: 8px; }
 
+/* notification-indicator */
+.notification-indicator StIcon{
+    padding: 0;
+    margin: 0;
+}
+.notification-indicator > StBoxLayout{ spacing: 4px; }
+
+/* notification-list */
+.notifications-placeholder > StIcon{ icon-size: 68px; }
+.notifications-placeholder { padding: 12px; }
+
 /* media */
 .media-player > StBoxLayout{ padding: 16px; spacing: 8px }
 .media-player .media-cover-normal{
@@ -75,7 +86,6 @@
 .media-container .message-media-control:first-child StIcon,
 .media-container .message-media-control:last-child StIcon,
 .media-volume StIcon{ icon-size: 18px; }
-
 
 /* power-menu */
 .power-menu-panel-button:hover{ color: #f66151; }
@@ -150,15 +160,6 @@
 
 /* notifications */
 .quick-settings-main .message-list-clear-button{ padding: 4px 16px; }
-
-/* notification-indicator */
-.notification-indicator StIcon{
-    padding: 0;
-    margin: 0;
-}
-.notification-indicator > StBoxLayout{ spacing: 4px; }
-.notifications .list{ margin-left: 8px; }
-.notifications .header-box{ padding: 10px; }
 
 /* .quick-settings */
 .quick-settings-main{ 

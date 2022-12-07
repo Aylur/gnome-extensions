@@ -272,6 +272,7 @@ class NotificationIndicatorPage extends SubPage{
         group.add(new SwitchRow('Hide on Zero', settings, 'notification-indicator-hide-on-zero'));
         group.add(new SpinButtonRow('Menu Width', settings, 'notification-indicator-menu-width', 100, 1000, 10));
         group.add(new SwitchRow('Hide Counter', settings, 'notification-indicator-hide-counter'));
+        group.add(new SwitchRow('Show Do Nut Disturb', settings, 'notification-indicator-show-dnd'));
     }
 });
     
