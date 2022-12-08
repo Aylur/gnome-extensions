@@ -1,7 +1,8 @@
 'use strict';
 
-const { Adw, Gio, Gtk, GObject } = imports.gi;
+const { Adw, Gio, Gtk, GObject, GLib } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ByteArray = imports.byteArray;
 const { SpinButtonRow, EntryRow, DropDownRow,
         SwitchRow, ColorRow, ExpanderRow,
         PositionRow, FileChooserButton, HotkeyDialog } = Me.imports.pref.widgets;
@@ -212,16 +213,40 @@ class MediaPlayerPage extends SubPage{
 
         const playerGroup = new Adw.PreferencesGroup({ title: 'Player' });
         this.add(playerGroup);
+
+        this.cachePath = `${Me.dir.get_path()}/media/mpris-cache`;
+        this.clearRow = new Adw.ActionRow({ title: 'Cache' });
+        let clearBtn = Gtk.Button.new_with_label('Clear');
+        clearBtn.valign = Gtk.Align.CENTER;
+        clearBtn.connect('clicked', () => this._clearCache());
+        this.clearRow.add_suffix(clearBtn);
+        playerGroup.add(this.clearRow);
+        this._cacheSize();
+        
         let desc = 'This setting applies to the one in dash board and date menu.';
         playerGroup.add(new EntryRow('Prefer', settings, 'media-player-prefer', 'It is the players d-bus name. e.g: Amberol, firefox, spotify.\n'+desc));
-        playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ['Normal', 'Compact', 'Label on Cover (no volume slider)', 'Label on Cover +Vertical Controls', 'Label on Cover v2']));
+        playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ['Normal', 'Compact', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Label on Cover v2']));
         playerGroup.add(new SpinButtonRow('Cover Roundness', settings, 'media-player-cover-roundness', 1, 99, 1));
         playerGroup.add(new SpinButtonRow('Cover Size', settings, 'media-player-cover-size', 20, 500, 2));
         let textExpander = new ExpanderRow('Show Title', settings, 'media-player-show-text');
         textExpander.add_row(new DropDownRow('Text Align', settings, 'media-player-text-align', ['Left','Center','Right']));
+        textExpander.add_row(new DropDownRow('Text Position', settings, 'media-player-text-position', ['Top','Bot'], 'Only works on "Label on Cover" layouts'));
         playerGroup.add(textExpander);
         playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume'));
         playerGroup.add(new SwitchRow('Show loop and shuffle button', settings, 'media-player-show-loop-shuffle'));
+    }
+
+    _cacheSize(){
+        let [ok, out, err, exit] = GLib.spawn_command_line_sync(`du -h ${this.cachePath}`);
+        let line = '';
+        if(ok) line = ByteArray.toString(out).split(/\s+/)[0];
+        if(line == '0') line = 'Empty';
+        this.clearRow.set_subtitle(line);
+    }
+
+    _clearCache(){
+        GLib.spawn_command_line_sync(`rm -r ${this.cachePath}`);
+        this.clearRow.set_subtitle('Cleared!');
     }
 });
 

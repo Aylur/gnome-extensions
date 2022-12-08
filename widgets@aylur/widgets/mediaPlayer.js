@@ -112,37 +112,65 @@ class MediaButton extends PanelMenu.Button{
             this.settings.set_int('media-player-cover-size', 220);
 
         let p = this.player;
-        this.menu.box.add_style_class_name('full');
+        p.vertical = true;
 
-        p.titleBox.add_style_class_name('fade-from-top');
-        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-        p.controlsBox.add_style_class_name('fade-from-bottom');
-        p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+        let pos = this.settings.get_int('media-player-text-position');
         p.controlsBox.width = this.coverSize;
         p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
         p.controlsBox.add_child(new St.Widget({ x_expand: true }));
-
         let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
-        if(this.showText) vbox.add_child(p.titleBox);
-        vbox.add_child(new St.Widget({ y_expand: true }));
-        vbox.add_child(p.controlsBox);
+        if(pos == 0){
+            p.titleBox.add_style_class_name('fade-from-top');
+            p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.controlsBox.add_style_class_name('fade-from-bottom');
+            p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            if(this.showText) vbox.add_child(p.titleBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            vbox.add_child(p.controlsBox);
+        }
+        else{
+            p.controlsBox.add_style_class_name('fade-from-top');
+            p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.titleBox.add_style_class_name('fade-from-bottom');
+            p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            vbox.add_child(p.controlsBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+
         p.mediaCover.set_child(vbox);
         p.add_child(p.mediaCover);
+
+        if(this.showVolume){
+           p.add_child(p.volumeBox); 
+        }else{
+            this.menu.box.add_style_class_name('full');
+            this.menu.box.style = `border-radius: ${this.coverRadius-1}px;`
+        }
     }
 
     _labelOnCoverVertical(){
         let p = this.player;
         
-        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-        p.titleBox.add_style_class_name('fade-from-top');
-        p.titleBox.height = this.coverSize/3;
-        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
-        p.mediaCover.set_child(vbox);
-        if(this.showText) vbox.add_child(p.titleBox);
-        vbox.add_child(new St.Widget({ x_expand: true }));
-        p.controlsBox.vertical = true;
-
+        let pos = this.settings.get_int('media-player-text-position');
         let hbox = new St.BoxLayout({ style_class: 'media-container' });
+        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        p.controlsBox.vertical = true;
+        if(pos == 0){
+            p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.titleBox.add_style_class_name('fade-from-top');
+            p.titleBox.y_align = Clutter.ActorAlign.START;
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+        else{
+            p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            p.titleBox.add_style_class_name('fade-from-bottom');
+            p.titleBox.y_align = Clutter.ActorAlign.END;
+            p.titleBox.y_expand = true;
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+        p.mediaCover.set_child(vbox);
+
         hbox.add_child(p.mediaCover);
         hbox.add_child(p.controlsBox);
         p.vertical = true;
@@ -155,23 +183,40 @@ class MediaButton extends PanelMenu.Button{
             this.settings.set_int('media-player-cover-size', 250);
 
         let p = this.player;
-        this.menu.box.add_style_class_name('full');
-
-        p.titleBox.add_style_class_name('fill');
-        p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
-        p.titleBox.x_align = Clutter.ActorAlign.CENTER;
-
-        p.controlsBox.add_style_class_name('fill');
-        p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-        p.controlsBox.y_align = Clutter.ActorAlign.END;
-        p.controlsBox.x_align = Clutter.ActorAlign.CENTER;
-
+        let pos = this.settings.get_int('media-player-text-position');
         let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
-        if(this.showText) vbox.add_child(p.titleBox);
-        vbox.add_child(new St.Widget({ y_expand: true }));
-        vbox.add_child(p.controlsBox);
+
+        p.vertical = true;
+        p.titleBox.add_style_class_name('fill');
+        p.titleBox.x_align = Clutter.ActorAlign.CENTER;
+        p.controlsBox.add_style_class_name('fill');
+        p.controlsBox.x_align = Clutter.ActorAlign.CENTER;
+        if(pos == 0){
+            p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.controlsBox.y_align = Clutter.ActorAlign.END;
+            if(this.showText) vbox.add_child(p.titleBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            vbox.add_child(p.controlsBox);
+        }
+        else{
+            p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            p.controlsBox.y_align = Clutter.ActorAlign.START;
+            vbox.add_child(p.controlsBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+
         p.mediaCover.set_child(vbox);
         p.add_child(p.mediaCover);
+
+        if(this.showVolume){
+            p.add_child(p.volumeBox); 
+        }else{
+            this.menu.box.add_style_class_name('full');
+            this.menu.box.style = `border-radius: ${this.coverRadius-1}px;`
+        }
     }
 });
 
@@ -284,6 +329,7 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-cover-size', () => this._reload());
         this.settings.connect('changed::media-player-cover-roundness', () => this._reload());
         this.settings.connect('changed::media-player-text-align', () => this._reload());
+        this.settings.connect('changed::media-player-text-position', () => this._reload());
         this.settings.connect('changed::media-player-show-text', () => this._reload());
         this.settings.connect('changed::media-player-show-volume', () => this._reload());
         this.settings.connect('changed::media-player-show-loop-shuffle', () => this._reload());

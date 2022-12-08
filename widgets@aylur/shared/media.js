@@ -283,22 +283,26 @@ class PlayerWidget extends St.BoxLayout{
         this._mediaTitle.text = this.player.trackTitle;
 
         //track cover
-        //TODO make a cache directory inside Me.dir.get_path()
         let path = Me.dir.get_path()+'/media/mpris-cache/';
+        if(!GLib.file_test(path, GLib.FileTest.EXISTS))
+            GLib.spawn_command_line_sync(`mkdir ${path}`);
+
         let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/'/g, '');
+        let withCover = `
+            border-radius: ${this.roundness}px;
+            background-image: url("file://${fname}");
+            background-size: cover;
+        `;
+        let noCover =`
+            border-radius: ${this.roundness}px;
+            background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
+        `;
 
         if(this.player.trackCoverUrl === ''){
-            this.mediaCover.style = `
-                border-radius: ${this.roundness}px;
-                background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
-            `;
+            this.mediaCover.style = noCover;
         }
         else if(GLib.file_test(fname, GLib.FileTest.EXISTS)){
-            this.mediaCover.style = `
-                border-radius: ${this.roundness}px;
-                background-image: url("file://${fname}");
-                background-size: cover;
-            `;
+            this.mediaCover.style = withCover;
         }else{
             //The reason for copying the file seemingly for no reason is that I use spotify
             //and sometimes it freezes gnome shell, while it is trying to
@@ -313,16 +317,9 @@ class PlayerWidget extends St.BoxLayout{
                 (source, result) => {
                     try {
                         source.copy_finish(result);
-                        this.mediaCover.style = `
-                            border-radius: ${this.roundness}px;
-                            background-image: url("file://${fname}");
-                            background-size: cover;
-                        `;
+                        this.mediaCover.style = withCover;
                     } catch (e) {
-                        this.mediaCover.style = `
-                            border-radius: ${this.roundness}px;
-                            background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
-                        `;
+                        this.mediaCover.style = noCover;
                     }
                 }
             );
