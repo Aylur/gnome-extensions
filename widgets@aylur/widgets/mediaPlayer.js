@@ -24,6 +24,7 @@ class MediaButton extends PanelMenu.Button{
         this.media = new Media.Media({ style_class: 'media-player' });
         this.media.connect('updated', () => this._sync());
         this.menu.box.add_child(this.media);
+        this.menu.box.add_style_class_name('media-menu-box');
 
         this._sync();
         this.connect('destroy', () => {
@@ -37,9 +38,11 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _sync(){
-        let mpris = this.media.getPlayer();
+        let mpris = this.media.getPreferred();
         if(mpris){
-            this.player = new Media.PlayerWidget(mpris);
+            let loopShuffle = this.settings.get_boolean('media-player-show-loop-shuffle');
+            this.coverRadius = this.settings.get_int('media-player-cover-roundness');
+            this.player = new Media.PlayerWidget(mpris, loopShuffle, this.coverRadius);
             this._buildPlayerUI();
             this.media.set_child(this.player);
             this.player._mediaTitle.connect('notify::text', () => this._syncLabel());
@@ -52,30 +55,123 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _buildPlayerUI(){
-        let elements = this.player;
-        let box = this.player;
-        box.vertical = true;
-        box.style = `max-width: ${elements.controlsBox.width + 50}px`;
+        this.coverSize = this.settings.get_int('media-player-cover-size');
+        this.showText = this.settings.get_boolean('media-player-show-text');
+        this.showVolume = this.settings.get_boolean('media-player-show-volume');
+        let textAlign = this.settings.get_int('media-player-text-align');
+        let align;
+        switch (textAlign) {
+            case 0: align = 'left'; break;
+            case 2: align = 'right'; break;        
+            default: align = 'center'; break;
+        }
+        this.player.titleBox.style = `text-align: ${align};`;
+        this.player.mediaCover.width = this.coverSize;
+        this.player.mediaCover.height = this.coverSize;
 
         let layout = this.settings.get_int('media-player-layout');
-        if(layout === 1){ //compact
-            elements.mediaCover.add_style_class_name('media-cover-compact');
-            elements.titleBox.x_align = Clutter.ActorAlign.START;
-            elements.titleBox.y_align = Clutter.ActorAlign.CENTER;
-            let vbox = new St.BoxLayout({ style_class: 'media-container' });
-            vbox.add_child(elements.mediaCover);
-            vbox.add_child(elements.titleBox);
-            box.add_child(vbox);
-            box.add_child(elements.controlsBox);
-            box.add_child(elements.volumeBox);
-        }else{ //normal
-            elements.mediaCover.add_style_class_name('media-cover-normal');
-            elements.mediaCover.x_align = Clutter.ActorAlign.CENTER;
-            box.add_child(elements.mediaCover);
-            box.add_child(elements.titleBox);
-            box.add_child(elements.controlsBox);
-            box.add_child(elements.volumeBox);
+        switch (layout) {
+            case 1: this._compact(); break;
+            case 2: this._labelOnCover(); break;
+            case 3: this._labelOnCoverVertical(); break;
+            case 4: this._labelOnCoverv2(); break;
+            default: this._normal(); break;
         }
+    }
+
+    _normal(){
+        let p = this.player;
+        p.vertical = true;
+        p.style = `max-width: ${Math.max(p.controlsBox.width+50,p.mediaCover.width)}px;`;
+
+        p.add_child(p.mediaCover);
+        if(this.showText) p.add_child(p.titleBox);
+        p.add_child(p.controlsBox);
+        if(this.showVolume) p.add_child(p.volumeBox);
+    }
+
+    _compact(){
+        if(this.coverSize > 100)
+            this.settings.set_int('media-player-cover-size', 68);
+        
+        let p = this.player;
+        p.vertical = true;
+        p.style = `max-width: ${p.controlsBox.width + 50}px;`;
+        
+        p.titleBox.y_align = Clutter.ActorAlign.CENTER;
+        let vbox = new St.BoxLayout({ style_class: 'media-container' });
+        vbox.add_child(p.mediaCover);
+        if(this.showText) vbox.add_child(p.titleBox);
+        p.add_child(vbox);
+        p.add_child(p.controlsBox);
+        if(this.showVolume) p.add_child(p.volumeBox);
+    }
+
+    _labelOnCover(){
+        if(this.coverSize < 220)
+            this.settings.set_int('media-player-cover-size', 220);
+
+        let p = this.player;
+        this.menu.box.add_style_class_name('full');
+
+        p.titleBox.add_style_class_name('fade-from-top');
+        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+        p.controlsBox.add_style_class_name('fade-from-bottom');
+        p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+        p.controlsBox.width = this.coverSize;
+        p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
+        p.controlsBox.add_child(new St.Widget({ x_expand: true }));
+
+        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        if(this.showText) vbox.add_child(p.titleBox);
+        vbox.add_child(new St.Widget({ y_expand: true }));
+        vbox.add_child(p.controlsBox);
+        p.mediaCover.set_child(vbox);
+        p.add_child(p.mediaCover);
+    }
+
+    _labelOnCoverVertical(){
+        let p = this.player;
+        
+        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+        p.titleBox.add_style_class_name('fade-from-top');
+        p.titleBox.height = this.coverSize/3;
+        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        p.mediaCover.set_child(vbox);
+        if(this.showText) vbox.add_child(p.titleBox);
+        vbox.add_child(new St.Widget({ x_expand: true }));
+        p.controlsBox.vertical = true;
+
+        let hbox = new St.BoxLayout({ style_class: 'media-container' });
+        hbox.add_child(p.mediaCover);
+        hbox.add_child(p.controlsBox);
+        p.vertical = true;
+        p.add_child(hbox);
+        if(this.showVolume) p.add_child(p.volumeBox);
+    }
+
+    _labelOnCoverv2(){
+        if(this.coverSize < 250)
+            this.settings.set_int('media-player-cover-size', 250);
+
+        let p = this.player;
+        this.menu.box.add_style_class_name('full');
+
+        p.titleBox.add_style_class_name('fill');
+        p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+        p.titleBox.x_align = Clutter.ActorAlign.CENTER;
+
+        p.controlsBox.add_style_class_name('fill');
+        p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+        p.controlsBox.y_align = Clutter.ActorAlign.END;
+        p.controlsBox.x_align = Clutter.ActorAlign.CENTER;
+
+        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        if(this.showText) vbox.add_child(p.titleBox);
+        vbox.add_child(new St.Widget({ y_expand: true }));
+        vbox.add_child(p.controlsBox);
+        p.mediaCover.set_child(vbox);
+        p.add_child(p.mediaCover);
     }
 });
 
@@ -117,7 +213,7 @@ class MediaControls extends St.BoxLayout{
     }
 
     _sync(){
-        let mpris = this.media.getPlayer();
+        let mpris = this.media.getPreferred();
         if(mpris){
             if(this.binding)
                 this.player.disconnect(this.binding);
@@ -185,6 +281,12 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-enable-controls', () => this._reload());
         this.settings.connect('changed::media-player-max-width', () => this._reload());
         this.settings.connect('changed::media-player-enable-track', () => this._reload());
+        this.settings.connect('changed::media-player-cover-size', () => this._reload());
+        this.settings.connect('changed::media-player-cover-roundness', () => this._reload());
+        this.settings.connect('changed::media-player-text-align', () => this._reload());
+        this.settings.connect('changed::media-player-show-text', () => this._reload());
+        this.settings.connect('changed::media-player-show-volume', () => this._reload());
+        this.settings.connect('changed::media-player-show-loop-shuffle', () => this._reload());
         this._reload();
 
         this.settings.connect('changed::media-player-hide-stock', () => this._hideStock());

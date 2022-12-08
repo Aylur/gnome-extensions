@@ -293,7 +293,7 @@ class MediaBox extends St.Bin{
     }
 
     _sync(){
-        let mpris = this.media.getPlayer();
+        let mpris = this.media.getPreferred();
         if(mpris){
             this.player = new MediaPlayer.Player(mpris);
             this._buildPlayerUI();

@@ -3,6 +3,7 @@
 const { GObject, St, Gio, Clutter, Shell, GLib } = imports.gi;
 const { Slider } = imports.ui.slider;
 const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension()
 
 const PlayerIFace =
 `<node>
@@ -194,10 +195,11 @@ class MprisPlayer extends St.Widget {
 
 var PlayerWidget = GObject.registerClass(
 class PlayerWidget extends St.BoxLayout{
-    _init(mprisPlayer){
-        super._init();
+    _init(mpris, showLoopShuffle = true, roundness = 12){
+        super._init({ style_class: 'media-container' });
 
-        this.player = mprisPlayer;
+        this.player = mpris;
+        this.roundness = roundness;
 
         //control widgets
         this.mediaCover = new St.Button({
@@ -207,20 +209,16 @@ class PlayerWidget extends St.BoxLayout{
             reactive: true,
             can_focus: true,
         });
-        this.coverDummy = new St.Icon({
-            icon_name: 'applications-multimedia-symbolic',
-            icon_size: Math.floor(this.mediaCover.width/3)
-        });
         this.mediaCover.connect('clicked', () => this.player.raise()),
 
         this._mediaTitle = new St.Label({ text: '' });
         this._mediaArtist = new St.Label({ text: '' });
 
-        this._shuffleBtn   = this._addButton('media-playlist-shuffle-symbolic', () => this.player.shuffle());
+        this._shuffleBtn   = this._addButton('media-playlist-shuffle-symbolic', () => this.player.shuffle(), true);
         this._prevBtn      = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
         this._playPauseBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
         this._nextBtn      = this._addButton('media-skip-forward-symbolic', () => this.player.next());
-        this._loopBtn      = this._addButton('media-playlist-repeat-symbolic', () => this.player.loop());
+        this._loopBtn      = this._addButton('media-playlist-repeat-symbolic', () => this.player.loop(), true);
 
         this._volumeIcon = new St.Icon({ icon_name: 'audio-volume-high-symbolic', });
         this._volumeSlider = new Slider(0);
@@ -229,8 +227,7 @@ class PlayerWidget extends St.BoxLayout{
         //ui containers
         this.titleBox = new St.BoxLayout({
             vertical: true,
-            style: 'text-align: center',
-            x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'media-title-box'
         });
         this._mediaTitle.y_align = Clutter.ActorAlign.END;
         this._mediaArtist.y_align = Clutter.ActorAlign.START;
@@ -240,12 +237,13 @@ class PlayerWidget extends St.BoxLayout{
         this.controlsBox = new St.BoxLayout({
             style_class: 'media-container media-controls',
             x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER
         });
-        this.controlsBox.add_child(this._shuffleBtn);
+        if(showLoopShuffle) this.controlsBox.add_child(this._shuffleBtn);
         this.controlsBox.add_child(this._prevBtn);
         this.controlsBox.add_child(this._playPauseBtn);
         this.controlsBox.add_child(this._nextBtn);
-        this.controlsBox.add_child(this._loopBtn);
+        if(showLoopShuffle) this.controlsBox.add_child(this._loopBtn);
 
         this.volumeBox = new St.BoxLayout({
             style_class: 'media-container media-volume',
@@ -255,30 +253,13 @@ class PlayerWidget extends St.BoxLayout{
 
         //the layout must be assembled by the widget which constructed this.
 
-        //settings
-        this.settings = ExtensionUtils.getSettings();
-        this.coverPadding = this.settings.get_int('media-player-cover-padding');
-        this.coverRadius = this.settings.get_int('media-player-cover-roundness');
-        this.settings.connect('changed::media-player-cover-padding', () => {
-            this.coverPadding = this.settings.get_int('media-player-cover-padding');
-            this._sync();
-        });
-        this.settings.connect('changed::media-player-cover-roundness', () => {
-            this.coverRadius = this.settings.get_int('media-player-cover-roundness');
-            this._sync();
-        });
-
         this.binding = this.player.connect('changed', () => this._sync());
-        this.connect('destroy', () => {
-            this.player.disconnect(this.binding);
-            this.settings.run_dispose();
-            this.settings = null;
-        });
+        this.connect('destroy', () => this.player.disconnect(this.binding));
 
         this._sync();
     }
 
-    _addButton(iconName, callback){
+    _addButton(iconName, callback, secondary){
         let btn = new St.Button({
             can_focus: true,
             y_align: Clutter.ActorAlign.CENTER,
@@ -288,7 +269,10 @@ class PlayerWidget extends St.BoxLayout{
             child: new St.Icon({
                 icon_name: iconName
             })
-        })
+        });
+        if(secondary){
+            btn.add_style_class_name('media-control-secondary')
+        }
         btn.connect('clicked', callback);
         return btn;
     }
@@ -298,25 +282,30 @@ class PlayerWidget extends St.BoxLayout{
         this._mediaArtist.text = this.player.trackArtists.join(', ');
         this._mediaTitle.text = this.player.trackTitle;
 
-
         //track cover
-        this.mediaCover.style = `
-            padding: ${this.coverPadding}px;
-            border-radius: ${this.coverRadius == 1 ? 1 : this.coverRadius+this.coverPadding}px;
-        `;
-        if(this.player.trackCoverUrl === '')
-            this.mediaCover.set_child(this.coverDummy);
-        else{
-            let widget = new St.Widget({
-                width: this.mediaCover.width,
-                height: this.mediaCover.height,
-            });
+        //TODO make a cache directory inside Me.dir.get_path()
+        let path = Me.dir.get_path()+'/media/mpris-cache/';
+        let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/'/g, '');
+
+        if(this.player.trackCoverUrl === ''){
+            this.mediaCover.style = `
+                border-radius: ${this.roundness}px;
+                background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
+            `;
+        }
+        else if(GLib.file_test(fname, GLib.FileTest.EXISTS)){
+            this.mediaCover.style = `
+                border-radius: ${this.roundness}px;
+                background-image: url("file://${fname}");
+                background-size: cover;
+            `;
+        }else{
             //The reason for copying the file seemingly for no reason is that I use spotify
             //and sometimes it freezes gnome shell, while it is trying to
             //set the background-image for the widget.
             //Why not use St.Icon? Because I want to make it rounded.
             Gio.File.new_for_uri(this.player.trackCoverUrl).copy_async(
-                Gio.File.new_for_path('/tmp/widgets_aylur_media_cover'),
+                Gio.File.new_for_path(fname),
                 Gio.FileCopyFlags.OVERWRITE,
                 GLib.PRIORITY_DEFAULT,
                 null,
@@ -324,15 +313,16 @@ class PlayerWidget extends St.BoxLayout{
                 (source, result) => {
                     try {
                         source.copy_finish(result);
-                        widget.style = `
-                            border-radius: ${this.coverRadius}px;
-                            background-image: url("file:///tmp/widgets_aylur_media_cover");
+                        this.mediaCover.style = `
+                            border-radius: ${this.roundness}px;
+                            background-image: url("file://${fname}");
                             background-size: cover;
                         `;
-                        this.mediaCover.set_child(widget);
                     } catch (e) {
-                        log("widgets@aylur: Failed to copy file: " + e.message);
-                        this.mediaCover.set_child(this.coverDummy);
+                        this.mediaCover.style = `
+                            border-radius: ${this.roundness}px;
+                            background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
+                        `;
                     }
                 }
             );
@@ -474,7 +464,7 @@ class Media extends St.Bin{
             this._addPlayer(name);
     }
 
-    getPlayer(){
+    getPreferred(){
         if(this._players.size === 0){
             return false;
         }
@@ -485,5 +475,13 @@ class Media extends St.Bin{
         }
         const iterator = this._players.values();
         return iterator.next().value;
+    }
+
+    getPlayers(){
+        let arr = [];
+        for (const [busName, player] of this._players) {
+            arr.push(player);
+        }
+        return arr;
     }
 });

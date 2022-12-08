@@ -214,9 +214,14 @@ class MediaPlayerPage extends SubPage{
         this.add(playerGroup);
         let desc = 'This setting applies to the one in dash board and date menu.';
         playerGroup.add(new EntryRow('Prefer', settings, 'media-player-prefer', 'It is the players d-bus name. e.g: Amberol, firefox, spotify.\n'+desc));
-        playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ["Normal", "Compact"]));
-        playerGroup.add(new SpinButtonRow('Cover Padding', settings, 'media-player-cover-padding', 0, 10, 1, desc));
-        playerGroup.add(new SpinButtonRow('Cover Roundness', settings, 'media-player-cover-roundness', 1, 32, 1, desc));
+        playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ['Normal', 'Compact', 'Label on Cover (no volume slider)', 'Label on Cover +Vertical Controls', 'Label on Cover v2']));
+        playerGroup.add(new SpinButtonRow('Cover Roundness', settings, 'media-player-cover-roundness', 1, 99, 1));
+        playerGroup.add(new SpinButtonRow('Cover Size', settings, 'media-player-cover-size', 20, 500, 2));
+        let textExpander = new ExpanderRow('Show Title', settings, 'media-player-show-text');
+        textExpander.add_row(new DropDownRow('Text Align', settings, 'media-player-text-align', ['Left','Center','Right']));
+        playerGroup.add(textExpander);
+        playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume'));
+        playerGroup.add(new SwitchRow('Show loop and shuffle button', settings, 'media-player-show-loop-shuffle'));
     }
 });
 

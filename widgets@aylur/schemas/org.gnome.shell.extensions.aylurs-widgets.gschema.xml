@@ -260,6 +260,26 @@
       <default>12</default>
     </key>
 
+    <key name="media-player-show-text" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="media-player-text-align" type="i">
+      <default>1</default>
+    </key>
+
+    <key name="media-player-cover-size" type="i">
+      <default>200</default>
+    </key>
+
+    <key name="media-player-show-volume" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="media-player-show-loop-shuffle" type="b">
+      <default>true</default>
+    </key>
+
     <!-- power-menu -->
     <key name="power-menu-position" type="i">
       <default>2</default> 

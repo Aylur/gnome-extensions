@@ -104,7 +104,7 @@ class PanelButton extends PanelMenu.Button{
         settings.connect('changed::notification-indicator-menu-width', () =>
             this.menu.box.width = settings.get_int('notification-indicator-menu-width'));
 
-        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height-20;
+        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
         this.menu.box.style = `max-height: ${maxHeight}px;`;
     }
 });

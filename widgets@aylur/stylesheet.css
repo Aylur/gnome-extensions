@@ -69,23 +69,34 @@
 .notifications-placeholder { padding: 12px; }
 
 /* media */
-.media-player > StBoxLayout{ padding: 16px; spacing: 8px }
-.media-player .media-cover-normal{
-    width: 200px;
-    height: 200px;
+.media-player > StBoxLayout{ padding: 14px; spacing: 8px }
+.media-menu-box.full,
+.media-menu-box.full .media-player > StBoxLayout{ padding: 0; }
+.media-player .fade-from-top{
+    background-color: rgba(0,0,0,0.01);
+    background-gradient-direction: vertical;
+    background-gradient-start: black;
+    background-gradient-end: transparent;
+    padding: 4px;
+    padding-bottom: 18px;
 }
-.media-player .media-cover-compact{
-    width: 60px;
-    height: 60px;
+.media-player .fade-from-bottom{
+    background-color: rgba(0,0,0,0.01);
+    background-gradient-direction: vertical;
+    background-gradient-start: transparent;
+    background-gradient-end: black;
+    padding-top: 18px;
+    padding-bottom: 4px;
 }
+.media-player .fill{ background-color: rgba(0,0,0,0.7); padding: 6px; }
 
-/* media-player-ui */
+
+.media-cover{ padding: 0; }
 .media-container{ spacing: 8px; }
-.media-container .message-media-control{ padding: 6px; margin: 0; }
-.media-container .message-media-control StIcon{ icon-size: 24px; }
-.media-container .message-media-control:first-child StIcon,
-.media-container .message-media-control:last-child StIcon,
-.media-volume StIcon{ icon-size: 18px; }
+.media-controls .message-media-control{ padding: 6px; margin: 0; }
+.media-controls .message-media-control StIcon{ icon-size: 24px; }
+.media-controls .media-control-secondary StIcon,
+.media-container .media-volume StIcon{ icon-size: 18px; }
 
 /* power-menu */
 .power-menu-panel-button:hover{ color: #f66151; }

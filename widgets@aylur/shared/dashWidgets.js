@@ -149,7 +149,7 @@ class MediaBox extends Media.Media{
     }
 
     _sync(){
-        let mpris = this.getPlayer();
+        let mpris = this.getPreferred();
         if(mpris){
             this.player = new Media.PlayerWidget(mpris);
             this._buildPlayerUI();
