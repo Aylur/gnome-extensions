@@ -26,8 +26,8 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.dialogLayout.width = monitor.width;
         this.dialogLayout.connect('button-press-event', () => this.close() );
 
-        this.contentLayout.add_style_class_name('db-dashboard-content');
-        this.dialogLayout._dialog.add_style_class_name('db-dashboard');
+        this.contentLayout.add_style_class_name('dashboard-content');
+        this.dialogLayout._dialog.add_style_class_name('dashboard');
 
         this._buildUI();
         this.connect('opened', () => {
@@ -35,27 +35,24 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
                 this.levelsBox.updateLevels();
         });
     }
+
     _buildUI(){
-        this.mainBox = new St.BoxLayout({ style_class: 'db-container' });
+        this.mainBox = new St.BoxLayout({ style_class: 'container' });
         this.contentLayout.add_child(this.mainBox);
 
         let layout = this.settings.get_int('dash-layout');
         switch (layout) {
-            case 1:
-                this._layout1(); break;
-            case 2:
-                this._layout2(); break;
-            case 3:
-                this._layout3(); break;
-            default:
-                this._layout1(); break;
+            case 1: this._layout2(); break;
+            case 2: this._layout3(); break;
+            default: this._layout1(); break;
         }
     }
+
     _layout1(){
-        this.userBox = new Widgets.UserBox(true);
-        this.levelsBox = new Widgets.LevelsBox(false, this);
-        this.mediaBox = new Widgets.MediaBox(false, 150);
-        this.linksBox = new Widgets.LinksBox(false, this.settings, this);
+        this.userBox = new Widgets.UserBox(this, true);
+        this.levelsBox = new Widgets.LevelsBox(this.settings, this, false);
+        this.mediaBox = new Widgets.MediaBox(this.settings, false);
+        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(false, 32, this);
@@ -66,10 +63,10 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.userBox.x_expand = false;
         this.linksBox.y_expand = false;
 
-        let row1 = new St.BoxLayout({ style_class: 'db-container' });
-        let row2 = new St.BoxLayout({ style_class: 'db-container' });
-        let row3 = new St.BoxLayout({ style_class: 'db-container' });
-        let vbox = new St.BoxLayout({ style_class: 'db-container', vertical: true });
+        let row1 = new St.BoxLayout({ style_class: 'container' });
+        let row2 = new St.BoxLayout({ style_class: 'container' });
+        let row3 = new St.BoxLayout({ style_class: 'container' });
+        let vbox = new St.BoxLayout({ style_class: 'container', vertical: true });
 
         row1.add_child(this.clockBox);
         row1.add_child(this.sysBox);
@@ -87,11 +84,12 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.mainBox.add_child(row2);
         this.mainBox.add_child(row3);
     }
+
     _layout2(){
-        this.userBox = new Widgets.UserBox(false, 80);
-        this.levelsBox = new Widgets.LevelsBox(true, this);
-        this.mediaBox = new Widgets.MediaBox(false, 200);
-        this.linksBox = new Widgets.LinksBox(false, this.settings, this);
+        this.userBox = new Widgets.UserBox(this, false, 80);
+        this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
+        this.mediaBox = new Widgets.MediaBox(this.settings, false);
+        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(false, 34, this);
@@ -100,10 +98,10 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.userBox.y_expand = false;
         this.linksBox.y_expand = false;
 
-        let col1 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
-        let col2 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
-        let col3 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
-        let hbox1 = new St.BoxLayout({ style_class: 'db-container' });
+        let col1 = new St.BoxLayout({ style_class: 'container', vertical: true });
+        let col2 = new St.BoxLayout({ style_class: 'container', vertical: true });
+        let col3 = new St.BoxLayout({ style_class: 'container', vertical: true });
+        let hbox1 = new St.BoxLayout({style_class: 'container' });
 
         col1.add_child(this.userBox);
         col1.add_child(this.levelsBox);
@@ -121,11 +119,12 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.mainBox.add_child(col2);
         this.mainBox.add_child(col3);
     }
+    
     _layout3(){
-        this.userBox = new Widgets.UserBox(false, 80);
-        this.levelsBox = new Widgets.LevelsBox(true, this);
-        this.mediaBox = new Widgets.MediaBox(true, 200);
-        this.linksBox = new Widgets.LinksBox(false, this.settings, this);
+        this.userBox = new Widgets.UserBox(this, false, 80);
+        this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
+        this.mediaBox = new Widgets.MediaBox(this.settings, true);
+        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
         this.sysBox = new Widgets.SysBox(true, 40, this);
@@ -135,11 +134,11 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this.clockBox.date.y_expand = false;
         this.clockBox.day.y_expand = false;
 
-        let col1 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
-        let col2 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
-        let hbox1 = new St.BoxLayout({ style_class: 'db-container' });
-        let hbox2 = new St.BoxLayout({ style_class: 'db-container' });
-        let vbox1 = new St.BoxLayout({ style_class: 'db-container', vertical: true });
+        let col1 = new St.BoxLayout({  style_class: 'container', vertical: true });
+        let col2 = new St.BoxLayout({  style_class: 'container', vertical: true });
+        let hbox1 = new St.BoxLayout({ style_class: 'container' });
+        let hbox2 = new St.BoxLayout({ style_class: 'container' });
+        let vbox1 = new St.BoxLayout({ style_class: 'container', vertical: true });
 
         col1.add_child(this.clockBox);
         col1.add_child(this.mediaBox);
@@ -207,16 +206,16 @@ class DashBoardPanelButton extends St.Button{
         );
         box.add_child(this.buttonLabel);
 
+        // DASH
+        this._reloadDash();
+        this.settings.connect('changed::dash-layout', this._reloadDash.bind(this));
+        
         //SHORTCUT
         this.connect('clicked', () => this._openDash());
         Main.wm.addKeybinding('dash-shortcut', this.settings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.ALL,
             () => this._toggleDash());
-
-        // DASH
-        this._reloadDash();
-        this.settings.connect('changed::dash-layout', this._reloadDash.bind(this));
 
         this.connect('destroy', this._onDestroy.bind(this));
     }
@@ -273,12 +272,12 @@ var Extension = class Extension {
         this.settings.set_strv('dash-link-names', this.settings.get_strv('dash-link-names'));
         this.settings.set_strv('dash-link-urls', this.settings.get_strv('dash-link-urls'));
 
-        this.settings.connect('changed::dash-button-position', () => this._addButtonToPanel());
-        this.settings.connect('changed::dash-button-offset', () => this._addButtonToPanel());
+        this.settings.connect('changed::dash-button-position', () => this._reload());
+        this.settings.connect('changed::dash-button-offset', () => this._reload());
         this.settings.connect('changed::dash-hide-activities', () => this._activites());
         
         this._activites();
-        this._addButtonToPanel();
+        this._reload();
     }
 
     disable() {
@@ -294,7 +293,7 @@ var Extension = class Extension {
             this.activities.show();
     }
 
-    _addButtonToPanel(){
+    _reload(){
         if(this._panelButton){
             this._panelButton.destroy();
             this._panelButton = null;

@@ -1,60 +1,55 @@
-/* usage-levels */
 .level-bar{
     height: 16px; /* horizontal width */
     width: 16px; /* vertical width */
-    border-radius: 12px;
+    border-radius: 8px;
     margin: 0;
 }
 .level-fill{
-    border-radius: 12px;
+    border-radius: 8px;
     border: none;
     box-shadow: none;
 }
+.usage-level{ spacing: 16px; }
 .usage-level StIcon{ icon-size: 22px; }
 .usage-level StLabel{ width: 2.3em; }
-  
+/* .usage-level:red .level-fill{ background-color: #f66151; } */
+/* .usage-level:orange .level-fill{ background-color: #ffa348; } */
+/* .usage-level:yellow .level-fill{ background-color: #f8e45c; } */
+/* .usage-level:green .level-fill{ background-color: #57e389; } */
+
+/* battery-bar */
+.battery-bar StIcon{ padding-top: 0; padding-bottom: 0; }
 
 /* Dash Board */
-.db-dashboard{}
-.db-dashboard-content{ margin: 20px; }
-.db-dashboard .events-button{ margin: 0; }
-.db-container{ spacing: 20px; }
-
-/* user-box */
-.db-user-icon{
-    border-radius: 10px;
-}
-.db-user-box{}
-
-/* clock-box */
-.db-clock{ font-size: 2.4em; width: 3em; text-align: center; }
-.db-day{ text-align: center; }
-.db-date{ width: 6em; text-align: center; }
-
-.db-dashboard .message-media-control{ padding: 8px; margin: 0;}
-.db-dashboard .popup-menu-item{ padding: 8px; margin: 0;}
+.dashboard-content{ margin: 20px; }
+.dashboard .events-button{ margin: 0; }
+.dashboard .container{ spacing: 20px; }
+.dashboard .user-box .text-box{ min-width: 120px; }
+.dashboard .user-icon-button{ padding: 0; }
+.dashboard .clock{ font-size: 2.4em; min-width: 3em; text-align: center; }
+.dashboard .day{ text-align: center; }
+.dashboard .date{ min-width: 6em; text-align: center; }
+.dashboard .message-media-control{ padding: 8px; margin: 0;}
+.dashboard .popup-menu-item{ padding: 8px; margin: 0;}
+.dashboard .fade-from-bottom,
+.dashboard .fade-from-top{ border: none; box-shadow: none; margin: 0; }
+.dashboard .events-button.full{ padding: 0; }
 
 /* date-menu-mod */
 #panel .panel-button.clock-display{
     -natural-hpadding: 0;
     -minimum-hpadding: 0;
 }
-.datemenu-calendar-column{ padding-left: 0; padding-right: 0; }
-
-.datemenu-menu-box > .media-container{ padding: 20px; }
-
-.datemenu-user{ padding-top: 30px; }
+.datemenu-calendar-column{ padding-left: 0; padding-right: 0; } /* if notifications are hidden, make the column centered */
+.datemenu-user{ padding: 30px;}
 .datemenu-user > StButton{
     width: 160px;
     height: 160px;
     padding: 2px;
     border-radius: 99px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 .datemenu-user > StButton > StWidget{ border-radius: 99px; }
-
-.datemenu-greet{ margin-bottom: 16px; }
-
 .datemenu-levels{ spacing: 8px; }
 
 /* notification-indicator */
@@ -63,8 +58,6 @@
     margin: 0;
 }
 .notification-indicator > StBoxLayout{ spacing: 4px; }
-
-/* notification-list */
 .notifications-placeholder > StIcon{ icon-size: 68px; }
 .notifications-placeholder { padding: 12px; }
 
@@ -72,7 +65,7 @@
 .media-player > StBoxLayout{ padding: 14px; spacing: 8px }
 .media-menu-box.full,
 .media-menu-box.full .media-player > StBoxLayout{ padding: 0; }
-.media-player .fade-from-top{
+.media-container .fade-from-top{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
     background-gradient-start: black;
@@ -80,7 +73,7 @@
     padding: 4px;
     padding-bottom: 18px;
 }
-.media-player .fade-from-bottom{
+.media-container .fade-from-bottom{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
     background-gradient-start: transparent;
@@ -88,7 +81,7 @@
     padding-top: 18px;
     padding-bottom: 4px;
 }
-.media-player .fill{ background-color: rgba(0,0,0,0.5); padding: 6px; }
+.media-container .fill{ background-color: rgba(0,0,0,0.5); padding: 6px; }
 
 
 .media-cover{ padding: 0; }
@@ -99,6 +92,7 @@
 .media-container .media-volume StIcon{ icon-size: 18px; }
 
 /* power-menu */
+.power-menu-panel-button StIcon{ padding-top: 0; padding-bottom: 0; }
 .power-menu-panel-button:hover{ color: #f66151; }
 .power-menu-panel-button:active{ color: #e01b24; }
 .power-menu .button{ padding: 0; }

@@ -154,6 +154,54 @@
       <default>42</default>
     </key>
 
+    <key name="dash-levels-show-battery" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-levels-show-storage" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-levels-show-cpu" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-levels-show-ram" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-levels-show-temp" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-media-cover-width" type="i">
+      <default>200</default>
+    </key>
+
+    <key name="dash-media-cover-height" type="i">
+      <default>200</default>
+    </key>
+
+    <key name="dash-media-cover-roundness" type="i">
+      <default>8</default>
+    </key>
+
+    <key name="dash-media-style" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="dash-media-text-align" type="i">
+      <default>1</default>
+    </key>
+
+    <key name="dash-media-show-volume" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="dash-media-prefer" type="s">
+      <default>"firefox"</default>
+    </key>
+
     <!-- date-menu-tweak -->
     <key name="date-menu-position" type="i">
       <default>1</default> 
@@ -187,28 +235,28 @@
       <default>true</default>
     </key>
 
-    <key name="date-menu-hide-events" type="b">
-      <default>false</default>
+    <key name="date-menu-show-events" type="b">
+      <default>true</default>
     </key>
 
-    <key name="date-menu-hide-clocks" type="b">
-      <default>false</default>
+    <key name="date-menu-show-clocks" type="b">
+      <default>true</default>
     </key>
 
-    <key name="date-menu-hide-weather" type="b">
-      <default>false</default>
+    <key name="date-menu-show-weather" type="b">
+      <default>true</default>
     </key>
 
-    <key name="date-menu-hide-media" type="b">
-      <default>false</default>
+    <key name="date-menu-show-media" type="b">
+      <default>true</default>
     </key>
 
-    <key name="date-menu-hide-system-levels" type="b">
-      <default>false</default>
+    <key name="date-menu-show-system-levels" type="b">
+      <default>true</default>
     </key>
 
-    <key name="date-menu-hide-user" type="b">
-      <default>false</default>
+    <key name="date-menu-show-user" type="b">
+      <default>true</default>
     </key>
 
     <!-- media-player -->
@@ -272,7 +320,11 @@
       <default>1</default>
     </key>
 
-    <key name="media-player-cover-size" type="i">
+    <key name="media-player-cover-width" type="i">
+      <default>200</default>
+    </key>
+
+    <key name="media-player-cover-height" type="i">
       <default>200</default>
     </key>
 
@@ -299,11 +351,6 @@
 
     <key name="power-menu-label-position" type="i">
       <default>2</default>
-      <summary>
-        0 - inside
-        1 - outside
-        2 - hidden
-      </summary>
     </key>
 
     <key name="power-menu-button-roundness" type="i">
@@ -467,35 +514,10 @@
 
     <key name="background-clock-clock-format" type="s">
       <default>"%H:%M"</default>
-      <description>
-        M - minutes 00-59
-        H - hour 00-23
-        I - hour 01-12
-        k - hour 0-23
-        l - hour 1-12
-        p - AM PM
-        P - am pm
-
-        n - newline
-      </description>
     </key>
 
     <key name="background-clock-date-format" type="s">
       <default>"%A %b"</default>
-      <description>
-        a - weekday abr
-        A - weekday name
-        b - monthname abr
-        B - monthname name
-        C - century 00-99
-        d - day 01-31
-        e - day 1-31
-        Y - year 2000
-        m - month 01-12
-        j - day of year 001-366
-
-        n - newline
-      </description>
     </key>
 
     <key name="background-clock-bg-color" type="s">

@@ -13,145 +13,195 @@ const SystemLevels = Me.imports.shared.systemLevels;
 
 var UserBox = GObject.registerClass(
 class UserBox extends St.Bin{
-    _init(vertical, iconSize){
+    _init(parentDialog, vertical = true, iconSize = 120){
         super._init({
             x_expand: true,
             y_expand: true,
             reactive: true,
-            style_class: 'events-button db-user-box',
+            style_class: `events-button user-box`,
         });
-        this.userIcon = new St.Bin({
+
+        let box = new St.BoxLayout({
+            vertical: vertical,
+            style_class: 'container',
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER
+        });
+        this.set_child(box);
+        let userIcon = new St.Button({
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
             y_expand: true,
-            style_class: 'db-user-icon',
-            style: 'background-image: url("/var/lib/AccountsService/icons/'+ GLib.get_user_name() +'"); background-size: cover;',
+            style_class: 'user-icon-button button',
+            style: `
+                background-image: url("/var/lib/AccountsService/icons/${GLib.get_user_name()}");
+                background-size: cover;
+            `,
+            width: iconSize,
+            height: iconSize
         });
-        if(iconSize){
-            this.userIcon.width = iconSize;
-            this.userIcon.height = iconSize;
-        }else{
-            this.userIcon.width = 120;
-            this.userIcon.height = 120;
-        }
-        this.userName = new St.Label({
-            text: GLib.get_user_name(),
-            x_expand: true,
-            y_expand: true,
+        userIcon.connect('clicked', () => {
+            parentDialog.close();
+            Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate();
         });
-        this.greet = new St.Label({
-            text: this._getGreet(),
-            x_expand: true,
-            y_expand: true,
-        });
-        this.userText = new St.BoxLayout({
+        box.add_child(userIcon);
+        let textBox = new St.BoxLayout({
             vertical: true,
-            x_expand: true,
-            y_expand: true,
+            style_class: 'text-box',
+            y_align: vertical ? Clutter.ActorAlign.START : Clutter.ActorAlign.CENTER
         });
-        this.userText.add_child(this.userName);
-        this.userText.add_child(this.greet);
+        box.add_child(textBox);
+        textBox.add_child(new St.Label({
+            text: GLib.get_user_name(),
+            y_align: Clutter.ActorAlign.END,
+            x_align: vertical ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START
+        }));
+        this.greeting = new St.Label({
+            y_align: Clutter.ActorAlign.START,
+            x_align: vertical ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START
+        });
+        textBox.add_child(this.greeting);
 
-        this._buildUI(vertical);
+        this.greet();
     }
-    _getGreet(){
+
+    greet(){
         let time = new Date();
         let hour = time.getHours();
         let greet = "Good Evening!";
         if(hour > 6){ greet = "Good Morning!"; }
         if(hour > 12){greet = "Good Afternoon!";}
         if(hour > 18){greet = "Good Evening!";}
-        return greet;
-    }
-    _buildUI(vertical){
-        let box = new St.BoxLayout({
-            vertical: vertical,
-            style_class: 'db-container'
-        });
-        box.add_child(this.userIcon);
-        box.add_child(this.userText);
-        this.set_child(box);
-        if(vertical){
-            this.greet.x_align = Clutter.ActorAlign.CENTER;
-            this.userName.x_align = Clutter.ActorAlign.CENTER;
-            this.userText.x_align = Clutter.ActorAlign.CENTER;
-        }else{
-            this.userText.y_align = Clutter.ActorAlign.CENTER;
-        }
+        this.greeting.text = greet;
     }
 });
 
 var LevelsBox = GObject.registerClass(
 class LevelsBox extends St.BoxLayout{
-    _init(vertical, parentDialog){
+    _init(settings, parentDialog, vertical){
         super._init({
             x_expand: true,
             y_expand: true,
-            style_class: 'events-button db-levels-box db-container',
-            vertical: true,
+            style_class: 'events-button container',
+            vertical: !vertical,
             reactive: true,
         });
 
         this.levels = [
             new SystemLevels.PowerLevel(vertical),
-            new SystemLevels.DirLevel(vertical),
+            new SystemLevels.StorageLevel(vertical),
             new SystemLevels.CpuLevel(vertical),
             new SystemLevels.RamLevel(vertical),
             new SystemLevels.TempLevel(vertical),
         ];
 
-        this._buildUI(vertical);
-        this.connect('destroy', () => this.stopTimeout());
+        this.settings = settings;
+        this._connections = [];
+        this._connect('show-battery');
+        this._connect('show-storage');
+        this._connect('show-cpu');    
+        this._connect('show-ram');    
+        this._connect('show-temp');   
+
+        this.levels.forEach(s => {
+            this.add_child(s);
+        });
+
+        this.connect('destroy', this._onDestroy.bind(this));
         parentDialog.connect('opened', () => this.startTimeout());
         parentDialog.connect('closed', () => this.stopTimeout());
     }
+
+    _onDestroy(){
+        this._connections.forEach(c => 
+            this.settings.disconnect(c)
+        );
+        this.stopTimeout();
+    }
+
+    _connect(name){
+        this._connections.push(
+            this.settings.connect(`changed::dash-levels-${name}`,
+                () => this._sync()
+            )
+        )
+    }
+
+    _sync(){
+        this.settings.get_boolean('dash-levels-show-battery')? this.levels[0].show() : this.levels[0].hide();
+        this.settings.get_boolean('dash-levels-show-storage')? this.levels[1].show() : this.levels[1].hide();
+        this.settings.get_boolean('dash-levels-show-cpu')    ? this.levels[2].show() : this.levels[2].hide();
+        this.settings.get_boolean('dash-levels-show-ram')    ? this.levels[3].show() : this.levels[3].hide();
+        this.settings.get_boolean('dash-levels-show-temp')   ? this.levels[4].show() : this.levels[4].hide();
+    }
+
     startTimeout(){
         this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
     }
+
     stopTimeout(){
         if(this.timeout){
             Mainloop.source_remove(this.timeout);
             this.timeout = null;
         }
     }
+
     updateLevels(){
         this.levels.forEach(l => {
             l.updateLevel();
         });
         return true;
     }
-    _buildUI(vertical){
-        if(vertical){
-            this.vertical = false;
-        }
-        this.levels.forEach(s => {
-            this.add_child(s);
-        });
-    }
 });
 
 var MediaBox = GObject.registerClass(
 class MediaBox extends Media.Media{
-    _init(vertical, coverSize){
+    _init(settings, vertical = false){
         super._init({
             x_expand: true,
             y_expand: true,
-            style_class: 'events-button db-media-box',
+            style_class: 'events-button',
             reactive: true,
         });
 
+        this.settings = settings;
+        this._connections = [];
+        this._connect('cover-width');
+        this._connect('cover-height');
+        this._connect('cover-roundness');
+        this._connect('text-align');
+        this._connect('show-volume');
+        this._connect('style');
+        this._connect('prefer');
+        
         this.vertical = vertical;
-        this.coverSize = coverSize;
 
         this.connect('updated', () => this._sync());
         this._sync();
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        this._connections.forEach(c => 
+            this.settings.disconnect(c)
+        );
+    }
+
+    _connect(name){
+        this._connections.push(
+            this.settings.connect(`changed::dash-media-${name}`,
+                () => this._sync()
+            )
+        )
     }
 
     _sync(){
+        this.preferred = this.settings.get_string('dash-media-prefer');
+        this.coverRadius = this.settings.get_int('dash-media-cover-roundness');
         let mpris = this.getPreferred();
         if(mpris){
-            this.player = new Media.PlayerWidget(mpris);
+            this.player = new Media.PlayerWidget(mpris, true, this.coverRadius);
             this._buildPlayerUI();
             this.set_child(this.player);
             
@@ -165,15 +215,31 @@ class MediaBox extends Media.Media{
     }
 
     _buildPlayerUI(){
-        let elements = this.player;
-        let box = this.player;
+        this.player.mediaCover.add_style_class_name('events-button');
+        this.player.mediaCover.remove_style_class_name('button');
+        this.player.mediaCover.width = this.settings.get_int('dash-media-cover-width');
+        this.player.mediaCover.height = this.settings.get_int('dash-media-cover-height');
+        let align = this.settings.get_int('dash-media-text-align');
+        let talign = 'center';
+        switch (align) {
+            case 1: talign = 'center'; align = Clutter.ActorAlign.CENTER; break;
+            case 2: talign = 'right'; align = Clutter.ActorAlign.END; break;
+            default: talign = 'left'; align = Clutter.ActorAlign.START; break;
+        }
+        this.player.titleBox.x_align = align;
+        this.player.titleBox.style = `text-align: ${talign};`;
 
-        elements.mediaCover.width = this.coverSize;
-        elements.mediaCover.height = this.coverSize;
-        box.style_class = 'media-container';
-        box.vertical = this.vertical;
-        box.y_align = Clutter.ActorAlign.CENTER;
+        let layout = this.settings.get_int('dash-media-style');
+        switch (layout) {
+            case 1: this._labelOnCover(); break;
+            case 2: this._full(); break;
+            default: this._normal(); break;
+        }
+    }
 
+    _normal(){
+        let p = this.player;
+        this.player.vertical = this.vertical;
         let vbox = new St.BoxLayout({
             style_class: 'media-container',
             vertical: true,
@@ -181,12 +247,57 @@ class MediaBox extends Media.Media{
             y_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
         });
-        vbox.add_child(elements.titleBox);
-        vbox.add_child(elements.controlsBox);
-        vbox.add_child(elements.volumeBox);
+        vbox.add_child(p.titleBox);
+        vbox.add_child(p.controlsBox);
+        if(this.settings.get_boolean('dash-media-show-volume'))
+            vbox.add_child(p.volumeBox);
+        p.add_child(p.mediaCover);
+        p.add_child(vbox);
+        p.y_align = Clutter.ActorAlign.CENTER;
+    }
 
-        box.add_child(elements.mediaCover);
-        box.add_child(vbox);
+    _labelOnCover(){
+        let p = this.player;
+        this.player.vertical = true;
+        p.y_align = Clutter.ActorAlign.CENTER;
+        let vbox = new St.BoxLayout({ vertical: true });
+        p.titleBox.add_style_class_name('fade-from-bottom');
+        p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`
+        p.titleBox.width = p.mediaCover.width;
+        vbox.add_child(new St.Widget({ y_expand: true }));
+        vbox.add_child(p.titleBox);
+        p.mediaCover.set_child(vbox);
+
+        let box = new St.BoxLayout({ 
+            vertical: this.vertical,
+            style_class: 'container',
+            x_align: Clutter.ActorAlign.CENTER
+        });
+        p.controlsBox.vertical = !this.vertical;
+        box.add_child(p.mediaCover);
+        box.add_child(p.controlsBox);
+        p.add_child(box);
+        if(this.settings.get_boolean('dash-media-show-volume'))
+            p.add_child(p.volumeBox);
+    }
+
+    _full(){
+        let p = this.player;
+        let vbox = new St.BoxLayout({ vertical: true });
+        vbox.add_child(p.titleBox);
+        vbox.add_child(new St.Widget({ y_expand: true }));
+        vbox.add_child(p.controlsBox);
+        p.titleBox.add_style_class_name('fade-from-top');
+        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0 ;`
+        p.titleBox.width = p.mediaCover.width;
+        p.controlsBox.add_style_class_name('fade-from-bottom');
+        p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`
+        p.controlsBox.width = p.mediaCover.width;
+        p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
+        p.controlsBox.add_child(new St.Widget({ x_expand: true }));
+        this.add_style_class_name('full');
+        p.mediaCover.set_child(vbox);
+        p.add_child(p.mediaCover);
     }
 });
 
@@ -198,9 +309,8 @@ class LinkButton extends St.Button{
                 gicon: Gio.icon_new_for_string(
                     Me.dir.get_path() + '/media/'+name+'-symbolic.svg'
                 ),
-                style_class: 'db-link-icon',
             }),
-            style_class: 'events-button db-link-btn',
+            style_class: 'events-button',
             x_expand: true,
             can_focus: true,
         });
@@ -208,15 +318,15 @@ class LinkButton extends St.Button{
             Util.spawnCommandLine('xdg-open '+link);
             parentDialog.close();
         });
-        this.add_style_class_name('db-'+name+'-btn');
+        this.add_style_class_name(name+'-btn');
     }
 });
 
 var LinksBox = GObject.registerClass(
 class LinksBox extends St.BoxLayout{
-    _init(vertical, settings, parentDialog){
+    _init(settings, parentDialog, vertical = false){
         super._init({
-            style_class: 'db-container',
+            style_class: 'container',
             x_expand: true,
             y_expand: true,
             reactive: true,
@@ -243,26 +353,26 @@ var ClockBox = GObject.registerClass(
 class ClockBox extends St.BoxLayout{
     _init(vertical){
         super._init({
-            style_class: 'events-button db-clock-box',
+            style_class: 'events-button',
             x_expand: true,
             reactive: true,
         });
         this.clock = new St.Label({
-            style_class: 'db-clock',
+            style_class: 'clock',
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
             y_expand: true
         });
         this.date = new St.Label({
-            style_class: 'db-date',
+            style_class: 'date',
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
             y_expand: true
         });
         this.day = new St.Label({
-            style_class: 'db-day',
+            style_class: 'day',
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
@@ -282,7 +392,7 @@ class ClockBox extends St.BoxLayout{
         if(vertical) this.vertical = true;
         if(vertical) vbox.style = 'text-align: center';
 
-        this.wallclock = new GnomeDesktop.WallClock();
+        this.wallclock = new GnomeDesktop.WallClock({ time_only: true });
         this.wallclock.connectObject(
             'notify::clock',
             () => this.updateClock(), this);
@@ -317,12 +427,6 @@ class AppBtn extends Dash.DashIcon{
 
         this._changeIconSize();
         this.settings.connect('changed::dash-app-icon-size', this._changeIconSize.bind(this));
-        this.connect('destroy', this._onDestroy.bind(this));
-    }
-
-    _onDestroy(){
-        this.settings.run_dispose();
-        this.settings = null;
     }
 
     _changeIconSize(){
@@ -342,7 +446,7 @@ class AppBox extends St.BoxLayout{
     _init(settings, parentDialog){
         super._init({
             vertical: true,
-            style_class: 'events-button db-container',
+            style_class: 'events-button container',
             y_expand: true,
             x_expand: true,
             reactive: true,
@@ -372,7 +476,7 @@ class AppBox extends St.BoxLayout{
         let favs = AppFavorites.getAppFavorites().getFavorites();
         for (let i = 0; i < rows; i++) {
             let row = new St.BoxLayout({
-                style_class: 'db-container',
+                style_class: 'container',
                 y_expand: true,
                 x_expand: true,
                 y_align: Clutter.ActorAlign.CENTER,
@@ -394,7 +498,6 @@ class AppBox extends St.BoxLayout{
 
     _onDestroy(){
         AppFavorites.getAppFavorites().disconnectObject(this);
-        this.settings.run_dispose();
         this.settings = null;
     }
 });
@@ -403,10 +506,9 @@ const SysBtn = GObject.registerClass(
 class SysBtn extends St.Button{
     _init(icon, callback, iconSize, parentDialog){
         super._init({
-            style_class: 'popup-menu-item db-sys-btn',
+            style_class: 'popup-menu-item',
             child: new St.Icon({
                 icon_name: icon,
-                style_class: 'db-sys-icon',
                 icon_size: iconSize
             }),
             y_expand: true,
@@ -422,7 +524,7 @@ var SysBox = GObject.registerClass(
 class SysBox extends St.BoxLayout{
     _init(vertical, iconSize, parentDialog){
         super._init({
-            style_class: 'db-container events-button',
+            style_class: 'events-button container',
         });
         if(vertical) this.vertical = true;
         if(iconSize) this.iconSize = iconSize;
@@ -453,7 +555,7 @@ var SysActionsBox = GObject.registerClass(
 class SysActionsBox extends St.BoxLayout{
     _init(layout, iconSize, parentDialog){
         super._init({
-            style_class: 'db-container events-button',
+            style_class: 'events-button container',
         });
         this.layout = layout;
         if(iconSize) this.iconSize = iconSize;

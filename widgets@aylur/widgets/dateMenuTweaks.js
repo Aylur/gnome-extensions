@@ -20,7 +20,7 @@ class LevelsBox extends St.BoxLayout{
 
         this.levels = [
             new SystemLevels.PowerLevel(),
-            // new SystemLevels.DirLevel(),
+            // new SystemLevels.StorageLevel(),
             new SystemLevels.CpuLevel(),
             new SystemLevels.RamLevel(),
             new SystemLevels.TempLevel(),
@@ -54,7 +54,7 @@ class CustomMenu extends St.BoxLayout{
     _init(settings){
         super._init({
             vertical: true,
-            style_class: 'datemenu-menu-box'
+            style_class: 'datemenu-menu-custom-box'
         });
 
         let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
@@ -126,20 +126,20 @@ class CustomMenu extends St.BoxLayout{
         });
         scrollView.add_actor(scrollItems);
 
-        if(!settings.get_boolean('date-menu-hide-user'))
+        if(settings.get_boolean('date-menu-show-user'))
             this.add_child(userBox);
 
         this.add_child(calendarBox);
 
-        if(!settings.get_boolean('date-menu-hide-events'))
+        if(settings.get_boolean('date-menu-show-events'))
             scrollItems.add_child(eventsItem);
-        if(!settings.get_boolean('date-menu-hide-clocks'))
+        if(settings.get_boolean('date-menu-show-clocks'))
             scrollItems.add_child(clocksItem);
-        if(!settings.get_boolean('date-menu-hide-weather'))
+        if(settings.get_boolean('date-menu-show-weather'))
             scrollItems.add_child(weatherItem);
 
         //media
-        if(!settings.get_boolean('date-menu-hide-media')){
+        if(settings.get_boolean('date-menu-show-media')){
             this.media = new Media.Media({ style_class: 'events-button' });
             this.media.connect('updated', () => this._syncMedia());
             this._syncMedia();
@@ -147,7 +147,7 @@ class CustomMenu extends St.BoxLayout{
         }
 
         //system-levels
-        if(!settings.get_boolean('date-menu-hide-system-levels')){
+        if(settings.get_boolean('date-menu-show-system-levels')){
             this.levels = new LevelsBox();
             scrollItems.add_child(this.levels);
 
@@ -250,6 +250,7 @@ var Extension = class Extension {
         this.menuBox = DateMenu.menu.box.get_first_child().get_first_child();
         this.calendar = this.menuBox.get_last_child();
         this.notifications = this.menuBox.get_first_child();
+        this.menuChildren = this.menuBox.get_children();
     }
 
     enable() {
@@ -261,14 +262,18 @@ var Extension = class Extension {
         this.settings.connect('changed::date-menu-mirror', () => this.reload());
         this.settings.connect('changed::date-menu-hide-notifications', () => this.reload());
         this.settings.connect('changed::date-menu-custom-menu', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-events', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-user', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-clocks', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-weather', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-media', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-system-levels', () => this.reload());
+        this.settings.connect('changed::date-menu-show-events', () => this.reload());
+        this.settings.connect('changed::date-menu-show-user', () => this.reload());
+        this.settings.connect('changed::date-menu-show-clocks', () => this.reload());
+        this.settings.connect('changed::date-menu-show-weather', () => this.reload());
+        this.settings.connect('changed::date-menu-show-media', () => this.reload());
+        this.settings.connect('changed::date-menu-show-system-levels', () => this.reload());
 
-        this.settings.connect('changed::date-menu-date-format', () => this.updateClock());
+        this.settings.connect('changed::date-menu-date-format', () => {
+            this.dateFormat = this.settings.get_string('date-menu-date-format');
+            this.updateClock()
+        });
+        this.dateFormat = this.settings.get_string('date-menu-date-format');
 
         //clock
         this.clock = new St.Label({ style_class: 'clock' });
@@ -286,10 +291,6 @@ var Extension = class Extension {
 
     disable() {
         this.reset();
-        if(this.customMenu){
-            this.customMenu.destroy();
-            this.customMenu = null;
-        }
 
         this.dateMenu.get_parent().remove_child(this.dateMenu);
         this.panel[1].insert_child_at_index(this.dateMenu, 0);
@@ -299,7 +300,7 @@ var Extension = class Extension {
     }
 
     updateClock(){
-        this.clock.text = GLib.DateTime.new_now_local().format(this.settings.get_string('date-menu-date-format'));
+        this.clock.text = GLib.DateTime.new_now_local().format(this.dateFormat);
     }
 
     reload(){
@@ -329,25 +330,13 @@ var Extension = class Extension {
 
         //mirror
         if(this.settings.get_boolean('date-menu-mirror')){
-            this.menuBox.remove_all_children();
-            //custom menu
-            if(this.settings.get_boolean('date-menu-custom-menu')){
-                this.customMenu = new CustomMenu(this.settings)
-                this.menuBox.add_child(this.customMenu);
-                this.menuBox.add_child(this.notifications);
-            }else{
-                this.menuBox.add_child(this.calendar);
-                this.menuBox.add_child(this.notifications);
-            }
-        }else{
-            //custom menu
-            if(this.settings.get_boolean('date-menu-custom-menu')){
-                this.menuBox.remove_all_children();
-                this.customMenu = new CustomMenu(this.settings)
-                this.menuBox.add_child(this.notifications);
-                this.menuBox.add_child(this.customMenu);
-            }
+            this.menuBox.remove_child(this.calendar);
+            this.menuBox.insert_child_at_index(this.calendar, 0);
         }
+        
+        //custom menu
+        if(this.settings.get_boolean('date-menu-custom-menu'))
+            this.menuBox.replace_child(this.calendar, new CustomMenu(this.settings));
 
         //notifications
         if(this.settings.get_boolean('date-menu-hide-notifications'))
@@ -363,7 +352,6 @@ var Extension = class Extension {
 
         //menu reset
         this.menuBox.remove_all_children();
-        this.menuBox.add_child(this.notifications);
-        this.menuBox.add_child(this.calendar);
+        this.menuChildren.forEach(ch => this.menuBox.add_child(ch) );
     }
 }

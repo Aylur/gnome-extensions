@@ -287,7 +287,7 @@ class PlayerWidget extends St.BoxLayout{
         if(!GLib.file_test(path, GLib.FileTest.EXISTS))
             GLib.spawn_command_line_sync(`mkdir ${path}`);
 
-        let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/'/g, '');
+        let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/[\*\?\"\<\>\|\#\:\?\']/g, '');
         let withCover = `
             border-radius: ${this.roundness}px;
             background-image: url("file://${fname}");
@@ -411,13 +411,9 @@ var Media = GObject.registerClass({
     Signals: { 'updated' : {} }
 },
 class Media extends St.Bin{
-    _init(params) {
+    _init(params, preferred) {
         super._init(params);
-
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::media-player-prefer',
-            () => this.prefered = this.settings.get_string('media-player-prefer'));
-        this.prefered = this.settings.get_string('media-player-prefer');
+        this.preferred = preferred ? preferred : '';
 
         this._players = new Map();
         this._proxy = new DBusProxy(Gio.DBus.session,
@@ -466,7 +462,7 @@ class Media extends St.Bin{
             return false;
         }
         for (const [busName, player] of this._players) {
-            if(busName.includes(this.prefered)){
+            if(busName.includes(this.preferred)){
                 return player;
             }
         }

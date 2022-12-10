@@ -21,7 +21,8 @@ class MediaButton extends PanelMenu.Button{
         let maxWidth = settings.get_int('media-player-max-width');
         if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
 
-        this.media = new Media.Media({ style_class: 'media-player' });
+        let pref = settings.get_string('media-player-prefer');
+        this.media = new Media.Media({ style_class: 'media-player' }, pref);
         this.media.connect('updated', () => this._sync());
         this.menu.box.add_child(this.media);
         this.menu.box.add_style_class_name('media-menu-box');
@@ -55,7 +56,8 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _buildPlayerUI(){
-        this.coverSize = this.settings.get_int('media-player-cover-size');
+        this.coverWidth = this.settings.get_int('media-player-cover-width');
+        this.coverHeight = this.settings.get_int('media-player-cover-height');
         this.showText = this.settings.get_boolean('media-player-show-text');
         this.showVolume = this.settings.get_boolean('media-player-show-volume');
         let textAlign = this.settings.get_int('media-player-text-align');
@@ -66,8 +68,8 @@ class MediaButton extends PanelMenu.Button{
             default: align = 'center'; break;
         }
         this.player.titleBox.style = `text-align: ${align};`;
-        this.player.mediaCover.width = this.coverSize;
-        this.player.mediaCover.height = this.coverSize;
+        this.player.mediaCover.width = this.coverWidth;
+        this.player.mediaCover.height = this.coverHeight;
 
         let layout = this.settings.get_int('media-player-layout');
         switch (layout) {
@@ -91,8 +93,10 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _compact(){
-        if(this.coverSize > 100)
-            this.settings.set_int('media-player-cover-size', 68);
+        if(this.coverWidth < 100 || this.coverHeight < 100){
+            this.settings.set_int('media-player-cover-width', 70);
+            this.settings.set_int('media-player-cover-height', 70);
+        }
         
         let p = this.player;
         p.vertical = true;
@@ -108,14 +112,16 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _labelOnCover(){
-        if(this.coverSize < 220)
-            this.settings.set_int('media-player-cover-size', 220);
+        if(this.coverWidth < 220 || this.coverHeight < 220){
+            this.settings.set_int('media-player-cover-width', 220);
+            this.settings.set_int('media-player-cover-height', 220);
+        }
 
         let p = this.player;
         p.vertical = true;
 
         let pos = this.settings.get_int('media-player-text-position');
-        p.controlsBox.width = this.coverSize;
+        p.controlsBox.width = this.coverWidth;
         p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
         p.controlsBox.add_child(new St.Widget({ x_expand: true }));
         let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
@@ -179,8 +185,10 @@ class MediaButton extends PanelMenu.Button{
     }
 
     _labelOnCoverv2(){
-        if(this.coverSize < 250)
-            this.settings.set_int('media-player-cover-size', 250);
+        if(this.coverWidth < 250 || this.coverHeight < 250){
+            this.settings.set_int('media-player-cover-width', 250);
+            this.settings.set_int('media-player-cover-height', 250);
+        }
 
         let p = this.player;
         let pos = this.settings.get_int('media-player-text-position');
@@ -207,6 +215,7 @@ class MediaButton extends PanelMenu.Button{
             vbox.add_child(new St.Widget({ y_expand: true }));
             if(this.showText) vbox.add_child(p.titleBox);
         }
+        p.titleBox.style += `max-width: ${this.coverWidth-(this.coverRadius*2)-2}px`;
 
         p.mediaCover.set_child(vbox);
         p.add_child(p.mediaCover);
@@ -326,13 +335,15 @@ var Extension = class Extension {
         this.settings.connect('changed::media-player-enable-controls', () => this._reload());
         this.settings.connect('changed::media-player-max-width', () => this._reload());
         this.settings.connect('changed::media-player-enable-track', () => this._reload());
-        this.settings.connect('changed::media-player-cover-size', () => this._reload());
+        this.settings.connect('changed::media-player-cover-width', () => this._reload());
+        this.settings.connect('changed::media-player-cover-height', () => this._reload());
         this.settings.connect('changed::media-player-cover-roundness', () => this._reload());
         this.settings.connect('changed::media-player-text-align', () => this._reload());
         this.settings.connect('changed::media-player-text-position', () => this._reload());
         this.settings.connect('changed::media-player-show-text', () => this._reload());
         this.settings.connect('changed::media-player-show-volume', () => this._reload());
         this.settings.connect('changed::media-player-show-loop-shuffle', () => this._reload());
+        this.settings.connect('changed::media-player-prefer', () => this._reload());
         this._reload();
 
         this.settings.connect('changed::media-player-hide-stock', () => this._hideStock());

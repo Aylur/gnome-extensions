@@ -120,10 +120,32 @@ class DashBoardPage extends SubPage{
         shortcutRow.add_suffix(hotkeyButton);
 
         dashGroup.add(shortcutRow);
-        dashGroup.add(new SpinButtonRow('Layout', settings, 'dash-layout', 1, 3, 1, 'Send me your layout idea and I will add it.'));
-        dashGroup.add(new SpinButtonRow('App Launcher Rows', settings, 'dash-apps-rows', 1, 5, 1));
-        dashGroup.add(new SpinButtonRow('App Launcher Columns', settings, 'dash-apps-cols', 1, 5, 1));
-        dashGroup.add(new SpinButtonRow('App Launcher Size', settings, 'dash-app-icon-size', 16, 64, 2));
+        dashGroup.add(new DropDownRow('Layout', settings, 'dash-layout', ['1', '2', '3',], 'Send me your layout ideas and I will add it.'));
+
+        let appBoxExpander = new Adw.ExpanderRow({ title: 'App Launcher'});
+        appBoxExpander.add_row(new SpinButtonRow('Rows', settings, 'dash-apps-rows', 1, 5, 1));
+        appBoxExpander.add_row(new SpinButtonRow('Columns', settings, 'dash-apps-cols', 1, 5, 1));
+        appBoxExpander.add_row(new SpinButtonRow('Icon Size', settings, 'dash-app-icon-size', 16, 64, 2));
+        dashGroup.add(appBoxExpander);
+
+        let levelsExpander = new Adw.ExpanderRow({ title: 'System Levels' });
+        levelsExpander.add_row(new SwitchRow('Battery', settings, 'dash-levels-show-battery'));
+        levelsExpander.add_row(new SwitchRow('Storage', settings, 'dash-levels-show-storage'));
+        levelsExpander.add_row(new SwitchRow('CPU', settings, 'dash-levels-show-cpu'));
+        levelsExpander.add_row(new SwitchRow('RAM', settings, 'dash-levels-show-ram'));
+        levelsExpander.add_row(new SwitchRow('Temperature', settings, 'dash-levels-show-temp'));
+        dashGroup.add(levelsExpander);
+
+        let mediaExpander = new Adw.ExpanderRow({ title: 'Media Player' });
+        mediaExpander.add_row(new SpinButtonRow('Cover Width', settings, 'dash-media-cover-width', 100, 500, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Height', settings, 'dash-media-cover-height', 100, 500, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Roundness', settings, 'dash-media-cover-roundness', 0, 48, 1));
+        mediaExpander.add_row(new EntryRow('Prefer', settings, 'dash-media-prefer'));
+        mediaExpander.add_row(new DropDownRow('Style', settings, 'dash-media-style', ['Normal', 'Label on Cover', 'Full']));
+        mediaExpander.add_row(new SwitchRow('Show Volume', settings, 'dash-media-show-volume'));
+        mediaExpander.add_row(new DropDownRow('Title Align', settings, 'dash-media-text-align', ['Left', 'Center', 'Right']));
+        dashGroup.add(mediaExpander);
+
         dashGroup.add(new Adw.ActionRow({
             title: 'Web Links',
             subtitle:`You can change the links through dconf editor.\nIf you want your own icon: find an svg and name it theNameYouGaveItInDconf-symbolic.svg.\nI haven't figured out GTK to have a nice setting for it yet, sorry.`
@@ -180,12 +202,12 @@ class DateMenuTweakPage extends SubPage{
         this.add(customMenuGroup);
 
         let expander = new ExpanderRow('Enable Custom Menu', settings, 'date-menu-custom-menu');
-        expander.add_row(new SwitchRow('Hide User Icon', settings, 'date-menu-hide-user'));
-        expander.add_row(new SwitchRow('Hide Events', settings, 'date-menu-hide-events'));
-        expander.add_row(new SwitchRow('Hide Clocks', settings, 'date-menu-hide-clocks'));
-        expander.add_row(new SwitchRow('Hide Weather', settings, 'date-menu-hide-weather'));
-        expander.add_row(new SwitchRow('Hide Media Player', settings, 'date-menu-hide-media'));
-        expander.add_row(new SwitchRow('Hide System Levels', settings, 'date-menu-hide-system-levels'));
+        expander.add_row(new SwitchRow('Show User Icon', settings, 'date-menu-show-user'));
+        expander.add_row(new SwitchRow('Show Events', settings, 'date-menu-show-events'));
+        expander.add_row(new SwitchRow('Show Clocks', settings, 'date-menu-show-clocks'));
+        expander.add_row(new SwitchRow('Show Weather', settings, 'date-menu-show-weather'));
+        expander.add_row(new SwitchRow('Show Media Player', settings, 'date-menu-show-media'));
+        expander.add_row(new SwitchRow('Show System Levels', settings, 'date-menu-show-system-levels'));
 
         customMenuGroup.add(expander);
     }
@@ -223,14 +245,14 @@ class MediaPlayerPage extends SubPage{
         playerGroup.add(this.clearRow);
         this._cacheSize();
         
-        let desc = 'This setting applies to the one in dash board and date menu.';
-        playerGroup.add(new EntryRow('Prefer', settings, 'media-player-prefer', 'It is the players d-bus name. e.g: Amberol, firefox, spotify.\n'+desc));
+        playerGroup.add(new EntryRow('Prefer', settings, 'media-player-prefer', 'It is the players d-bus name. e.g: Amberol, firefox, spotify.'));
         playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ['Normal', 'Compact', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Label on Cover v2']));
         playerGroup.add(new SpinButtonRow('Cover Roundness', settings, 'media-player-cover-roundness', 1, 99, 1));
-        playerGroup.add(new SpinButtonRow('Cover Size', settings, 'media-player-cover-size', 20, 500, 2));
+        playerGroup.add(new SpinButtonRow('Cover Width', settings, 'media-player-cover-width', 20, 500, 2));
+        playerGroup.add(new SpinButtonRow('Cover Height', settings, 'media-player-cover-height', 20, 500, 2));
         let textExpander = new ExpanderRow('Show Title', settings, 'media-player-show-text');
-        textExpander.add_row(new DropDownRow('Text Align', settings, 'media-player-text-align', ['Left','Center','Right']));
-        textExpander.add_row(new DropDownRow('Text Position', settings, 'media-player-text-position', ['Top','Bot'], 'Only works on "Label on Cover" layouts'));
+        textExpander.add_row(new DropDownRow('Title Align', settings, 'media-player-text-align', ['Left','Center','Right']));
+        textExpander.add_row(new DropDownRow('Title Position', settings, 'media-player-text-position', ['Top','Bot'], 'Only works on "Label on Cover" layouts'));
         playerGroup.add(textExpander);
         playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume'));
         playerGroup.add(new SwitchRow('Show loop and shuffle button', settings, 'media-player-show-loop-shuffle'));

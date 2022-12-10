@@ -8,7 +8,9 @@ const Mainloop = imports.mainloop;
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
 
-const ZERO_VALUE = 12;
+//shouldn't be more than half the widthness of the bar
+const ROUNDNESS = 8;
+const ZERO_VALUE = ROUNDNESS*2;
 
 const LevelBar = GObject.registerClass(
 class LevelBar extends St.Bin{
@@ -34,6 +36,7 @@ class LevelBar extends St.Bin{
 
         this.connect('notify::value', () => this.repaint());
     }
+
     repaint(){
         if(this.value > 1) this.value = 1;
         if(this.value < 0) this.value = 0;
@@ -49,6 +52,7 @@ class LevelBar extends St.Bin{
         else
             this.fillLevel.show();
     }
+
     set_vertical(){
         this.background.y_expand = true;
         this.background.y_align = Clutter.ActorAlign.FILL;
@@ -60,6 +64,7 @@ class LevelBar extends St.Bin{
         this.fillLevel.x_align = Clutter.ActorAlign.FILL;
         this.vertical = true;
     }
+
     set_horizontal(){
         this.background.y_expand = true;
         this.background.y_align = Clutter.ActorAlign.CENTER;
@@ -77,7 +82,7 @@ const UsageLevel = GObject.registerClass(
 class UsageLevel extends St.BoxLayout{
     _init(vertical){
         super._init({
-            style_class: 'usage-level db-container',
+            style_class: 'usage-level',
         });
         if(vertical) this.vertical = true;
         this.colorSwitchValues = [ 25, 50, 75, ];
@@ -92,11 +97,13 @@ class UsageLevel extends St.BoxLayout{
 
         this._buildUI();
     }
+
     updateLevel(){
         this.setUsage();
         this.setColorClass();
         this.level.repaint();
     }
+    
     setColorClass(){
         let value = this.level.value*100;
         this.remove_style_pseudo_class('red');
@@ -115,6 +122,7 @@ class UsageLevel extends St.BoxLayout{
             else if(value < this.colorSwitchValues[0]) this.add_style_pseudo_class('red');
         }
     }
+    
     _buildUI(){
         if(this.vertical){
             this.add_child(this.label);
@@ -132,7 +140,6 @@ class UsageLevel extends St.BoxLayout{
             this.y_expand = true;
         }
     }
-
 
     toggleHoverLabel() {
         if(this.icon.hover){
@@ -180,6 +187,7 @@ class PowerLevel extends UsageLevel{
 
         this.connect('destroy', () => this._proxy = null);
     }
+
     setUsage(){
         if(this._proxy.IsPresent){
             this.show();
@@ -219,6 +227,7 @@ class CpuLevel extends UsageLevel{
         this.lastCPUTotal = 0;
         this.lastCPUUsed = 0;
     }
+
     setUsage(){
         //https://github.com/eeeeeio/gnome-shell-extension-nano-system-monitor/blob/master/src/extension.js
         let currentCPUUsage = 0;
@@ -285,8 +294,8 @@ class RamLevel extends UsageLevel{
 
         this.icon.icon_name = 'drive-harddisk-solidstate-symbolic';
         this.hoverLabel.text = 'RAM';
-
     }
+
     setUsage(){
         let currentMemoryUsage = 0;
         try {
@@ -345,8 +354,8 @@ class TempLevel extends UsageLevel{
         this.icon.icon_name = 'temperature-symbolic';
         this.hoverLabel.text = 'Temperature';
         this.colorSwitchValues = [ 50, 65, 80 ];
-
     }
+
     setUsage(){
         let temperature = 0;
         try {
@@ -372,8 +381,8 @@ class TempLevel extends UsageLevel{
     }
 });
 
-var DirLevel = GObject.registerClass(
-class DirLevel extends UsageLevel{
+var StorageLevel = GObject.registerClass(
+class StorageLevel extends UsageLevel{
     _init(vertical){
         super._init(vertical);
 
@@ -381,6 +390,7 @@ class DirLevel extends UsageLevel{
         this.hoverLabel.text = 'Disk';
         this.colorSwitchValues = [ 40, 60, 80 ];
     }
+    
     setUsage(){
         let [ ok, out, err, exit ] = GLib.spawn_command_line_sync('df');
         if (out instanceof Uint8Array)
