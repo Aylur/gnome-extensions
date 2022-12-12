@@ -205,7 +205,7 @@ class PlayerWidget extends St.BoxLayout{
         this.mediaCover = new St.Button({
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.CENTER,
-            style_class: 'media-cover button',
+            style_class: 'media-cover',
             reactive: true,
             can_focus: true,
         });
@@ -251,7 +251,7 @@ class PlayerWidget extends St.BoxLayout{
         this.volumeBox.add_child(this._volumeIcon);
         this.volumeBox.add_child(this._volumeSlider);
 
-        //the layout must be assembled by the widget which constructed this.
+        //layout in MediaBox
 
         this.binding = this.player.connect('changed', () => this._sync());
         this.connect('destroy', () => this.player.disconnect(this.binding));
@@ -476,5 +476,178 @@ class Media extends St.Bin{
             arr.push(player);
         }
         return arr;
+    }
+});
+
+
+var MediaBox = GObject.registerClass(
+class MediaBox extends Media{
+    _init(settings, settingName){
+        super._init({
+            x_expand: true,
+            y_expand: true,
+            reactive: true
+        });
+
+        this.vertical = false;
+        this.settings = settings;
+        this.settingName = settingName;
+        this._connections = [];
+        this._connect('cover-width');
+        this._connect('cover-height');
+        this._connect('cover-roundness');
+        this._connect('show-loop-shuffle');
+        this._connect('text-align');
+        this._connect('text-position');
+        this._connect('show-volume');
+        this._connect('style');
+        this._connect('prefer');
+
+        this.connect('updated', () => this._sync());
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        this._connections.forEach(c => 
+            this.settings.disconnect(c)
+        );
+    }
+
+    _connect(name){
+        this._connections.push(
+            this.settings.connect(`changed::${this.settingName}-${name}`,
+                () => this._sync()
+            )
+        )
+    }
+
+    _sync(){
+        this.preferred = this.settings.get_string(`${this.settingName}-prefer`);
+        this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
+        let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
+        let mpris = this.getPreferred();
+        if(mpris){
+            this.player = new PlayerWidget(mpris, secondary, this.coverRadius);
+            this._buildPlayerUI();
+            this.set_child(this.player);
+            this.show();
+        }
+        else this._onNoPlayer();
+    }
+
+    _onNoPlayer(){
+        this.hide();
+    }
+
+    _buildPlayerUI(){
+        this.player.mediaCover.width = this.settings.get_int(`${this.settingName}-cover-width`);
+        this.player.mediaCover.height = this.settings.get_int(`${this.settingName}-cover-height`);
+        let align = this.settings.get_int(`${this.settingName}-text-align`);
+        let talign = 'center';
+        switch (align) {
+            case 1: talign = 'center'; align = Clutter.ActorAlign.CENTER; break;
+            case 2: talign = 'right'; align = Clutter.ActorAlign.END; break;
+            default: talign = 'left'; align = Clutter.ActorAlign.START; break;
+        }
+        this.player.titleBox.x_align = align;
+        this.player.titleBox.style = `text-align: ${talign};`;
+        this.textPosition = this.settings.get_int(`${this.settingName}-text-position`);
+        this.showText = this.settings.get_boolean(`${this.settingName}-show-text`);
+        this.showVolume = this.settings.get_boolean(`${this.settingName}-show-volume`);
+        this.layout = this.settings.get_int(`${this.settingName}-style`);
+    }
+
+    _normal(vertical = true){
+        let p = this.player;
+        p.vertical = vertical;
+        let vbox = new St.BoxLayout({
+            style_class: 'media-container',
+            vertical: true,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            x_expand: true,
+        });
+        vbox.add_child(p.titleBox);
+        vbox.add_child(p.controlsBox);
+        if(this.showVolume)
+            vbox.add_child(p.volumeBox);
+        p.add_child(p.mediaCover);
+        p.add_child(vbox);
+        p.y_align = Clutter.ActorAlign.CENTER;
+    }
+
+    _labelOnCover(vertical = true){
+        let p = this.player;
+        
+        p.titleBox.width = p.mediaCover.width;
+        let vbox = new St.BoxLayout({
+            vertical: true,
+            x_expand: true,
+            y_expand: true,
+        });
+        if(this.textPosition == 0){
+            p.titleBox.add_style_class_name('fade-from-top');
+            p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            if(this.showText) vbox.add_child(p.titleBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+        }
+        else{
+            p.titleBox.add_style_class_name('fade-from-bottom');
+            p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+        p.mediaCover.set_child(vbox);
+
+        p.vertical = true;
+        p.controlsBox.vertical = !vertical;
+        let box = new St.BoxLayout({
+            vertical: vertical,
+            style_class: 'media-container'
+        });
+        box.add_child(p.mediaCover);
+        box.add_child(p.controlsBox);
+
+        p.add_child(box);
+
+        if(this.showVolume){
+           p.add_child(p.volumeBox); 
+        }
+    }
+
+    _full(){
+        let p = this.player;
+        p.vertical = true;
+
+        p.controlsBox.width = p.mediaCover.width;
+        p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
+        p.controlsBox.add_child(new St.Widget({ x_expand: true }));
+        p.titleBox.width = p.mediaCover.width;
+        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        if(this.textPosition == 0){
+            p.titleBox.add_style_class_name('fade-from-top');
+            p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.controlsBox.add_style_class_name('fade-from-bottom');
+            p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            if(this.showText) vbox.add_child(p.titleBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            vbox.add_child(p.controlsBox);
+        }
+        else{
+            p.controlsBox.add_style_class_name('fade-from-top');
+            p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
+            p.titleBox.add_style_class_name('fade-from-bottom');
+            p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
+            vbox.add_child(p.controlsBox);
+            vbox.add_child(new St.Widget({ y_expand: true }));
+            if(this.showText) vbox.add_child(p.titleBox);
+        }
+
+        p.mediaCover.set_child(vbox);
+        p.add_child(p.mediaCover);
+
+        if(this.showVolume){
+           p.add_child(p.volumeBox); 
+        }
     }
 });

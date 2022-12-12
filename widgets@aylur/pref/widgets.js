@@ -153,8 +153,7 @@ class FileChooserButton extends Gtk.Button{
 
     _onClick(){
         this.dialog = new Gtk.FileChooserDialog({ title: 'Select File' });
-        let window = this.get_root();
-        this.dialog.set_transient_for(window)
+        this.dialog.set_transient_for( this.get_root() );
         let header = this.dialog.get_header_bar();
         header.show_title_buttons = false;
 
@@ -172,7 +171,7 @@ class FileChooserButton extends Gtk.Button{
     }
 
     _onSelect(){
-        let path = this.dialog.get_file().file.get_path();
+        let path = this.dialog.get_file().get_path();
         this.settings.set_string(this.settingName, path);
         this.dialog.close();
     }

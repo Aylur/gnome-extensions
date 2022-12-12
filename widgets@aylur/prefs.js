@@ -105,14 +105,14 @@ class MainPage extends Adw.PreferencesPage{
         const group = new Adw.PreferencesGroup({ title: 'Extensions' });
         this.add(group);
 
+        group.add(new ToggleRow(new Pages.BackgroundClockPage(settings), 'background-clock'));
         group.add(new ToggleRow(new Pages.BatteryBarPage(settings), 'battery-bar'));
         group.add(new ToggleRow(new Pages.DashBoardPage(settings), 'dash-board'));
         group.add(new ToggleRow(new Pages.DateMenuTweakPage(settings), 'date-menu-tweaks'));
+        group.add(new ToggleRow(new Pages.NotificationIndicatorPage(settings), 'notification-indicator'));
         group.add(new ToggleRow(new Pages.MediaPlayerPage(settings), 'media-player'));
         group.add(new ToggleRow(new Pages.PowerMenuPage(settings), 'power-menu'));
         group.add(new ToggleRow(new Pages.WorkspaceIndicatorPage(settings), 'workspace-indicator'));
-        group.add(new ToggleRow(new Pages.NotificationIndicatorPage(settings), 'notification-indicator'));
-        group.add(new ToggleRow(new Pages.BackgroundClockPage(settings), 'background-clock'));
 
         if(GnomeVersion >= 43)
         group.add(new ToggleRow(new Pages.QuickTogglesPage(settings), 'quick-settings-tweaks'));

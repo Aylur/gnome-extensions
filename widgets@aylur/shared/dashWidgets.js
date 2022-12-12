@@ -98,16 +98,17 @@ class LevelsBox extends St.BoxLayout{
 
         this.settings = settings;
         this._connections = [];
-        this._connect('show-battery');
-        this._connect('show-storage');
-        this._connect('show-cpu');    
-        this._connect('show-ram');    
-        this._connect('show-temp');   
+        this._connect('battery');
+        this._connect('storage');
+        this._connect('cpu');    
+        this._connect('ram');    
+        this._connect('temp');   
 
         this.levels.forEach(s => {
             this.add_child(s);
         });
 
+        this._sync();
         this.connect('destroy', this._onDestroy.bind(this));
         parentDialog.connect('opened', () => this.startTimeout());
         parentDialog.connect('closed', () => this.stopTimeout());
@@ -122,14 +123,14 @@ class LevelsBox extends St.BoxLayout{
 
     _connect(name){
         this._connections.push(
-            this.settings.connect(`changed::dash-levels-${name}`,
+            this.settings.connect(`changed::dash-levels-show-${name}`,
                 () => this._sync()
             )
         )
     }
 
     _sync(){
-        this.settings.get_boolean('dash-levels-show-battery')? this.levels[0].show() : this.levels[0].hide();
+        this.settings.get_boolean('dash-levels-show-battery')? this.levels[0].disabled = false : this.levels[0].disabled = true;
         this.settings.get_boolean('dash-levels-show-storage')? this.levels[1].show() : this.levels[1].hide();
         this.settings.get_boolean('dash-levels-show-cpu')    ? this.levels[2].show() : this.levels[2].hide();
         this.settings.get_boolean('dash-levels-show-ram')    ? this.levels[3].show() : this.levels[3].hide();
@@ -156,148 +157,45 @@ class LevelsBox extends St.BoxLayout{
 });
 
 var MediaBox = GObject.registerClass(
-class MediaBox extends Media.Media{
-    _init(settings, vertical = false){
-        super._init({
-            x_expand: true,
-            y_expand: true,
-            style_class: 'events-button',
-            reactive: true,
-        });
-
-        this.settings = settings;
-        this._connections = [];
-        this._connect('cover-width');
-        this._connect('cover-height');
-        this._connect('cover-roundness');
-        this._connect('text-align');
-        this._connect('show-volume');
-        this._connect('style');
-        this._connect('prefer');
-        
-        this.vertical = vertical;
-
-        this.connect('updated', () => this._sync());
-        this._sync();
-        this.connect('destroy', this._onDestroy.bind(this));
-    }
-
-    _onDestroy(){
-        this._connections.forEach(c => 
-            this.settings.disconnect(c)
-        );
-    }
-
-    _connect(name){
-        this._connections.push(
-            this.settings.connect(`changed::dash-media-${name}`,
-                () => this._sync()
-            )
-        )
-    }
-
-    _sync(){
-        this.preferred = this.settings.get_string('dash-media-prefer');
-        this.coverRadius = this.settings.get_int('dash-media-cover-roundness');
-        let mpris = this.getPreferred();
-        if(mpris){
-            this.player = new Media.PlayerWidget(mpris, true, this.coverRadius);
-            this._buildPlayerUI();
-            this.set_child(this.player);
-            
-        }else{
-            this.set_child(new St.Label({
-                text: 'Nothing Playing',
-                x_align: Clutter.ActorAlign.CENTER,
-                y_align: Clutter.ActorAlign.CENTER
-            }));
-        }
+class MediaBox extends Media.MediaBox{
+    _init(settings){
+        super._init(settings, 'dash-media');
+        this.add_style_class_name('events-button');
     }
 
     _buildPlayerUI(){
-        this.player.mediaCover.add_style_class_name('events-button');
-        this.player.mediaCover.remove_style_class_name('button');
-        this.player.mediaCover.width = this.settings.get_int('dash-media-cover-width');
-        this.player.mediaCover.height = this.settings.get_int('dash-media-cover-height');
-        let align = this.settings.get_int('dash-media-text-align');
-        let talign = 'center';
-        switch (align) {
-            case 1: talign = 'center'; align = Clutter.ActorAlign.CENTER; break;
-            case 2: talign = 'right'; align = Clutter.ActorAlign.END; break;
-            default: talign = 'left'; align = Clutter.ActorAlign.START; break;
-        }
-        this.player.titleBox.x_align = align;
-        this.player.titleBox.style = `text-align: ${talign};`;
-
-        let layout = this.settings.get_int('dash-media-style');
-        switch (layout) {
+        this.style = `
+            min-width: ${this.player.mediaCover.width}px;
+            min-height: ${this.player.mediaCover.height}px;
+        `;
+        super._buildPlayerUI();
+        switch (this.layout) {
             case 1: this._labelOnCover(); break;
-            case 2: this._full(); break;
+            case 2: this._labelOnCover(false); break;
+            case 3: this._full(); break;
             default: this._normal(); break;
         }
     }
 
-    _normal(){
-        let p = this.player;
-        this.player.vertical = this.vertical;
-        let vbox = new St.BoxLayout({
-            style_class: 'media-container',
-            vertical: true,
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
-            x_expand: true,
-        });
-        vbox.add_child(p.titleBox);
-        vbox.add_child(p.controlsBox);
-        if(this.settings.get_boolean('dash-media-show-volume'))
-            vbox.add_child(p.volumeBox);
-        p.add_child(p.mediaCover);
-        p.add_child(vbox);
-        p.y_align = Clutter.ActorAlign.CENTER;
-    }
-
-    _labelOnCover(){
-        let p = this.player;
-        this.player.vertical = true;
-        p.y_align = Clutter.ActorAlign.CENTER;
-        let vbox = new St.BoxLayout({ vertical: true });
-        p.titleBox.add_style_class_name('fade-from-bottom');
-        p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`
-        p.titleBox.width = p.mediaCover.width;
-        vbox.add_child(new St.Widget({ y_expand: true }));
-        vbox.add_child(p.titleBox);
-        p.mediaCover.set_child(vbox);
-
-        let box = new St.BoxLayout({ 
-            vertical: this.vertical,
-            style_class: 'container',
-            x_align: Clutter.ActorAlign.CENTER
-        });
-        p.controlsBox.vertical = !this.vertical;
-        box.add_child(p.mediaCover);
-        box.add_child(p.controlsBox);
-        p.add_child(box);
-        if(this.settings.get_boolean('dash-media-show-volume'))
-            p.add_child(p.volumeBox);
-    }
-
     _full(){
-        let p = this.player;
-        let vbox = new St.BoxLayout({ vertical: true });
-        vbox.add_child(p.titleBox);
-        vbox.add_child(new St.Widget({ y_expand: true }));
-        vbox.add_child(p.controlsBox);
-        p.titleBox.add_style_class_name('fade-from-top');
-        p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0 ;`
-        p.titleBox.width = p.mediaCover.width;
-        p.controlsBox.add_style_class_name('fade-from-bottom');
-        p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`
-        p.controlsBox.width = p.mediaCover.width;
-        p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
-        p.controlsBox.add_child(new St.Widget({ x_expand: true }));
-        this.add_style_class_name('full');
-        p.mediaCover.set_child(vbox);
-        p.add_child(p.mediaCover);
+        super._full();
+        if(!this.showVolume){
+            this.style += `
+                border-radius: ${this.coverRadius}px;
+                padding: 0;
+                border: none;
+            `;
+        }
+    }
+
+    _onNoPlayer(){
+        this.set_child(new St.Label({
+            y_align: Clutter.ActorAlign.CENTER,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_expand: true,
+            x_expand: true,
+            text: 'Nothing Playing'
+        }))
     }
 });
 

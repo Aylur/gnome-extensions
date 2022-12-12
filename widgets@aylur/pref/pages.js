@@ -137,13 +137,17 @@ class DashBoardPage extends SubPage{
         dashGroup.add(levelsExpander);
 
         let mediaExpander = new Adw.ExpanderRow({ title: 'Media Player' });
-        mediaExpander.add_row(new SpinButtonRow('Cover Width', settings, 'dash-media-cover-width', 100, 500, 5));
-        mediaExpander.add_row(new SpinButtonRow('Cover Height', settings, 'dash-media-cover-height', 100, 500, 5));
-        mediaExpander.add_row(new SpinButtonRow('Cover Roundness', settings, 'dash-media-cover-roundness', 0, 48, 1));
         mediaExpander.add_row(new EntryRow('Prefer', settings, 'dash-media-prefer'));
-        mediaExpander.add_row(new DropDownRow('Style', settings, 'dash-media-style', ['Normal', 'Label on Cover', 'Full']));
-        mediaExpander.add_row(new SwitchRow('Show Volume', settings, 'dash-media-show-volume'));
-        mediaExpander.add_row(new DropDownRow('Title Align', settings, 'dash-media-text-align', ['Left', 'Center', 'Right']));
+        mediaExpander.add_row(new DropDownRow('Style', settings, 'dash-media-style', ['Normal', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Full']));
+        mediaExpander.add_row(new SpinButtonRow('Cover Width', settings, 'dash-media-cover-width', 100, 800, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Height', settings, 'dash-media-cover-height', 100, 800, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Roundness', settings, 'dash-media-cover-roundness', 0, 48, 1));
+            let textExpander = new ExpanderRow('Show Title', settings, 'date-menu-media-show-text');
+            textExpander.add_row(new DropDownRow('Title Align', settings, 'date-menu-media-text-align', ['Left','Center','Right']));
+            textExpander.add_row(new DropDownRow('Title Position', settings, 'date-menu-media-text-position', ['Top','Bot'], "Doesn't work on every style"));
+            mediaExpander.add_row(textExpander);
+        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'dash-media-show-volume'));
+        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle Button', settings, 'dash-media-show-loop-shuffle'));
         dashGroup.add(mediaExpander);
 
         dashGroup.add(new Adw.ActionRow({
@@ -157,6 +161,45 @@ var DateMenuTweakPage = GObject.registerClass(
 class DateMenuTweakPage extends SubPage{
     _init(settings){
         super._init('Date Menu Tweaks', settings);
+
+        const menuGroup = new Adw.PreferencesGroup({ title: 'Menu' });
+        this.add(menuGroup);
+        menuGroup.add(new SwitchRow('Mirrored', settings, 'date-menu-mirror'));
+        menuGroup.add(new SwitchRow('Hide Notifications', settings, 'date-menu-hide-notifications'));
+        menuGroup.add(new SwitchRow('Hide Stock Mpris', settings, 'date-menu-hide-stock-mpris', "Hides the media players in the notification list"));
+
+        const customMenuGroup = new Adw.PreferencesGroup({ title: 'Custom Menu' });
+        this.add(customMenuGroup);
+
+        let expander = new ExpanderRow('Enable Custom Menu', settings, 'date-menu-custom-menu');
+        expander.add_row(new SwitchRow('Show User Icon', settings, 'date-menu-show-user'));
+        expander.add_row(new SwitchRow('Show Events', settings, 'date-menu-show-events'));
+        expander.add_row(new SwitchRow('Show Clocks', settings, 'date-menu-show-clocks'));
+        expander.add_row(new SwitchRow('Show Weather', settings, 'date-menu-show-weather'));
+
+        let levelsExpander = new ExpanderRow('Show System Levels', settings, 'date-menu-show-system-levels')
+        levelsExpander.add_row(new SwitchRow('Battery', settings, 'date-menu-levels-show-battery'));
+        levelsExpander.add_row(new SwitchRow('Storage', settings, 'date-menu-levels-show-storage'));
+        levelsExpander.add_row(new SwitchRow('CPU', settings, 'date-menu-levels-show-cpu'));
+        levelsExpander.add_row(new SwitchRow('RAM', settings, 'date-menu-levels-show-ram'));
+        levelsExpander.add_row(new SwitchRow('Temperature', settings, 'date-menu-levels-show-temp'));
+        expander.add_row(levelsExpander);
+
+        let mediaExpander = new ExpanderRow('Show Media Player', settings, 'date-menu-show-media');
+        mediaExpander.add_row(new EntryRow('Prefer', settings, 'date-menu-media-prefer'));
+        mediaExpander.add_row(new DropDownRow('Style', settings, 'date-menu-media-style', ['Normal', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Full']));
+        mediaExpander.add_row(new SpinButtonRow('Cover Width', settings, 'date-menu-media-cover-width', 100, 500, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Height', settings, 'date-menu-media-cover-height', 100, 500, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Roundness', settings, 'date-menu-media-cover-roundness', 0, 48, 1));
+            let textExpander = new ExpanderRow('Show Title', settings, 'date-menu-media-show-text');
+            textExpander.add_row(new DropDownRow('Title Align', settings, 'date-menu-media-text-align', ['Left','Center','Right']));
+            textExpander.add_row(new DropDownRow('Title Position', settings, 'date-menu-media-text-position', ['Top','Bot'], "Doesn't work on every style"));
+            mediaExpander.add_row(textExpander);
+        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'date-menu-media-show-volume', "Doesn't work on every media player"));
+        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle Button', settings, 'date-menu-media-show-loop-shuffle'));
+        expander.add_row(mediaExpander);
+
+        customMenuGroup.add(expander);
 
         const buttonGroup = new Adw.PreferencesGroup({ title: 'Clock Button' });
         this.add(buttonGroup);
@@ -192,24 +235,6 @@ class DateMenuTweakPage extends SubPage{
             %m - month 01-12`
         }));
         buttonGroup.add(textBox);
-
-        const menuGroup = new Adw.PreferencesGroup({ title: 'Menu' });
-        this.add(menuGroup);
-        menuGroup.add(new SwitchRow('Mirrored', settings, 'date-menu-mirror'));
-        menuGroup.add(new SwitchRow('Hide Notifications', settings, 'date-menu-hide-notifications'));
-
-        const customMenuGroup = new Adw.PreferencesGroup({ title: 'Custom Menu' });
-        this.add(customMenuGroup);
-
-        let expander = new ExpanderRow('Enable Custom Menu', settings, 'date-menu-custom-menu');
-        expander.add_row(new SwitchRow('Show User Icon', settings, 'date-menu-show-user'));
-        expander.add_row(new SwitchRow('Show Events', settings, 'date-menu-show-events'));
-        expander.add_row(new SwitchRow('Show Clocks', settings, 'date-menu-show-clocks'));
-        expander.add_row(new SwitchRow('Show Weather', settings, 'date-menu-show-weather'));
-        expander.add_row(new SwitchRow('Show Media Player', settings, 'date-menu-show-media'));
-        expander.add_row(new SwitchRow('Show System Levels', settings, 'date-menu-show-system-levels'));
-
-        customMenuGroup.add(expander);
     }
 });
 
@@ -217,10 +242,6 @@ var MediaPlayerPage = GObject.registerClass(
 class MediaPlayerPage extends SubPage{
     _init(settings){
         super._init('Media Player', settings);
-
-        const stockGroup = new Adw.PreferencesGroup();
-        this.add(stockGroup);
-        stockGroup.add(new SwitchRow('Hide Stock Mpris', settings, 'media-player-hide-stock', "Hides the media players in the notification list"));
 
         const buttonGroup = new Adw.PreferencesGroup({ title: 'Panel Button'});
         this.add(buttonGroup);
@@ -246,16 +267,16 @@ class MediaPlayerPage extends SubPage{
         this._cacheSize();
         
         playerGroup.add(new EntryRow('Prefer', settings, 'media-player-prefer', 'It is the players d-bus name. e.g: Amberol, firefox, spotify.'));
-        playerGroup.add(new DropDownRow('Layout', settings, 'media-player-layout', ['Normal', 'Compact', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Label on Cover v2']));
+        playerGroup.add(new DropDownRow('Style', settings, 'media-player-style', ['Normal', 'Horizontal', 'Compact', 'Label on Cover', 'Label on Cover +Vertical Controls', 'Full']));
         playerGroup.add(new SpinButtonRow('Cover Roundness', settings, 'media-player-cover-roundness', 1, 99, 1));
-        playerGroup.add(new SpinButtonRow('Cover Width', settings, 'media-player-cover-width', 20, 500, 2));
-        playerGroup.add(new SpinButtonRow('Cover Height', settings, 'media-player-cover-height', 20, 500, 2));
+        playerGroup.add(new SpinButtonRow('Cover Width', settings, 'media-player-cover-width', 50, 500, 2));
+        playerGroup.add(new SpinButtonRow('Cover Height', settings, 'media-player-cover-height', 50, 500, 2));
         let textExpander = new ExpanderRow('Show Title', settings, 'media-player-show-text');
         textExpander.add_row(new DropDownRow('Title Align', settings, 'media-player-text-align', ['Left','Center','Right']));
-        textExpander.add_row(new DropDownRow('Title Position', settings, 'media-player-text-position', ['Top','Bot'], 'Only works on "Label on Cover" layouts'));
+        textExpander.add_row(new DropDownRow('Title Position', settings, 'media-player-text-position', ['Top','Bot'], "Doesn't work on every style"));
         playerGroup.add(textExpander);
-        playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume'));
-        playerGroup.add(new SwitchRow('Show loop and shuffle button', settings, 'media-player-show-loop-shuffle'));
+        playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume', "Doesn't work on every media player"));
+        playerGroup.add(new SwitchRow('Show Loop and Shuffle Button', settings, 'media-player-show-loop-shuffle'));
     }
 
     _cacheSize(){
@@ -320,7 +341,7 @@ class NotificationIndicatorPage extends SubPage{
         this.add(group);
 
         group.add(new DropDownRow('Position', settings, 'notification-indicator-position', ["Left", "Center", "Right", "Setting Indicators"]));
-        group.add(new SpinButtonRow('Offset', settings, 'notification-indicator-offset', 0, 12, 1));
+        group.add(new SpinButtonRow('Offset', settings, 'notification-indicator-offset', 0, 16, 1));
         group.add(new SwitchRow('Hide on Zero', settings, 'notification-indicator-hide-on-zero'));
         group.add(new SpinButtonRow('Menu Width', settings, 'notification-indicator-menu-width', 100, 1000, 10));
         group.add(new SwitchRow('Hide Counter', settings, 'notification-indicator-hide-counter'));

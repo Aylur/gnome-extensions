@@ -51,7 +51,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout1(){
         this.userBox = new Widgets.UserBox(this, true);
         this.levelsBox = new Widgets.LevelsBox(this.settings, this, false);
-        this.mediaBox = new Widgets.MediaBox(this.settings, false);
+        this.mediaBox = new Widgets.MediaBox(this.settings);
         this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
@@ -88,7 +88,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout2(){
         this.userBox = new Widgets.UserBox(this, false, 80);
         this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
-        this.mediaBox = new Widgets.MediaBox(this.settings, false);
+        this.mediaBox = new Widgets.MediaBox(this.settings);
         this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
@@ -123,7 +123,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
     _layout3(){
         this.userBox = new Widgets.UserBox(this, false, 80);
         this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
-        this.mediaBox = new Widgets.MediaBox(this.settings, true);
+        this.mediaBox = new Widgets.MediaBox(this.settings);
         this.linksBox = new Widgets.LinksBox(this.settings, this, false);
         this.clockBox = new Widgets.ClockBox(false);
         this.appBox = new Widgets.AppBox(this.settings, this);
@@ -164,7 +164,9 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 const DashBoardPanelButton = GObject.registerClass(
 class DashBoardPanelButton extends St.Button{
     _init(settings){
-        super._init({ style_class: 'panel-button' });
+        super._init({
+            style_class: 'panel-button dashboard'
+        });
         let box = new St.BoxLayout()
         this.set_child(box);
 

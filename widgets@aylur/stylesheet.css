@@ -21,6 +21,7 @@
 .battery-bar StIcon{ padding-top: 0; padding-bottom: 0; }
 
 /* Dash Board */
+#panel .dashboard StIcon{ padding-top: 0; padding-bottom: 0; }
 .dashboard-content{ margin: 20px; }
 .dashboard .events-button{ margin: 0; }
 .dashboard .container{ spacing: 20px; }
@@ -62,6 +63,7 @@
 .notifications-placeholder { padding: 12px; }
 
 /* media */
+.panel-media-controls StIcon{ padding-top: 0; padding-bottom: 0; }
 .media-player > StBoxLayout{ padding: 14px; spacing: 8px }
 .media-menu-box.full,
 .media-menu-box.full .media-player > StBoxLayout{ padding: 0; }
@@ -84,12 +86,13 @@
 .media-container .fill{ background-color: rgba(0,0,0,0.5); padding: 6px; }
 
 
-.media-cover{ padding: 0; }
+.media-cover{ padding: 0; margin: 0; }
 .media-container{ spacing: 8px; }
 .media-controls .message-media-control{ padding: 6px; margin: 0; }
 .media-controls .message-media-control StIcon{ icon-size: 24px; }
 .media-controls .media-control-secondary StIcon,
 .media-container .media-volume StIcon{ icon-size: 18px; }
+.media-container .media-title-box{ padding-left: 6px; padding-right: 6px;}
 
 /* power-menu */
 .power-menu-panel-button StIcon{ padding-top: 0; padding-bottom: 0; }

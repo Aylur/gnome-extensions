@@ -189,7 +189,7 @@ class PowerLevel extends UsageLevel{
     }
 
     setUsage(){
-        if(this._proxy.IsPresent){
+        if(this._proxy.IsPresent  && !this.disabled){
             this.show();
             // The icons
             let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
