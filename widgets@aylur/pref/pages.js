@@ -141,7 +141,7 @@ class DashBoardPage extends SubPage{
 
         let mediaExpander = new Adw.ExpanderRow({ title: _('Media Player') });
         mediaExpander.add_row(new EntryRow(_('Prefer'), settings, 'dash-media-prefer'));
-        mediaExpander.add_row(new DropDownRow(_('Style'), settings, 'dash-media-style', [_('Normal'), _('Label on Cover'), _('Label on Cover +Vertical Controls'), _('Full')]));
+        mediaExpander.add_row(new DropDownRow(_('Style'), settings, 'dash-media-style', [_('Normal'), _('Vertical'), _('Label on Cover'), _('Label on Cover +Vertical Controls'), _('Full')]));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'dash-media-cover-width', 100, 800, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'dash-media-cover-height', 100, 800, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'dash-media-cover-roundness', 0, 48, 1));

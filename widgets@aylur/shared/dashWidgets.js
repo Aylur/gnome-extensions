@@ -104,9 +104,10 @@ class MediaBox extends Media.MediaBox{
         `;
         super._buildPlayerUI();
         switch (this.layout) {
-            case 1: this._labelOnCover(); break;
-            case 2: this._labelOnCover(false); break;
-            case 3: this._full(); break;
+            case 1: this._normal(false); break;
+            case 2: this._labelOnCover(); break;
+            case 3: this._labelOnCover(false); break;
+            case 4: this._full(); break;
             default: this._normal(); break;
         }
     }
