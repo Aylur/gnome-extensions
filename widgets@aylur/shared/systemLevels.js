@@ -10,6 +10,14 @@ const ByteArray = imports.byteArray;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
+let GTop, hasGTop = true;
+try {
+    GTop = imports.gi.GTop;
+} catch (e) {
+    global.log(e);
+    hasGTop = false;
+}
+
 //shouldn't be more than half the widthness of the bar
 const ROUNDNESS = 8;
 const ZERO_VALUE = ROUNDNESS*2;
@@ -391,31 +399,26 @@ class StorageLevel extends UsageLevel{
         this.icon.icon_name = 'drive-harddisk-symbolic';
         this.hoverLabel.text = _('Disk');
         this.colorSwitchValues = [ 40, 60, 80 ];
+
+        if(hasGTop)
+            this.storage = new GTop.glibtop_fsusage();
+        
+        this.connect('destroy', () => { if(this.storage) this.storage = null});
     }
     
     setUsage(){
-        let [ ok, out, err, exit ] = GLib.spawn_command_line_sync('df');
-        if (out instanceof Uint8Array)
-            out = ByteArray.toString(out).trim();
-        else out = out.toString().trim();
-
-        let max = 0;
-        let used = 0;
-
-        let lines = out.split(/\n/);
-        lines.forEach(line => {
-            const fields = line.split(/\s+/);
-            if(fields[5] == '/'){
-                max = Number.parseInt(fields[1]) / Math.pow(1024,2);
-                used = Number.parseInt(fields[2]) / Math.pow(1024,2);
-
-                max = Math.floor(max);
-                used = Math.floor(used);
-            }
-        });
-
-        this.level.value = used/max;
-        this.label.text = Math.floor((used/max)*100).toString() + '%';
+        if(hasGTop){
+            GTop.glibtop_get_fsusage(this.storage, '/');
+            let max = this.storage.blocks * this.storage.block_size;
+            let free = this.storage.bfree * this.storage.block_size;
+            let used = max - free;
+            log(used/max)
+            this.level.value = used/max;
+            this.label.text = Math.floor((used/max)*100).toString() + '%';
+        }
+        else{
+            this.hide();
+        }
     }
 });
 

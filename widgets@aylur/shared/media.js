@@ -288,7 +288,7 @@ class PlayerWidget extends St.BoxLayout{
         //track cover
         let path = Me.dir.get_path()+'/media/mpris-cache/';
         if(!GLib.file_test(path, GLib.FileTest.EXISTS))
-            GLib.spawn_command_line_sync(`mkdir ${path}`);
+            Gio.File.new_for_path(path).make_directory(null);
 
         let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/[\*\?\"\<\>\|\#\:\?\']/g, '');
         let withCover = `

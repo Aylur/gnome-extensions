@@ -2,7 +2,6 @@
 
 const { Adw, Gio, Gtk, GObject, GLib } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const ByteArray = imports.byteArray;
 const { SpinButtonRow, EntryRow, DropDownRow,
         SwitchRow, ColorRow, ExpanderRow,
         PositionRow, FileChooserButton, HotkeyDialog } = Me.imports.pref.widgets;
@@ -283,15 +282,17 @@ class MediaPlayerPage extends SubPage{
     }
 
     _cacheSize(){
-        let [ok, out, err, exit] = GLib.spawn_command_line_sync(`du -h ${this.cachePath}`);
-        let line = '';
-        if(ok) line = ByteArray.toString(out).split(/\s+/)[0];
-        if(line == '0') line = _('Empty');
-        this.clearRow.set_subtitle(line);
+        let path = Me.dir.get_path()+'/media/mpris-cache/';
+        let dir = Gio.File.new_for_path(path);
+        let info = dir.query_info('standard::*', Gio.FileQueryInfoFlags.NONE, null);
+        this.clearRow.set_subtitle(`${info.get_size()} bytes`);
     }
 
     _clearCache(){
-        GLib.spawn_command_line_sync(`rm -r ${this.cachePath}`);
+        let path = Me.dir.get_path()+'/media/mpris-cache/';
+        let dir = Gio.File.new_for_path(path);
+        dir.trash(null);
+        dir.make_directory(null);
         this.clearRow.set_subtitle(_('Cleared!'));
     }
 });
