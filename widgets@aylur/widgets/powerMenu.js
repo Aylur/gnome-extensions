@@ -12,7 +12,7 @@ const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 const PowerButton = GObject.registerClass(
 class PowerButton extends St.Button{
     _init(powerIcon, powerLabel, action, parentDialog){
-        super._init();
+        super._init({ style_class: action });
         this.settings = parentDialog.settings;
 
         this.action = action;
