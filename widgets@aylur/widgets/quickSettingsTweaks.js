@@ -465,7 +465,6 @@ class Toggles{
         this.darkMode = QS._darkMode.quickSettingsItems[0];
         this.rfKill = QS._rfkill.quickSettingsItems[0];
         this.rotate = QS._autoRotate.quickSettingsItems[0];
-        this.gs = QS._indicators.get_first_child()._indicator.icon_name == 'org.gnome.Shell.Extensions.GSConnect-symbolic' ? QS._indicators.get_first_child().quickSettingsItems[0] : null;
     }
 
     addToGrid(item, childAbove, colSpan = 2){
@@ -481,7 +480,7 @@ class Toggles{
             this.system, this.output, this.input, this.brightness,
             this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
             /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate, /* this.gs */
+            this.rfKill, this.rotate
         ]
         .forEach(t => {
             if(t) this.grid.remove_child(t)
@@ -501,7 +500,7 @@ class Toggles{
             this.system, this.output, this.input, this.brightness,
             this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
             /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate, /* this.gs */
+            this.rfKill, this.rotate
         ]
         .reverse().forEach(t => {
             if(t){
