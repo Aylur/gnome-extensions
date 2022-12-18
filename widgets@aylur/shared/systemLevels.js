@@ -416,3 +416,81 @@ class StorageLevel extends UsageLevel{
         this.label.text = Math.floor((used/max)*100).toString() + '%';
     }
 });
+
+var LevelsBox = GObject.registerClass(
+class LevelsBox extends St.BoxLayout{
+    _init(settings, settingName, vertical = false){
+        super._init({
+            x_expand: true,
+            y_expand: true,
+            style_class: 'container',
+            vertical: !vertical,
+            reactive: true,
+        });
+
+        this.levels = [
+            new PowerLevel(vertical),
+            new StorageLevel(vertical),
+            new CpuLevel(vertical),
+            new RamLevel(vertical),
+            new TempLevel(vertical),
+        ];
+
+        this.settings = settings;
+        this.settingName = settingName;
+        this._connections = [];
+        this._connect('battery');
+        this._connect('storage');
+        this._connect('cpu');    
+        this._connect('ram');    
+        this._connect('temp');   
+
+        this.levels.forEach(s => {
+            this.add_child(s);
+        });
+
+        this._sync();
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        this._connections.forEach(c => 
+            this.settings.disconnect(c)
+        );
+        this.stopTimeout();
+    }
+
+    _connect(name){
+        this._connections.push(
+            this.settings.connect(`changed::${this.settingName}-${name}`,
+                () => this._sync()
+            )
+        )
+    }
+
+    _sync(){
+        this.settings.get_boolean(`${this.settingName}-battery`)? this.levels[0].disabled = false : this.levels[0].disabled = true;
+        this.settings.get_boolean(`${this.settingName}-storage`)? this.levels[1].show() : this.levels[1].hide();
+        this.settings.get_boolean(`${this.settingName}-cpu`)    ? this.levels[2].show() : this.levels[2].hide();
+        this.settings.get_boolean(`${this.settingName}-ram`)    ? this.levels[3].show() : this.levels[3].hide();
+        this.settings.get_boolean(`${this.settingName}-temp`)   ? this.levels[4].show() : this.levels[4].hide();
+    }
+
+    startTimeout(){
+        this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
+    }
+
+    stopTimeout(){
+        if(this.timeout){
+            Mainloop.source_remove(this.timeout);
+            this.timeout = null;
+        }
+    }
+
+    updateLevels(){
+        this.levels.forEach(l => {
+            l.updateLevel();
+        });
+        return true;
+    }
+});

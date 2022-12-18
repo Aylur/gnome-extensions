@@ -1,6 +1,6 @@
 'use strict';
 
-const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, NM } = imports.gi;
+const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
@@ -78,81 +78,12 @@ class UserBox extends St.Bin{
 });
 
 var LevelsBox = GObject.registerClass(
-class LevelsBox extends St.BoxLayout{
+class LevelsBox extends SystemLevels.LevelsBox{
     _init(settings, parentDialog, vertical){
-        super._init({
-            x_expand: true,
-            y_expand: true,
-            style_class: 'events-button container',
-            vertical: !vertical,
-            reactive: true,
-        });
-
-        this.levels = [
-            new SystemLevels.PowerLevel(vertical),
-            new SystemLevels.StorageLevel(vertical),
-            new SystemLevels.CpuLevel(vertical),
-            new SystemLevels.RamLevel(vertical),
-            new SystemLevels.TempLevel(vertical),
-        ];
-
-        this.settings = settings;
-        this._connections = [];
-        this._connect('battery');
-        this._connect('storage');
-        this._connect('cpu');    
-        this._connect('ram');    
-        this._connect('temp');   
-
-        this.levels.forEach(s => {
-            this.add_child(s);
-        });
-
-        this._sync();
-        this.connect('destroy', this._onDestroy.bind(this));
+        super._init(settings, 'dash-levels-show', vertical);
+        this.add_style_class_name('events-button');
         parentDialog.connect('opened', () => this.startTimeout());
         parentDialog.connect('closed', () => this.stopTimeout());
-    }
-
-    _onDestroy(){
-        this._connections.forEach(c => 
-            this.settings.disconnect(c)
-        );
-        this.stopTimeout();
-    }
-
-    _connect(name){
-        this._connections.push(
-            this.settings.connect(`changed::dash-levels-show-${name}`,
-                () => this._sync()
-            )
-        )
-    }
-
-    _sync(){
-        this.settings.get_boolean('dash-levels-show-battery')? this.levels[0].disabled = false : this.levels[0].disabled = true;
-        this.settings.get_boolean('dash-levels-show-storage')? this.levels[1].show() : this.levels[1].hide();
-        this.settings.get_boolean('dash-levels-show-cpu')    ? this.levels[2].show() : this.levels[2].hide();
-        this.settings.get_boolean('dash-levels-show-ram')    ? this.levels[3].show() : this.levels[3].hide();
-        this.settings.get_boolean('dash-levels-show-temp')   ? this.levels[4].show() : this.levels[4].hide();
-    }
-
-    startTimeout(){
-        this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
-    }
-
-    stopTimeout(){
-        if(this.timeout){
-            Mainloop.source_remove(this.timeout);
-            this.timeout = null;
-        }
-    }
-
-    updateLevels(){
-        this.levels.forEach(l => {
-            l.updateLevel();
-        });
-        return true;
     }
 });
 

@@ -9,6 +9,8 @@ const { SpinButtonRow, EntryRow, DropDownRow,
 
 const { wsNamesGroup } = Me.imports.pref.workspaces; 
 
+const MEDIA_SUBTITLE = "Doesn't work with every media player";
+
 const SubPage = GObject.registerClass(
 class SubPage extends Gtk.Box{
     _init(title, settings) {
@@ -42,8 +44,6 @@ class SubPage extends Gtk.Box{
 
     add(widget){ this.page.add(widget) }
 });
-
-
 
 var BatteryBarPage = GObject.registerClass(
 class BatteryBarPage extends SubPage{
@@ -146,8 +146,8 @@ class DashBoardPage extends SubPage{
             textExpander.add_row(new DropDownRow('Title Align', settings, 'date-menu-media-text-align', ['Left','Center','Right']));
             textExpander.add_row(new DropDownRow('Title Position', settings, 'date-menu-media-text-position', ['Top','Bot'], "Doesn't work on every style"));
             mediaExpander.add_row(textExpander);
-        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'dash-media-show-volume'));
-        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle Button', settings, 'dash-media-show-loop-shuffle'));
+        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'dash-media-show-volume', MEDIA_SUBTITLE));
+        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle', settings, 'dash-media-show-loop-shuffle', MEDIA_SUBTITLE));
         dashGroup.add(mediaExpander);
 
         dashGroup.add(new Adw.ActionRow({
@@ -195,8 +195,8 @@ class DateMenuTweakPage extends SubPage{
             textExpander.add_row(new DropDownRow('Title Align', settings, 'date-menu-media-text-align', ['Left','Center','Right']));
             textExpander.add_row(new DropDownRow('Title Position', settings, 'date-menu-media-text-position', ['Top','Bot'], "Doesn't work on every style"));
             mediaExpander.add_row(textExpander);
-        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'date-menu-media-show-volume', "Doesn't work on every media player"));
-        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle Button', settings, 'date-menu-media-show-loop-shuffle'));
+        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'date-menu-media-show-volume', MEDIA_SUBTITLE));
+        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle', settings, 'date-menu-media-show-loop-shuffle', MEDIA_SUBTITLE));
         expander.add_row(mediaExpander);
 
         customMenuGroup.add(expander);
@@ -275,8 +275,8 @@ class MediaPlayerPage extends SubPage{
         textExpander.add_row(new DropDownRow('Title Align', settings, 'media-player-text-align', ['Left','Center','Right']));
         textExpander.add_row(new DropDownRow('Title Position', settings, 'media-player-text-position', ['Top','Bot'], "Doesn't work on every style"));
         playerGroup.add(textExpander);
-        playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume', "Doesn't work on every media player"));
-        playerGroup.add(new SwitchRow('Show Loop and Shuffle Button', settings, 'media-player-show-loop-shuffle'));
+        playerGroup.add(new SwitchRow('Show Volume Slider', settings, 'media-player-show-volume', MEDIA_SUBTITLE));
+        playerGroup.add(new SwitchRow('Show Loop and Shuffle', settings, 'media-player-show-loop-shuffle', MEDIA_SUBTITLE));
     }
 
     _cacheSize(){
@@ -455,17 +455,49 @@ class BackgroundClockPage extends SubPage{
    }
 });
 
-var QuickTogglesPage = GObject.registerClass(
-class QuickTogglesPage extends SubPage{
+var QuickSettingsTweaksPage = GObject.registerClass(
+class QuickSettingsTweaksPage extends SubPage{
     _init(settings){
-        super._init('Quick Toggles', settings);
+        super._init('Quick Settings Tweaks', settings);
 
-        const group = new Adw.PreferencesGroup({ title: 'Quick Toggles' });
+        const group = new Adw.PreferencesGroup({ title: 'Quick Settings Tweaks' });
         this.add(group);
 
-        group.add(new DropDownRow('Style', settings, 'quick-settings-style', ["Normal", "Separated", "Compact"]));
-        group.add(new SwitchRow('Hide Notifications', settings, 'quick-settings-hide-notifications'));
-        group.add(new SwitchRow('Hide System Levels', settings, 'quick-settings-hide-system-levels'));
-        group.add(new SwitchRow('Hide Media', settings, 'quick-settings-hide-media'));
+        group.add(new SpinButtonRow('Menu Width', settings, 'quick-settings-menu-width', 250, 500, 5));
+        group.add(new DropDownRow('Style', settings, 'quick-settings-style', ['Stock', 'Normal', 'Compact', 'Separated']));
+        group.add(new SwitchRow('Adjust Roundness', settings, 'quick-settings-adjust-roundness'));
+        group.add(new SwitchRow('Show Notifications', settings, 'quick-settings-show-notifications'));
+        
+        let levelsExpander = new ExpanderRow('Show System Levels', settings, 'quick-settings-show-system-levels');
+        levelsExpander.add_row(new SwitchRow('Battery', settings, 'quick-settings-levels-show-battery'));
+        levelsExpander.add_row(new SwitchRow('Storage', settings, 'quick-settings-levels-show-storage'));
+        levelsExpander.add_row(new SwitchRow('CPU', settings, 'quick-settings-levels-show-cpu'));
+        levelsExpander.add_row(new SwitchRow('RAM', settings, 'quick-settings-levels-show-ram'));
+        levelsExpander.add_row(new SwitchRow('Temperature', settings, 'quick-settings-levels-show-temp'));
+        group.add(levelsExpander);
+        
+        let mediaExpander = new ExpanderRow('Show Media', settings, 'quick-settings-show-media');
+        let preferRow = new EntryRow('Show Preferred Only', settings, 'quick-settings-media-prefer');
+        let preferSwitch = new Gtk.Switch({
+            active: settings.get_boolean('quick-settings-media-prefer-one'),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind( 'quick-settings-media-prefer-one',
+            preferSwitch, 'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        preferRow.add_suffix(preferSwitch);
+        mediaExpander.add_row(preferRow);
+        mediaExpander.add_row(new DropDownRow('Style', settings, 'quick-settings-media-style', ['Normal', 'Linear', 'Full']));
+        mediaExpander.add_row(new SpinButtonRow('Cover Roundness', settings, 'quick-settings-media-cover-roundness', 0, 42, 1));
+        mediaExpander.add_row(new SpinButtonRow('Cover Width', settings, 'quick-settings-media-cover-width', 40, 500, 5));
+        mediaExpander.add_row(new SpinButtonRow('Cover Height', settings, 'quick-settings-media-cover-height', 40, 300, 5));
+            let titleExpander = new ExpanderRow('Show Title', settings, 'quick-settings-media-show-text');
+            titleExpander.add_row(new DropDownRow('Title Align', settings, 'quick-settings-media-text-align', ['Left', 'Center', 'Right']));
+            titleExpander.add_row(new DropDownRow('Title Position', settings, 'quick-settings-media-text-position', ['Top', 'Botton']));
+        mediaExpander.add_row(titleExpander);
+        mediaExpander.add_row(new SwitchRow('Show Volume Slider', settings, 'quick-settings-media-show-volume', MEDIA_SUBTITLE));
+        mediaExpander.add_row(new SwitchRow('Show Loop and Shuffle', settings, 'quick-settings-media-show-loop-shuffle', MEDIA_SUBTITLE));
+        group.add(mediaExpander);
     }
 });

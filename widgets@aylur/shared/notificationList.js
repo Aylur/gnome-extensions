@@ -96,7 +96,6 @@ var NotificationList = GObject.registerClass(
 class NotificationList extends St.BoxLayout {
     _init(dnd) {
         super._init({
-            // style_class: 'message-list',
             x_expand: true,
             y_expand: true,
             vertical: true

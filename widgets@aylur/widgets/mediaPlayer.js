@@ -77,6 +77,7 @@ class MediaButton extends PanelMenu.Button{
         if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
 
         this.media = new MediaBox(settings, this.menu.box);
+        this.media.add_style_class_name('media-player');
         this.media.connect('updated', () => this._sync());
         this.menu.box.add_child(this.media);
         this.menu.box.add_style_class_name('media-menu-box');

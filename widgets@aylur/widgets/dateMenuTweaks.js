@@ -10,76 +10,19 @@ const SystemLevels = Me.imports.shared.systemLevels;
 const Mainloop = imports.mainloop;
 
 const LevelsBox = GObject.registerClass(
-class LevelsBox extends St.BoxLayout{
+class LevelsBox extends SystemLevels.LevelsBox{
     _init(settings){
-        super._init({
-            style_class: 'events-button datemenu-levels',
-            vertical: true,
-            reactive: true
+        super._init(settings, 'date-menu-levels-show');
+        this.add_style_class_name('events-button');
+        this.add_style_class_name('datemenu-levels');
+
+        let bind = DateMenu.menu.connect('open-state-changed', (self, open) => {
+            if(open) this.startTimeout();
+            else this.stopTimeout();
         });
 
-        this.settings = settings;
-        this._connections = [];
-        this.levels = [
-            new SystemLevels.PowerLevel(),
-            new SystemLevels.StorageLevel(),
-            new SystemLevels.CpuLevel(),
-            new SystemLevels.RamLevel(),
-            new SystemLevels.TempLevel(),
-        ];
-        this._connect('battery');
-        this._connect('storage');
-        this._connect('cpu');    
-        this._connect('ram');    
-        this._connect('temp');   
-
-        this.levels.forEach(s => {
-            this.add_child(s);
-        });
-
-        this._sync();
-        this.connect('destroy', this._onDestroy.bind(this));
-    }
-
-    _onDestroy(){
-        this._connections.forEach(c => 
-            this.settings.disconnect(c)
-        );
-        this.stopTimeout();
-    }
-
-    _connect(name){
-        this._connections.push(
-            this.settings.connect(`changed::date-menu-levels-show-${name}`,
-                () => this._sync()
-            )
-        )
-    }
-
-    _sync(){
-        this.settings.get_boolean('date-menu-levels-show-battery')? this.levels[0].disabled = false : this.levels[0].disabled = true;
-        this.settings.get_boolean('date-menu-levels-show-storage')? this.levels[1].show() : this.levels[1].hide();
-        this.settings.get_boolean('date-menu-levels-show-cpu')    ? this.levels[2].show() : this.levels[2].hide();
-        this.settings.get_boolean('date-menu-levels-show-ram')    ? this.levels[3].show() : this.levels[3].hide();
-        this.settings.get_boolean('date-menu-levels-show-temp')   ? this.levels[4].show() : this.levels[4].hide();
-    }
-
-    startTimeout(){
-        this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
-    }
-
-    stopTimeout(){
-        if(this.timeout){
-            Mainloop.source_remove(this.timeout);
-            this.timeout = null;
-        }
-    }
-
-    updateLevels(){
-        this.levels.forEach(l => {
-            l.updateLevel();
-        });
-        return true;
+        this.updateLevels();
+        this.connect('destroy', () => DateMenu.menu.disconnect(bind));
     }
 });
 
@@ -122,7 +65,7 @@ class CustomMenu extends St.BoxLayout{
         });
 
         let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
-        this.style = `max-height: ${maxHeight}px; `;
+        this.style = `max-height: ${maxHeight-14}px; `;
 
         let datemenu = new imports.ui.dateMenu.DateMenuButton();
 
@@ -201,29 +144,11 @@ class CustomMenu extends St.BoxLayout{
             scrollItems.add_child(clocksItem);
         if(settings.get_boolean('date-menu-show-weather'))
             scrollItems.add_child(weatherItem);
-
-        //media
-        if(settings.get_boolean('date-menu-show-media')){
-            this.media = new MediaBox(settings);
-            scrollItems.add_child(this.media);
-        }
-
-        //system-levels
-        if(settings.get_boolean('date-menu-show-system-levels')){
-            this.levels = new LevelsBox(settings);
-            scrollItems.add_child(this.levels);
-
-            let bind = DateMenu.menu.connect('open-state-changed', (self, open) => {
-                if(open) this.levels.startTimeout();
-                else this.levels.stopTimeout();
-            });
-            this.levels.updateLevels();
-
-            this.connect('destroy', () => {
-                this.levels.stopTimeout()
-                DateMenu.disconnect(bind);
-            });
-        }
+        if(settings.get_boolean('date-menu-show-media'))
+            scrollItems.add_child(new MediaBox(settings));
+        if(settings.get_boolean('date-menu-show-system-levels'))
+            scrollItems.add_child(new LevelsBox(settings));
+        
 
         this.add_child(scrollView);
 
@@ -251,19 +176,6 @@ class CustomMenu extends St.BoxLayout{
         if(hour > 18){greet = "Good Evening!";}
 
         this.greet.text = greet;
-    }
-
-    _syncMedia(){
-        let mpris = this.media.getPreferred();
-        if(mpris){
-            this.player = new Media.PlayerWidget(mpris);
-            this._buildPlayerUI();
-            this.media.set_child(this.player);
-            
-            this.media.show();
-        }else{
-            this.media.hide();
-        }
     }
 
     _buildPlayerUI(){
@@ -432,7 +344,8 @@ var Extension = class Extension {
             this.panelBox.add_child(ch);
         });
 
-        //menu resetthis.menuBox.remove_child(this.notifications);
+        //menu reset
+        this.menuBox.remove_child(this.notifications);
         this.menuBox.insert_child_at_index(this.notifications, 0);
         if(this.custom){
             this.menuBox.replace_child(this.custom, this.calendar);

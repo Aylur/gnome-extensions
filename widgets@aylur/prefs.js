@@ -102,7 +102,7 @@ class MainPage extends Adw.PreferencesPage{
         });
 
         const settings = ExtensionUtils.getSettings();
-        const group = new Adw.PreferencesGroup({ title: 'Extensions' });
+        const group = new Adw.PreferencesGroup();
         this.add(group);
 
         group.add(new ToggleRow(new Pages.BackgroundClockPage(settings), 'background-clock'));
@@ -115,7 +115,7 @@ class MainPage extends Adw.PreferencesPage{
         group.add(new ToggleRow(new Pages.WorkspaceIndicatorPage(settings), 'workspace-indicator'));
 
         if(GnomeVersion >= 43)
-        group.add(new ToggleRow(new Pages.QuickTogglesPage(settings), 'quick-settings-tweaks'));
+        group.add(new ToggleRow(new Pages.QuickSettingsTweaksPage(settings), 'quick-settings-tweaks'));
     }
 });
 

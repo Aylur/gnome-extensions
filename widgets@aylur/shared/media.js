@@ -196,7 +196,10 @@ class MprisPlayer extends St.Widget {
 var PlayerWidget = GObject.registerClass(
 class PlayerWidget extends St.BoxLayout{
     _init(mpris, showLoopShuffle = true, roundness = 12){
-        super._init({ style_class: 'media-container' });
+        super._init({
+            style_class: 'media-container',
+            reactive: true
+        });
 
         this.player = mpris;
         this.roundness = roundness;
@@ -497,6 +500,7 @@ class MediaBox extends Media{
         this._connect('cover-height');
         this._connect('cover-roundness');
         this._connect('show-loop-shuffle');
+        this._connect('show-text');
         this._connect('text-align');
         this._connect('text-position');
         this._connect('show-volume');
@@ -505,6 +509,7 @@ class MediaBox extends Media{
 
         this.connect('updated', () => this._sync());
         this.connect('destroy', this._onDestroy.bind(this));
+        this._sync();
     }
 
     _onDestroy(){
