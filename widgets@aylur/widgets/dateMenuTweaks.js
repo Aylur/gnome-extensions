@@ -9,6 +9,8 @@ const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
 const Mainloop = imports.mainloop;
 
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 const LevelsBox = GObject.registerClass(
 class LevelsBox extends SystemLevels.LevelsBox{
     _init(settings){
@@ -170,10 +172,10 @@ class CustomMenu extends St.BoxLayout{
         let time = new Date();
         let hour = time.getHours();
 
-        let greet = "Good Evening!";
-        if(hour > 6){ greet = "Good Morning!"; }
-        if(hour > 12){greet = "Good Afternoon!";}
-        if(hour > 18){greet = "Good Evening!";}
+        let greet = _('Good Evening!');
+        if(hour > 6){ greet = _('Good Morning!'); }
+        if(hour > 12){greet = _('Good Afternoon!');}
+        if(hour > 18){greet = _('Good Evening!');}
 
         this.greet.text = greet;
     }

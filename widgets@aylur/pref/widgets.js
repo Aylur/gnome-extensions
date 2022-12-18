@@ -5,6 +5,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
 
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 var SpinButtonRow = GObject.registerClass(
 class SpinButtonRow extends Adw.ActionRow{
     _init(title, settings, settingName, low, high, step, subtitle = ''){
@@ -152,13 +154,13 @@ class FileChooserButton extends Gtk.Button{
     }
 
     _onClick(){
-        this.dialog = new Gtk.FileChooserDialog({ title: 'Select File' });
+        this.dialog = new Gtk.FileChooserDialog({ title: _('Select File') });
         this.dialog.set_transient_for( this.get_root() );
         let header = this.dialog.get_header_bar();
         header.show_title_buttons = false;
 
-        let selectBtn = new Gtk.Button({ label: 'Select' });
-        let cancelBtn = new Gtk.Button({ label: 'Cancel' });
+        let selectBtn = new Gtk.Button({ label: _('Select') });
+        let cancelBtn = new Gtk.Button({ label: _('Cancel') });
         selectBtn.get_style_context().add_class('suggested-action');
 
         selectBtn.connect('clicked', () => this._onSelect());
@@ -190,7 +192,7 @@ class HotkeyDialog extends Gtk.Window {
 
         super._init({
             modal: true,
-            title: 'Set Custom Hotkey',
+            title: _('Set Custom Hotkey'),
             transient_for: parent.get_root()
         });
         let vbox = new Gtk.Box({
@@ -215,7 +217,7 @@ class HotkeyDialog extends Gtk.Window {
 
         let modFrame = new Adw.PreferencesGroup()
         let modRow = new Adw.ActionRow({
-            title: 'Choose Modifiers'
+            title: _('Choose Modifiers')
         });
 
         let buttonBox = new Gtk.Box({
@@ -225,19 +227,19 @@ class HotkeyDialog extends Gtk.Window {
         });
         modRow.add_suffix(buttonBox);
         let ctrlButton = new Gtk.ToggleButton({
-            label: 'Ctrl',
+            label: _('Ctrl'),
             valign: Gtk.Align.CENTER
         });
         let superButton = new Gtk.ToggleButton({
-            label: 'Super',
+            label: _('Super'),
             valign: Gtk.Align.CENTER
         });
         let shiftButton = new Gtk.ToggleButton({
-            label: 'Shift',
+            label: _('Shift'),
             valign: Gtk.Align.CENTER
         });
         let altButton = new Gtk.ToggleButton({
-            label: 'Alt',
+            label: _('Shift'),
             valign: Gtk.Align.CENTER
         });
         ctrlButton.connect('toggled', () => {
@@ -289,7 +291,7 @@ class HotkeyDialog extends Gtk.Window {
 
         let keyFrame = new Adw.PreferencesGroup();
         let keyLabel = new Gtk.Label({
-            label: 'Press any key',
+            label: _('Press any key'),
             use_markup: true,
             xalign: .5,
             hexpand: true,
@@ -306,7 +308,7 @@ class HotkeyDialog extends Gtk.Window {
         vbox.append(keyboardImage);
 
         let resultsRow = new Adw.ActionRow({
-            title: 'New Hotkey'
+            title: _('New Hotkey')
         });
         let resultsWidget = new Gtk.ShortcutsShortcut({
             hexpand: true,
@@ -316,7 +318,7 @@ class HotkeyDialog extends Gtk.Window {
         keyFrame.add(resultsRow);
 
         let applyButton = new Gtk.Button({
-            label: 'Apply',
+            label: _('Apply'),
             halign: Gtk.Align.END,
             css_classes: ['suggested-action']
         });

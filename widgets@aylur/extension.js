@@ -97,5 +97,6 @@ class Extension {
 }
 
 function init() {
+    ExtensionUtils.initTranslations(Me.metadata.uuid);
     return new Extension();
 }

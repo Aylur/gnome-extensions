@@ -24,7 +24,7 @@
 #panel .dashboard StIcon{ padding-top: 0; padding-bottom: 0; }
 .dashboard-content{ margin: 20px; }
 .dashboard .events-button{ margin: 0; }
-.dashboard .container{ spacing: 20px; }
+.dashboard .container{ spacing: 16px; }
 .dashboard .user-box .text-box{ min-width: 120px; }
 .dashboard .user-icon-button{ padding: 0; }
 .dashboard .clock{ font-size: 2.4em; min-width: 3em; text-align: center; }

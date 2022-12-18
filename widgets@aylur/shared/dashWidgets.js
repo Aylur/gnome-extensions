@@ -11,6 +11,8 @@ const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
 
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 var UserBox = GObject.registerClass(
 class UserBox extends St.Bin{
     _init(parentDialog, vertical = true, iconSize = 120){
@@ -69,10 +71,11 @@ class UserBox extends St.Bin{
     greet(){
         let time = new Date();
         let hour = time.getHours();
-        let greet = "Good Evening!";
-        if(hour > 6){ greet = "Good Morning!"; }
-        if(hour > 12){greet = "Good Afternoon!";}
-        if(hour > 18){greet = "Good Evening!";}
+
+        let greet = _('Good Evening!');
+        if(hour > 6){ greet = _('Good Morning!'); }
+        if(hour > 12){greet = _('Good Afternoon!');}
+        if(hour > 18){greet = _('Good Evening!');}
         this.greeting.text = greet;
     }
 });
@@ -125,7 +128,7 @@ class MediaBox extends Media.MediaBox{
             x_align: Clutter.ActorAlign.CENTER,
             y_expand: true,
             x_expand: true,
-            text: 'Nothing Playing'
+            text: _('Nothing Playing')
         }))
     }
 });
@@ -397,6 +400,7 @@ class SysActionsBox extends St.BoxLayout{
 
         this._buildUI();
     }
+
     _buildUI(){
         switch (this.layout) {
             case 0:
@@ -409,12 +413,14 @@ class SysActionsBox extends St.BoxLayout{
                 this.boxLayout(); break;
         }
     }
+
     rowLayout(){
         this.add_child(this.suspend);
         this.add_child(this.logout);
         this.add_child(this.restart);
         this.add_child(this.powerOff);
     }
+
     colLayout(){
         this.vertical = true;
         this.add_child(this.powerOff);
@@ -422,15 +428,16 @@ class SysActionsBox extends St.BoxLayout{
         this.add_child(this.logout);
         this.add_child(this.suspend);
     }
+
     boxLayout(){
         this.vertical = true;
         let row1 = new St.BoxLayout({
-            style_class: 'db-container',
+            style_class: 'container',
             x_expand: true,
             y_expand: true
         });
         let row2 = new St.BoxLayout({
-            style_class: 'db-container',
+            style_class: 'container',
             x_expand: true,
             y_expand: true
         });

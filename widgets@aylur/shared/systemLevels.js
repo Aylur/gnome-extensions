@@ -8,6 +8,8 @@ const Mainloop = imports.mainloop;
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
 
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 //shouldn't be more than half the widthness of the bar
 const ROUNDNESS = 8;
 const ZERO_VALUE = ROUNDNESS*2;
@@ -222,7 +224,7 @@ class CpuLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'org.gnome.SystemMonitor-symbolic';
-        this.hoverLabel.text = 'CPU';
+        this.hoverLabel.text = _('CPU');
 
         this.lastCPUTotal = 0;
         this.lastCPUUsed = 0;
@@ -293,7 +295,7 @@ class RamLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'drive-harddisk-solidstate-symbolic';
-        this.hoverLabel.text = 'RAM';
+        this.hoverLabel.text = _('RAM');
     }
 
     setUsage(){
@@ -352,7 +354,7 @@ class TempLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'temperature-symbolic';
-        this.hoverLabel.text = 'Temperature';
+        this.hoverLabel.text = _('Temperature');
         this.colorSwitchValues = [ 50, 65, 80 ];
     }
 
@@ -387,7 +389,7 @@ class StorageLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'drive-harddisk-symbolic';
-        this.hoverLabel.text = 'Disk';
+        this.hoverLabel.text = _('Disk');
         this.colorSwitchValues = [ 40, 60, 80 ];
     }
     

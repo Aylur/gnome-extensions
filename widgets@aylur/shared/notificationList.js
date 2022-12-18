@@ -8,6 +8,8 @@ const MessageTray = imports.ui.messageTray;
 const PopupMenu = imports.ui.popupMenu;
 const Util = imports.misc.util;
 
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const NotificationSection = GObject.registerClass(
 class NotificationSection extends MessageList.MessageListSection {
@@ -150,7 +152,7 @@ class NotificationList extends St.BoxLayout {
         }
         else{
             hbox.add_child(new St.Label({
-                text: 'Notifications',
+                text: _('Notifications'),
                 y_align: Clutter.ActorAlign.CENTER
             }));
         }

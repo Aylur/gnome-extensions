@@ -6,6 +6,9 @@ const Main = imports.ui.main;
 const SystemActions = imports.misc.systemActions;
 const ModalDialog = imports.ui.modalDialog;
 
+const Me = ExtensionUtils.getCurrentExtension();
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 const PowerButton = GObject.registerClass(
 class PowerButton extends St.Button{
     _init(powerIcon, powerLabel, action, parentDialog){
@@ -149,10 +152,10 @@ class PowerDialog extends ModalDialog.ModalDialog{
         let vbox = new St.BoxLayout({ style: this.spacing, vertical: true });
         let hbox1 = new St.BoxLayout({ style: this.spacing });
         let hbox2 = new St.BoxLayout({ style: this.spacing });
-        hbox1.add_child(new PowerButton('system-reboot-symbolic', 'Restart', 'restart', this));
-        hbox1.add_child(new PowerButton('system-shutdown-symbolic', 'Shutdown', 'power-off', this));
-        hbox2.add_child(new PowerButton('weather-clear-night-symbolic', 'Suspend', 'suspend', this));
-        hbox2.add_child(new PowerButton('system-log-out-symbolic', 'Log Out', 'logout', this));
+        hbox1.add_child(new PowerButton('system-reboot-symbolic', _('Restart'), 'restart', this));
+        hbox1.add_child(new PowerButton('system-shutdown-symbolic', _('Shutdown'), 'power-off', this));
+        hbox2.add_child(new PowerButton('weather-clear-night-symbolic', _('Suspend'), 'suspend', this));
+        hbox2.add_child(new PowerButton('system-log-out-symbolic', _('Log Out'), 'logout', this));
         vbox.add_child(hbox1);
         vbox.add_child(hbox2);
         this.contentLayout.add_child(vbox);
@@ -160,10 +163,10 @@ class PowerDialog extends ModalDialog.ModalDialog{
 
     layout1x4(){
         let hbox = new St.BoxLayout({ style: this.spacing });
-        hbox.add_child(new PowerButton('weather-clear-night-symbolic', 'Suspend', 'suspend', this));
-        hbox.add_child(new PowerButton('system-log-out-symbolic', 'Log Out', 'logout', this));
-        hbox.add_child(new PowerButton('system-reboot-symbolic', 'Restart', 'restart', this));
-        hbox.add_child(new PowerButton('system-shutdown-symbolic', 'Shutdown', 'power-off', this));
+        hbox.add_child(new PowerButton('weather-clear-night-symbolic', _('Suspend'), 'suspend', this));
+        hbox.add_child(new PowerButton('system-log-out-symbolic', _('Log Out'), 'logout', this));
+        hbox.add_child(new PowerButton('system-reboot-symbolic', _('Restart'), 'restart', this));
+        hbox.add_child(new PowerButton('system-shutdown-symbolic', _('Shutdown'), 'power-off', this));
         this.contentLayout.add_child(hbox);
     }
 });

@@ -6,7 +6,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
 const Pages = Me.imports.pref.pages;
 
-function init() {}
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
+function init() {
+    ExtensionUtils.initTranslations(Me.metadata.uuid);
+}
 
 const ToggleRow = GObject.registerClass(
 class ToggleRow extends Adw.ActionRow{
@@ -43,25 +47,25 @@ const AboutPage = GObject.registerClass(
 class AboutPage extends Adw.PreferencesPage{
     _init(){
         super._init({
-            title: 'About',
+            title: _('About'),
             icon_name: 'info-symbolic'
         });
 
         const versionGroup = new Adw.PreferencesGroup();
-        let versionRow = new Adw.ActionRow({ title: 'Verison:' });
+        let versionRow = new Adw.ActionRow({ title: _('Verison:') });
         versionRow.add_suffix(new Gtk.Label({ valign: Gtk.Align.CENTER, label: `${Me.metadata.version}`}));
         versionGroup.add(versionRow);
         this.add(versionGroup);
 
-        const credits = new Adw.PreferencesGroup({ title: 'Took code from these projects' });
+        const credits = new Adw.PreferencesGroup({ title: _('Took code from these projects') });
         this.add(credits);
-        credits.add(this._addCredit('ArcMenu', 'by andrew.zaech', 'https://extensions.gnome.org/extension/3628/arcmenu'));
-        credits.add(this._addCredit('Workspace Indicator', 'by fmullner', 'https://extensions.gnome.org/extension/21/workspace-indicator'));
-        credits.add(this._addCredit('Workspaces Bar', 'by fthx', 'https://extensions.gnome.org/extension/3851/workspaces-bar'));
-        credits.add(this._addCredit('Nano System Monitor', 'by eeeee', 'https://extensions.gnome.org/extension/5037/nano-system-monitor'));
-        credits.add(this._addCredit('GNOME source code', '', 'https://gitlab.gnome.org/GNOME/gnome-shell/-/tree/main/js/ui'));
+        credits.add(this._addCredit(_('ArcMenu'), _('by andrew.zaech'), 'https://extensions.gnome.org/extension/3628/arcmenu'));
+        credits.add(this._addCredit(_('Workspace Indicator'), _('by fmullner'), 'https://extensions.gnome.org/extension/21/workspace-indicator'));
+        credits.add(this._addCredit(_('Workspace Indicator'), _('by fthx'), 'https://extensions.gnome.org/extension/3851/workspaces-bar'));
+        credits.add(this._addCredit(_('Nano System Monitor'), _('by eeeee'), 'https://extensions.gnome.org/extension/5037/nano-system-monitor'));
+        credits.add(this._addCredit(_('GNOME source code'), '', 'https://gitlab.gnome.org/GNOME/gnome-shell/-/tree/main/js/ui'));
 
-        const donateGroup = new Adw.PreferencesGroup({ title: 'If you would like to support my work'});
+        const donateGroup = new Adw.PreferencesGroup({ title: _('If you would like to support my work') });
         let donateRow = new Adw.ActionRow();
         donateGroup.add(donateRow);
 
@@ -75,7 +79,7 @@ class AboutPage extends Adw.PreferencesPage{
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(Me.path + '/media/prefs/gnome-logo.png', -1, 50, true);
         donateImage = Gtk.Picture.new_for_pixbuf(pixbuf);
         donateRow.add_suffix(new Gtk.Label({
-            label: 'Also consider donating to',
+            label: _('Also consider donating to'),
             valign: Gtk.Align.CENTER
         }));
         donateRow.add_suffix(new Gtk.LinkButton({
@@ -97,7 +101,7 @@ const MainPage = GObject.registerClass(
 class MainPage extends Adw.PreferencesPage{
     _init(){
         super._init({
-            title: 'Extensions',
+            title: _('Extensions'),
             icon_name: 'application-x-addon-symbolic',
         });
 

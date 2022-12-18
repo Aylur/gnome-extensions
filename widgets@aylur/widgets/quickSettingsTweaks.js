@@ -15,6 +15,8 @@ const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
 const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(DisplayDeviceInterface);
 
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+
 const NIGHT_LIGHT_MAX = 4700;
 const NIGHT_LIGHT_MIN = 1400;
 
@@ -60,10 +62,10 @@ class QuickSettingsSystem extends St.BoxLayout{
         let time = new Date();
         let hour = time.getHours();
 
-        let greet = "Good Evening!";
-        if(hour > 6){ greet = "Good Morning!"; }
-        if(hour > 12){greet = "Good Afternoon!";}
-        if(hour > 18){greet = "Good Evening!";}
+        let greet = _('Good Evening!');
+        if(hour > 6){ greet = _('Good Morning!'); }
+        if(hour > 12){greet = _('Good Afternoon!');}
+        if(hour > 18){greet = _('Good Evening!');}
 
         return greet;
     }
