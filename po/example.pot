@@ -812,7 +812,7 @@ msgid "About"
 msgstr ""
 
 #: prefs.js:55
-msgid "Verison:"
+msgid "Version:"
 msgstr ""
 
 #: prefs.js:60
