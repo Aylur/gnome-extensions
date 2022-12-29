@@ -100,20 +100,20 @@ class NotificationList extends St.BoxLayout {
         super._init({
             x_expand: true,
             y_expand: true,
-            vertical: true
-        });
-
-        let box = new St.BoxLayout({
             vertical: true,
-            x_expand: true,
-            y_expand: true,
+            style_class: 'notification-list'
         });
-        this.add_child(box);
 
         this._placeholder = new Calendar.Placeholder();
         this._placeholder.x_align = Clutter.ActorAlign.CENTER;
         this._placeholder.add_style_class_name('notifications-placeholder');
         this.add_child(this._placeholder);
+
+        let box = new St.BoxLayout({
+            vertical: true,
+            x_expand: true,
+        });
+        this.add_child(box);
 
         let hbox = new St.BoxLayout({ style_class: 'message-list-controls' });
         box.add_child(hbox);
@@ -178,6 +178,7 @@ class NotificationList extends St.BoxLayout {
             x_expand: true,
             y_expand: true,
             y_align: Clutter.ActorAlign.START,
+            style_class: 'messages'
         });
         this._sectionList.connectObject(
             'actor-added', this._sync.bind(this),

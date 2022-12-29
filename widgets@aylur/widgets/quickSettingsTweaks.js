@@ -25,7 +25,6 @@ class QuickSettingsSystem extends St.BoxLayout{
     _init(){
         super._init({ style_class: 'container' });
 
-        //userBtn
         let userBtn = this._addBtn('', 
             () =>  Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate()
         );
@@ -182,7 +181,6 @@ class Footer extends St.BoxLayout{
     _init(){
         super._init({ style_class: 'footer' });
 
-        //clock
         this.clock = new St.Label();
         this.wallClock = new GnomeDesktop.WallClock({ time_only: true });
         this.wallClock.connectObject(
@@ -322,9 +320,9 @@ class DarkModeToggle extends SmallToggle{
 
 const SmallToggleRow = GObject.registerClass(
 class SmallToggleRow extends St.BoxLayout{
-    _init(){
+    _init(powerButton = true){
         super._init({ style_class: 'container' });
-        this.add_child(new PowerButton(true));
+        if(powerButton) this.add_child(new PowerButton(true));
         this.add_child(new NightLightToggle());
         this.add_child(new DoNotDisturbToggle());
         this.add_child(new DarkModeToggle());
@@ -352,6 +350,7 @@ class MediaBox extends Media.MediaBox{
     _init(settings){
         super._init(settings, 'quick-settings-media');
         this.add_style_class_name('button media');
+        this.y_expand = false;
     }
 
     _buildPlayerUI(){
@@ -607,7 +606,7 @@ class QuickSettingsTweaks{
         
         this.normalBox.add_child(new QuickSettingsSystem());
         this.normalBox.add_child(sliders);
-        this.normalBox.add_child(new SmallToggleRow());
+        this.normalBox.add_child(new SmallToggleRow(false));
         this.normalBox.add_child(this.toggles.grid);
 
         if(this.showLevels){

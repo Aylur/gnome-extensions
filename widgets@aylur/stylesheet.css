@@ -121,7 +121,6 @@
 .quick-settings.tweaked .power-btn .container{ spacing: 6px; }
 .quick-settings.tweaked .small-toggle{ min-width: 1em; }
 .quick-settings.tweaked .user-btn{ width: 66px; height: 66px; padding: 2px; }
-.quick-settings.tweaked .user-btn StIcon{ icon-size: 64px; }
 .quick-settings.tweaked .message-list-clear-button{ padding-top: 4px; padding-bottom: 4px; }
 .quick-settings.tweaked .media{ padding: 8px; /* border-radius: 21px; */ }
 .quick-settings.tweaked .quick-container{ margin: 0; padding: 12px; }
@@ -135,3 +134,6 @@
     padding: 16px;
     border-radius: 36px;
 }
+.quick-settings.adjusted .message-list-controls{ padding: 0; margin-bottom: 12px; margin-left: 6px; }
+.quick-settings.adjusted .message{ margin: 0; }
+.quick-settings.adjusted .messages > StWidget > StWidget{ spacing: 12px; }
