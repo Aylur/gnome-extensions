@@ -254,12 +254,14 @@ var Extension = class Extension {
         });
         this.dateFormat = this.settings.get_string('date-menu-date-format');
 
+        DateMenu.menu.box.add_style_class_name('date-menu-tweaked');
+
         //clock
         this.clock = new St.Label({ style_class: 'clock' });
         this.clock.clutter_text.y_align = Clutter.ActorAlign.CENTER;
         this.clock.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
 
-        this.wallclock = new GnomeDesktop.WallClock({ time_only: true });
+        this.wallclock = new GnomeDesktop.WallClock();
         this.wallclock.connect(
             'notify::clock',
             () =>  this.updateClock());
@@ -285,6 +287,8 @@ var Extension = class Extension {
     disable() {
         this.reset();
         this._mpris(true);
+
+        DateMenu.menu.box.remove_style_class_name('date-menu-tweaked');
 
         this.dateMenu.get_parent().remove_child(this.dateMenu);
         this.panel[1].insert_child_at_index(this.dateMenu, 0);

@@ -261,7 +261,7 @@ class MediaPlayerPage extends SubPage{
 
         this.cachePath = `${Me.dir.get_path()}/media/mpris-cache`;
         this.clearRow = new Adw.ActionRow({ title: _('Cache') });
-        let clearBtn = Gtk.Button.new_with_label(_('Cache'));
+        let clearBtn = Gtk.Button.new_with_label(_('Clear'));
         clearBtn.valign = Gtk.Align.CENTER;
         clearBtn.connect('clicked', () => this._clearCache());
         this.clearRow.add_suffix(clearBtn);
@@ -349,7 +349,7 @@ class NotificationIndicatorPage extends SubPage{
         group.add(new SwitchRow(_('Hide on Zero'), settings, 'notification-indicator-hide-on-zero'));
         group.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10));
         group.add(new SwitchRow(_('Hide Counter'), settings, 'notification-indicator-hide-counter'));
-        group.add(new SwitchRow(_('Show Do Nut Disturb'), settings, 'notification-indicator-show-dnd'));
+        group.add(new SwitchRow(_('Show Do Not Disturb'), settings, 'notification-indicator-show-dnd'));
     }
 });
     

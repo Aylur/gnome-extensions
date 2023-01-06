@@ -333,6 +333,7 @@ const LevelsBox = GObject.registerClass(
 class LevelsBox extends SystemLevels.LevelsBox{
     _init(settings){
         super._init(settings, 'quick-settings-levels-show');
+        this.y_expand = false;
         this.add_style_class_name('quick-settings-levels');
 
         let bind = QS.menu.connect('open-state-changed', (self, open) => {
