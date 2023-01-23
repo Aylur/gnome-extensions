@@ -61,6 +61,7 @@
 .notification-indicator > StBoxLayout{ spacing: 4px; }
 .notifications-placeholder > StIcon{ icon-size: 68px; }
 .notifications-placeholder { padding: 12px; }
+.notification-indicator-icon{ -st-icon-style: symbolic; }
 
 /* media */
 .panel-media-controls StIcon{ padding-top: 0; padding-bottom: 0; }

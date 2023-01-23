@@ -487,6 +487,14 @@
       <default>false</default>
     </key>
 
+    <key name="notification-indicator-style" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="notification-indicator-max-icons" type="i">
+      <default>5</default>
+    </key>
+
     <!-- background-clock -->
     <key name="background-clock-position" type="i">
       <default>8</default>
@@ -719,6 +727,42 @@
 
     <key name="quick-settings-media-show-loop-shuffle" type="b">
       <default>false</default>
+    </key>
+
+    <key name="quick-settings-show-wired" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-settings-show-wifi" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="quick-settings-show-modem" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-settings-show-network-bt" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-settings-show-vpn" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="quick-settings-show-bluetooth" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="quick-settings-show-power" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="quick-settings-show-airplane" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="quick-settings-show-rotate" type="b">
+      <default>true</default>
     </key>
 
   </schema>

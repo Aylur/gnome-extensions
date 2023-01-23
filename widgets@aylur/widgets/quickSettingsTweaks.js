@@ -445,7 +445,7 @@ class MultiMediaBox extends MediaBox{
 });
 
 class Toggles{
-    constructor(){
+    constructor(settings){
         this.menus = QS.menu._overlay;
         this.grid = QS.menu._grid;
         this.addedItems = [];
@@ -467,6 +467,19 @@ class Toggles{
         this.darkMode = QS._darkMode.quickSettingsItems[0];
         this.rfKill = QS._rfkill.quickSettingsItems[0];
         this.rotate = QS._autoRotate.quickSettingsItems[0];
+
+        this.list = [ this.system, this.output, this.input, this.brightness,
+            settings.get_boolean('quick-settings-show-wired') ? null : this.wired,
+            settings.get_boolean('quick-settings-show-wifi') ? null : this.wifi,
+            settings.get_boolean('quick-settings-show-modem') ? null : this.modem,
+            settings.get_boolean('quick-settings-show-network-bt') ? null : this.networkBt,
+            settings.get_boolean('quick-settings-show-vpn') ? null : this.vpn,
+            settings.get_boolean('quick-settings-show-bluetooth') ? null : this.bt,
+            settings.get_boolean('quick-settings-show-power') ? null : this.power,
+            this.nightLight, this.darkMode,
+            settings.get_boolean('quick-settings-show-airplane') ? null : this.rfKill,
+            settings.get_boolean('quick-settings-show-rotate') ? null : this.rotate,
+        ];
     }
 
     addToGrid(item, childAbove, colSpan = 2){
@@ -478,15 +491,9 @@ class Toggles{
     }
 
     detach(){
-        [
-            this.system, this.output, this.input, this.brightness,
-            this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
-            /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate
-        ]
-        .forEach(t => {
+        this.list.forEach(t => {
             if(t) this.grid.remove_child(t)
-            if(t.menu){
+            if(t?.menu){
                 this.menus.remove_child(t.menu.actor);
                 t.menu.noDim = t.menu.connect('open-state-changed', () => {
                     QS.menu._setDimmed(false);
@@ -498,13 +505,7 @@ class Toggles{
     reattach(){
         this.addedItems.forEach(i => i.destroy());
         this.addedItems = [];
-        [
-            this.system, this.output, this.input, this.brightness,
-            this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
-            /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate
-        ]
-        .reverse().forEach(t => {
+        this.list.reverse().forEach(t => {
             if(t){
                 t.get_parent()?.remove_child(t);
                 this.grid.insert_child_at_index(t, 0);
@@ -532,12 +533,12 @@ class Toggles{
 
 class QuickSettingsTweaks{
     constructor(settings){
-        this.toggles = new Toggles();
         this.settings = settings;
     }
 
     reload(){
-        this.reset();
+        if(this.toggles) this.reset();
+        this.toggles = new Toggles(this.settings);
         
         let adjust = this.settings.get_boolean('quick-settings-adjust-roundness');
         if(adjust) QS.menu.box.add_style_class_name('adjusted');
@@ -770,12 +771,26 @@ var Extension = class Extension{
         this._settings.connect('changed::quick-settings-media-prefer-one', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-menu-width', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-adjust-roundness', () => this.tweaks.reload());
+
+        this._settings.connect('changed::quick-settings-show-wired', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-wifi', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-modem', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-network-bt', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-vpn', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-bluetooth', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-power', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-airplane', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-rotate', () => this.tweaks.reload());
+
         this.tweaks.reload();
+
+        this.binding = Main.layoutManager.connect('monitors-changed', () => this.tweaks.reload());
     }
 
     disable(){
         this._settings = null;
         this.tweaks.reset();
         QS.menu.box.remove_style_class_name('tweaked');
+        Main.layoutManager.disconnect(this.binding);
     }
 }

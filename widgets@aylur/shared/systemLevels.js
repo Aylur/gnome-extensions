@@ -412,7 +412,6 @@ class StorageLevel extends UsageLevel{
             let max = this.storage.blocks * this.storage.block_size;
             let free = this.storage.bfree * this.storage.block_size;
             let used = max - free;
-            log(used/max)
             this.level.value = used/max;
             this.label.text = Math.floor((used/max)*100).toString() + '%';
         }

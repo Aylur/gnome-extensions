@@ -572,7 +572,7 @@ class MediaBox extends Media{
             y_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
         });
-        vbox.add_child(p.titleBox);
+        if(this.showText) vbox.add_child(p.titleBox);
         vbox.add_child(p.controlsBox);
         if(this.showVolume)
             vbox.add_child(p.volumeBox);

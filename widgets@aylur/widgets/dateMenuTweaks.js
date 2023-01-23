@@ -66,9 +66,6 @@ class CustomMenu extends St.BoxLayout{
             style_class: 'datemenu-menu-custom-box'
         });
 
-        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
-        this.style = `max-height: ${maxHeight-14}px; `;
-
         let datemenu = new imports.ui.dateMenu.DateMenuButton();
 
         let calendar = datemenu._calendar;
@@ -162,7 +159,18 @@ class CustomMenu extends St.BoxLayout{
             this._setGreet();
         }, this);
 
-        this.connect('destroy', () => DateMenu.menu.disconnectObject(this));
+        Main.layoutManager.connectObject('monitors-changed', () => this.tweaks.reload(), this);
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        DateMenu.menu.disconnectObject(this);
+        Main.layoutManager.disconnectObject(this);
+    }
+
+    _updateHeight(){
+        let height = Main.layoutManager.primaryMonitor.height - Main.panel.height;
+        this.style = `max-height: ${height-14}px;`;
     }
 
     stopTimeout(){ if(this.levels) this.levels.stopTimeout() }

@@ -341,15 +341,25 @@ class NotificationIndicatorPage extends SubPage{
     _init(settings){
         super._init(_('Notification Indicator'), settings);
 
-        const group = new Adw.PreferencesGroup({ title: _('Notification Indicator') });
-        this.add(group);
+        const buttonGroup = new Adw.PreferencesGroup({ title: _('Panel Button') });
+        this.add(buttonGroup);
+        buttonGroup.add(new DropDownRow(_('Position'), settings, 'notification-indicator-position', [_('Left'),_('Center'),_('Right'), _('System Indicators')]));
+        buttonGroup.add(new SpinButtonRow(_('Offset'), settings, 'notification-indicator-offset', 0, 16, 1));
+        buttonGroup.add(new DropDownRow(_('Style'), settings, 'notification-indicator-style', [_('Counter'), _('Icons')]));
 
-        group.add(new DropDownRow(_('Position'), settings, 'notification-indicator-position', [_('Left'),_('Center'),_('Right'), _('Setting Indicators')]));
-        group.add(new SpinButtonRow(_('Offset'), settings, 'notification-indicator-offset', 0, 16, 1));
-        group.add(new SwitchRow(_('Hide on Zero'), settings, 'notification-indicator-hide-on-zero'));
-        group.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10));
-        group.add(new SwitchRow(_('Hide Counter'), settings, 'notification-indicator-hide-counter'));
-        group.add(new SwitchRow(_('Show Do Not Disturb'), settings, 'notification-indicator-show-dnd'));
+        const menuGroup = new Adw.PreferencesGroup({ title: _('Menu'), description: _('Does not work if the position is set to System Indicators') });
+        this.add(menuGroup);
+        menuGroup.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10, ));
+        menuGroup.add(new SwitchRow(_('Show Do Not Disturb'), settings, 'notification-indicator-show-dnd'));
+
+        const iconsGroup = new Adw.PreferencesGroup({ title: _('Icons Style') })
+        this.add(iconsGroup);
+        iconsGroup.add(new SpinButtonRow(_('Max Icons'), settings, 'notification-indicator-max-icons', 1, 20, 1));
+
+        const counterGroup = new Adw.PreferencesGroup({ title: _('Counter Style') });
+        this.add(counterGroup);
+        counterGroup.add(new SwitchRow(_('Hide on Zero'), settings, 'notification-indicator-hide-on-zero'));
+        counterGroup.add(new SwitchRow(_('Hide Counter'), settings, 'notification-indicator-hide-counter'));
     }
 });
     
@@ -503,5 +513,18 @@ class QuickSettingsTweaksPage extends SubPage{
         mediaExpander.add_row(new SwitchRow(_('Show Volume Slider'), settings, 'quick-settings-media-show-volume', MEDIA_SUBTITLE));
         mediaExpander.add_row(new SwitchRow(_('Show Loop and Shuffle'), settings, 'quick-settings-media-show-loop-shuffle', MEDIA_SUBTITLE));
         group.add(mediaExpander);
+
+        const togglesGroup = new Adw.PreferencesGroup({ title: _('Toggles') });
+        this.add(togglesGroup);
+
+        togglesGroup.add(new SwitchRow(_('Wired'), settings, 'quick-settings-show-wired'));
+        togglesGroup.add(new SwitchRow(_('Wifi'), settings, 'quick-settings-show-wifi'));
+        togglesGroup.add(new SwitchRow(_('Modem'), settings, 'quick-settings-show-modem'));
+        togglesGroup.add(new SwitchRow(_('Network Bluetooth'), settings, 'quick-settings-show-network-bt'));
+        togglesGroup.add(new SwitchRow(_('VPN'), settings, 'quick-settings-show-vpn'));
+        togglesGroup.add(new SwitchRow(_('Bluetooth'), settings, 'quick-settings-show-bluetooth'));
+        togglesGroup.add(new SwitchRow(_('Power'), settings, 'quick-settings-show-power'));
+        togglesGroup.add(new SwitchRow(_('Airplane Mode'), settings, 'quick-settings-show-airplane'));
+        togglesGroup.add(new SwitchRow(_('Rotate'), settings, 'quick-settings-show-rotate'));
     }
 });
