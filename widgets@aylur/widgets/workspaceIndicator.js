@@ -1,6 +1,6 @@
+'use strict';
 // this is a fork of this
 // https://github.com/fthx/workspaces-bar
-'use strict';
 
 const { Clutter, Gio, GObject, Shell, St } = imports.gi;
 const Main = imports.ui.main;
@@ -8,118 +8,122 @@ const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-var WorkspacesBar = GObject.registerClass(
-class WorkspacesBar extends PanelMenu.Button {
+var WorkspacesIndicator = GObject.registerClass(
+class WorkspacesIndicator extends St.BoxLayout {
 	_init(settings) {
-		super._init(0.0, 'Workspaces Indicator', true);
-
-        this.settings = settings;
-
-        this.add_style_class_name('workspace-indicator')
-        this.ws_bar = new St.BoxLayout();
-        this.add_child(this.ws_bar);
+		super._init({
+            style_class: 'workspace-indicator',
+            track_hover: true,
+            reactive: true
+        });
+        this._settings = settings;
+        this._compact = this._settings.get_int('workspace-indicator-style'); //0-compact 1-seperated
+        if(!this._compact) this.add_style_class_name('panel-button');
         
-		this._ws_active_changed = global.workspace_manager.connect('active-workspace-changed', this._update_ws.bind(this));
-		this._ws_number_changed = global.workspace_manager.connect('notify::n-workspaces', this._update_ws.bind(this));
-		this._restacked = global.display.connect('restacked', this._update_ws.bind(this));
-		this._windows_changed = Shell.WindowTracker.get_default().connect('tracked-windows-changed', this._update_ws.bind(this));
-
-        this.workspaces_settings = new Gio.Settings({ schema: 'org.gnome.desktop.wm.preferences' });
-		this.workspaces_names_changed = this.workspaces_settings.connect('changed::workspace-names', this._update_ws.bind(this));
-	
+		this._ws_active_changed = global.workspace_manager.connect('active-workspace-changed', this._sync.bind(this));
+		this._ws_number_changed = global.workspace_manager.connect('notify::n-workspaces', this._sync.bind(this));
+		this._restacked = global.display.connect('restacked', this._sync.bind(this));
+		this._windows_changed = Shell.WindowTracker.get_default().connect('tracked-windows-changed', this._sync.bind(this));
+        this._workspaces_settings = new Gio.Settings({ schema: 'org.gnome.desktop.wm.preferences' });
+		this._workspaces_names_changed = this._workspaces_settings.connect('changed::workspace-names', this._sync.bind(this));	
 
         this.connect('destroy', () => {
             global.workspace_manager.disconnect(this._ws_active_changed);
             global.workspace_manager.disconnect(this._ws_number_changed);
             global.display.disconnect(this._restacked);
             Shell.WindowTracker.get_default().disconnect(this._windows_changed);
-			this.workspaces_settings.disconnect(this.workspaces_names_changed);
-            this.ws_bar.destroy();
+			this._workspaces_settings.disconnect(this._workspaces_names_changed);
+            this._workspaces_settings = null;
         });
 
-
-        this._update_ws();
+        this._sync();
 	}
 
-    _update_ws() {
-    	this.ws_bar.destroy_all_children();
+    _sync() {
+    	this.destroy_all_children();
     	
         const ws_count = global.workspace_manager.get_n_workspaces();
         const active_ws_index = global.workspace_manager.get_active_workspace_index();
-
-		const workspaces_names = this.workspaces_settings.get_strv('workspace-names');
+		const workspaces_names = this._workspaces_settings.get_strv('workspace-names');
+        const show_names  = this._settings.get_boolean('workspace-indicator-show-names');
+        const active_name = this._settings.get_string('workspace-indicator-active-name');
 		
-        for (let ws_index = 0; ws_index < ws_count; ++ws_index) {
-			let ws_box = new St.Button({ can_focus: true });
-            if(this.settings.get_boolean('workspace-indicator-show-names')){
-                let label = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
-                if (workspaces_names[ws_index])
-                    label.text = workspaces_names[ws_index];
-                else
-                    label.text = `${ ws_index + 1 }`;
+        for (let index = 0; index < ws_count; ++index) {
+            let active = index === active_ws_index;
+            
+			let ws_btn = new St.Button({
+                can_focus: true,
+                style_class: active ?
+                    'workspace-indicator-active':
+                    'workspace-indicator-inactive'
+            });
+            if(this._compact) ws_btn.add_style_class_name('panel-button');
 
-                if(ws_index == active_ws_index)
-                    label.style_class = 'workspace-indicator-active';
-                else
-                    label.style_class = 'workspace-indicator-inactive';
+            show_names
+                ?
+                ws_btn.set_child(new St.Label({
+                    y_align: Clutter.ActorAlign.CENTER,
+                    text: active && active_name !== '' ?
+                        active_name :
+                        workspaces_names[index] || `${ index + 1 }`,
+                }))
+                :
+                ws_btn.set_child(new St.Icon({
+                    y_align: Clutter.ActorAlign.CENTER,
+                    style_class: 'system-status-icon',
+                    gicon : active ?
+                        Gio.icon_new_for_string(Me.dir.get_path()+'/media/workspace-active-symbolic.svg') :
+                        Gio.icon_new_for_string(Me.dir.get_path()+'/media/workspace-symbolic.svg')
+                }))
 
-                ws_box.set_child(label);
-            }else{
-                let icon = new St.Icon({ y_align: Clutter.ActorAlign.CENTER, style_class: 'system-status-icon' });
-                if (ws_index == active_ws_index)
-                    icon.gicon = Gio.icon_new_for_string(Me.dir.get_path()+'/media/circle-filled-symbolic.svg');
-                else
-                    icon.gicon = Gio.icon_new_for_string(Me.dir.get_path()+'/media/circle-symbolic.svg');
-                ws_box.set_child(icon);
-            }
-
-			ws_box.connect('button-release-event', () => this._toggle_ws(ws_index) );
-	        this.ws_bar.add_child(ws_box);
+			ws_btn.connect('clicked', () => this._toggle_ws(index) );
+	        this.add_child(ws_btn);
 		}
     }
 
-    _toggle_ws(ws_index) {
-		if (global.workspace_manager.get_active_workspace_index() == ws_index) {
-			Main.overview.toggle();
-		} else {
-			global.workspace_manager.get_workspace_by_index(ws_index).activate(global.get_current_time());
-		}
+    _toggle_ws(index) {
+		global.workspace_manager.get_active_workspace_index() == index ?
+			Main.overview.toggle() :
+			global.workspace_manager.get_workspace_by_index(index).activate(global.get_current_time());
     }
 });
 
 var Extension = class Extension {
     constructor() {
-        this.pos = [
-            'left',
-            'center',
-            'right',
+        this._panelBox = [
+            Main.panel._leftBox,
+            Main.panel._centerBox,
+            Main.panel._rightBox
         ]
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::workspace-indicator-offset', () => this.reload());
-        this.settings.connect('changed::workspace-indicator-position', () => this.reload());
-        this.settings.connect('changed::workspace-indicator-show-names', () => this.reload());
-        this.reload();
+        this._settings = ExtensionUtils.getSettings();
+        this._settings.connect('changed::workspace-indicator-style',        () => this._reload());
+        this._settings.connect('changed::workspace-indicator-offset',       () => this._reload());
+        this._settings.connect('changed::workspace-indicator-position',     () => this._reload());
+        this._settings.connect('changed::workspace-indicator-show-names',   () => this._reload());
+        this._settings.connect('changed::workspace-indicator-active-name',  () => this._reload());
+        this._reload();
     }
 
     disable() {
-    	this.panelButton.destroy();
-		this.panelButton = null;
-        this.settings = null;
+    	this._panelButton.destroy();
+		this._panelButton = null;
+        this._settings = null;
     }
 
-    reload(){
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
+    _reload(){
+        if (this._panelButton){
+            this._panelButton.destroy();
+            this._panelButton = null;
         }
-        this.panelButton = new WorkspacesBar(this.settings);
+        this._panelButton = new WorkspacesIndicator(this._settings);
 
-        let pos = this.settings.get_int('workspace-indicator-position');
-        let offset = this.settings.get_int('workspace-indicator-offset');
+        let pos    = this._settings.get_int('workspace-indicator-position');
+        let offset = this._settings.get_int('workspace-indicator-offset');
 
-        Main.panel.addToStatusArea('Workspaces Indicator', this.panelButton, offset, this.pos[pos]);
+        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
+        // Main.panel.addToStatusArea('Workspaces Indicator', this.panelButton, offset, this.pos[pos]);
     }
 }

@@ -301,7 +301,7 @@ class PlayerWidget extends St.BoxLayout{
             background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
         `;
 
-        if(this.player.trackCoverUrl === ''){
+        if(this.player.trackCoverUrl === '' || this.player.trackCoverUrl === '_'){
             this.mediaCover.style = noCover;
         }
         else if(GLib.file_test(fname, GLib.FileTest.EXISTS)){

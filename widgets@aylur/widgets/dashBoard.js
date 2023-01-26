@@ -1,10 +1,11 @@
 'use strict';
 
-const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
+const { GObject, St, Gio, Clutter, Meta, Shell, GLib } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Widgets = Me.imports.shared.dashWidgets;
+const ConfigParser = Me.imports.shared.dashConfigParser;
 
 const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
@@ -13,7 +14,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
             destroyOnClose: false,
             shellReactive: true,
         });
-        this.settings = settings;
+        this._settings = settings;
         
         let closeBtn = this.addButton({
             action: () => this.close(),
@@ -21,239 +22,205 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
             key: Clutter.KEY_Escape,
         });
         closeBtn.hide();
-        let monitor = Main.layoutManager.primaryMonitor;
-        this.dialogLayout.height = monitor.height;
-        this.dialogLayout.width = monitor.width;
-        this.dialogLayout.connect('button-press-event', () => this.close() );
+        this.connect('button-press-event', () => this.close() );
 
-        this.contentLayout.add_style_class_name('dashboard-content');
         this.dialogLayout._dialog.add_style_class_name('dashboard');
+        
+        this._settings.connectObject(
+            'changed::dash-board-x-align',  () => this._syncStyle(),
+            'changed::dash-board-y-align',  () => this._syncStyle(),
+            'changed::dash-board-x-offset', () => this._syncStyle(),
+            'changed::dash-board-y-offset', () => this._syncStyle(),
+            'changed::dash-board-darken',   () => this._syncStyle(),
+            'changed::dash-layout-json',    () => this._buildUI(),
+            'changed::dash-read-config',    () => this._readConfig(),
+            this
+        );
+        this.connectObject(
+            'opened', () => {
+                if(this.levelsBox)
+                    this.levelsBox.updateLevels();
+            },
+            'destroy', () => {
+                this._settings.disconnectObject(this);
+            },
+            this
+        );
 
         this._buildUI();
-        this.connect('opened', () => {
-            if(this.levelsBox)
-                this.levelsBox.updateLevels();
-        });
+    }
+
+    _syncStyle(){
+        this.dialogLayout._dialog.x_align = this._parseAlign(this._settings.get_int('dash-board-x-align'));
+        this.dialogLayout._dialog.y_align = this._parseAlign(this._settings.get_int('dash-board-y-align'));
+        this.dialogLayout._dialog.x_expand = true;
+        this.dialogLayout._dialog.y_expand = true;
+        let x_offset = this._settings.get_int('dash-board-x-offset');
+        let y_offset = this._settings.get_int('dash-board-y-offset');
+
+        this.dialogLayout.style = `
+            padding-top: ${y_offset < 0 ? y_offset*(-1) : 0}px;
+            padding-bottom: ${y_offset > 0 ? y_offset : 0}px;
+            padding-right: ${x_offset < 0 ? x_offset*(-1) : 0}px;
+            padding-left: ${x_offset > 0 ? x_offset : 0}px;
+        `;
+
+        this._settings.get_boolean('dash-board-darken') ?
+            this.style = 'background-color: rgba(0,0,0,0.6);':
+            this.style = 'background-color: transparent';
     }
 
     _buildUI(){
-        this.mainBox = new St.BoxLayout({ style_class: 'container' });
-        this.contentLayout.add_child(this.mainBox);
+        if(this._mainBox){
+            this._mainBox.destroy();
+            this._mainBox = null;
+        }
 
-        let layout = this.settings.get_int('dash-layout');
-        switch (layout) {
-            case 1: this._layout2(); break;
-            case 2: this._layout3(); break;
-            default: this._layout1(); break;
+        this._widgetList = {
+            apps: () =>     { return new Widgets.AppsWidget(    this._settings, this); },
+            clock: () =>    { return new Widgets.ClockWidget(   this._settings, this); },
+            levels: () =>   { return new Widgets.LevelsWidget(  this._settings, this); },
+            links: () =>    { return new Widgets.LinksWidget(   this._settings, this); },
+            media: () =>    { return new Widgets.MediaWidget(   this._settings, this); },
+            settings: () => { return new Widgets.SettingsWidget(this._settings, this); },
+            system: () =>   { return new Widgets.SystemWidget(  this._settings, this); },
+            user: () =>     { return new Widgets.UserWidget(    this._settings, this); },
+        }
+
+        let layout = JSON.parse(this._settings.get_string('dash-layout-json'));
+        this._mainBox = this._parseJson(layout);
+        this.contentLayout.add_child( this._mainBox );
+
+        this._syncStyle();
+    }
+
+    _parseJson(obj){
+        if(typeof obj === 'string' && this._widgetList[obj]) return this._widgetList[obj]();
+        let box = new St.BoxLayout({
+            style_class: 'container',
+            vertical: obj.vertical || false,
+            y_expand: obj.y_expand || false,
+            x_expand: obj.x_expand || false,
+            style: `
+                ${obj.width ? `widht: ${obj.width}px;` : ''}
+                ${obj.height ? `widht: ${obj.height}px;` : ''}
+            `,
+            y_align: this._parseAlign(obj.y_align),
+            x_align: this._parseAlign(obj.x_align)
+        });
+        obj.children?.forEach(ch => box.add_child(this._parseJson(ch)));
+        return box;
+    }
+
+    _parseAlign(align){
+        switch (align) {
+            case 'START': return Clutter.ActorAlign.START;
+            case 'CENTER': return Clutter.ActorAlign.CENTER;
+            case 'END': return Clutter.ActorAlign.END;
+            case 1: return Clutter.ActorAlign.START;
+            case 2: return Clutter.ActorAlign.CENTER;
+            case 3: return Clutter.ActorAlign.END;
+            default: return Clutter.ActorAlign.FILL;
         }
     }
 
-    _layout1(){
-        this.userBox = new Widgets.UserBox(this, true);
-        this.levelsBox = new Widgets.LevelsBox(this.settings, this, false);
-        this.mediaBox = new Widgets.MediaBox(this.settings);
-        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
-        this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(this.settings, this);
-        this.sysBox = new Widgets.SysBox(false, 32, this);
-        this.sysActionsBox = new Widgets.SysActionsBox(0, 32, this);
+    _readConfig(){
+        try {
+            let file = Gio.File.new_for_path(`${Me.dir.get_path()}/config/dashboard.json`);
+            let [, contents, etag] = file.load_contents(null);
+            contents instanceof Uint8Array ?
+                contents = imports.byteArray.toString(contents) :
+                contents = contents.toString();
 
-        this.mainBox.vertical = true;
-
-        this.userBox.x_expand = false;
-        this.linksBox.y_expand = false;
-
-        let row1 = new St.BoxLayout({ style_class: 'container' });
-        let row2 = new St.BoxLayout({ style_class: 'container' });
-        let row3 = new St.BoxLayout({ style_class: 'container' });
-        let vbox = new St.BoxLayout({ style_class: 'container', vertical: true });
-
-        row1.add_child(this.clockBox);
-        row1.add_child(this.sysBox);
-        row1.add_child(this.sysActionsBox);
-
-        vbox.add_child(this.mediaBox);
-        vbox.add_child(this.linksBox);
-        row2.add_child(vbox);
-        row2.add_child(this.appBox);
-
-        row3.add_child(this.userBox);
-        row3.add_child(this.levelsBox);
-
-        this.mainBox.add_child(row1);
-        this.mainBox.add_child(row2);
-        this.mainBox.add_child(row3);
-    }
-
-    _layout2(){
-        this.userBox = new Widgets.UserBox(this, false, 80);
-        this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
-        this.mediaBox = new Widgets.MediaBox(this.settings);
-        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
-        this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(this.settings, this);
-        this.sysBox = new Widgets.SysBox(false, 34, this);
-        this.sysActionsBox = new Widgets.SysActionsBox(2, 50, this);
-
-        this.userBox.y_expand = false;
-        this.linksBox.y_expand = false;
-
-        let col1 = new St.BoxLayout({ style_class: 'container', vertical: true });
-        let col2 = new St.BoxLayout({ style_class: 'container', vertical: true });
-        let col3 = new St.BoxLayout({ style_class: 'container', vertical: true });
-        let hbox1 = new St.BoxLayout({style_class: 'container' });
-
-        col1.add_child(this.userBox);
-        col1.add_child(this.levelsBox);
-
-        hbox1.add_child(this.clockBox);
-        hbox1.add_child(this.sysBox);
-        col2.add_child(hbox1);
-        col2.add_child(this.mediaBox);
-        col2.add_child(this.linksBox);
-
-        col3.add_child(this.sysActionsBox);
-        col3.add_child(this.appBox);
-
-        this.mainBox.add_child(col1);
-        this.mainBox.add_child(col2);
-        this.mainBox.add_child(col3);
-    }
-    
-    _layout3(){
-        this.userBox = new Widgets.UserBox(this, false, 80);
-        this.levelsBox = new Widgets.LevelsBox(this.settings, this, true);
-        this.mediaBox = new Widgets.MediaBox(this.settings);
-        this.linksBox = new Widgets.LinksBox(this.settings, this, false);
-        this.clockBox = new Widgets.ClockBox(false);
-        this.appBox = new Widgets.AppBox(this.settings, this);
-        this.sysBox = new Widgets.SysBox(true, 40, this);
-        this.sysActionsBox = new Widgets.SysActionsBox(1, 58, this);
-
-        this.clockBox.clock.y_expand = false;
-        this.clockBox.date.y_expand = false;
-        this.clockBox.day.y_expand = false;
-
-        let col1 = new St.BoxLayout({  style_class: 'container', vertical: true });
-        let col2 = new St.BoxLayout({  style_class: 'container', vertical: true });
-        let hbox1 = new St.BoxLayout({ style_class: 'container' });
-        let hbox2 = new St.BoxLayout({ style_class: 'container' });
-        let vbox1 = new St.BoxLayout({ style_class: 'container', vertical: true });
-
-        col1.add_child(this.clockBox);
-        col1.add_child(this.mediaBox);
-
-        hbox1.add_child(this.appBox);
-        hbox1.add_child(this.sysBox);
-
-        vbox1.add_child(this.userBox);
-        vbox1.add_child(hbox1);
-
-        hbox2.add_child(vbox1);
-        hbox2.add_child(this.levelsBox);
-        hbox2.add_child(this.sysActionsBox);
-
-        col2.add_child(hbox2);
-        col2.add_child(this.linksBox);
-
-        this.mainBox.add_child(col1);
-        this.mainBox.add_child(col2);
+            ConfigParser.parseJson(JSON.parse(contents), this._settings);
+        } catch (error) {
+            log(error);
+            Main.notify('There was an error while parsing Dash Board config', 'Check your config and make sure it is formatted correctly!');
+        }
     }
 });
 
 const DashBoardPanelButton = GObject.registerClass(
 class DashBoardPanelButton extends St.Button{
     _init(settings){
-        super._init({
-            style_class: 'panel-button dashboard'
-        });
-        let box = new St.BoxLayout()
+        super._init({ style_class: 'panel-button dashboard-button' });
+        this._settings = settings;
+        let box = new St.BoxLayout();
         this.set_child(box);
 
-        this.settings = settings;
+        this._buttonIcon = new St.Icon({ style_class: 'system-status-icon' });
+        this._buttonLabel = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
+        box.add_child(this._buttonIcon);
+        box.add_child(this._buttonLabel);
 
-        this.visible = this.settings.get_boolean('dash-button-enable');
-        this.settings.connect('changed::dash-button-enable', 
-            () => this.visible = this.settings.get_boolean('dash-button-enable'));
-        
-        //ICON
-        this.buttonIcon = new St.Icon({
-            gicon: Gio.icon_new_for_string(
-                this.settings.get_string('dash-button-icon-path')
-            ),
-            style_class: 'system-status-icon',
-        });
-        this.settings.connect('changed::dash-button-icon-path',
-            () => this.buttonIcon.set_gicon(
-                Gio.icon_new_for_string(
-                    this.settings.get_string('dash-button-icon-path')
-                )
-            )
+        this._settings.connectObject(
+            'changed::dash-button-enable', () => this._sync(),
+            'changed::dash-button-show-icon', () => this._sync(),
+            'changed::dash-button-icon-path', () => this._sync(),
+            'changed::dash-button-label', () => this._sync(),
+            'changed::dash-layout', () => this._sync(),
+            this
         );
-        this.buttonIcon.visible = this.settings.get_boolean('dash-button-show-icon')
-        this.settings.connect('changed::dash-button-show-icon', 
-            () => this.buttonIcon.visible = this.settings.get_boolean('dash-button-show-icon'));
-        box.add_child(this.buttonIcon);
-        
-        //LABEL
-        this.buttonLabel = new St.Label({
-            y_align: Clutter.ActorAlign.CENTER,
-            text: this.settings.get_string('dash-button-label'),
-        });
-        this.settings.bind(
-            'dash-button-label',
-            this.buttonLabel,
-            'text',
-            Gio.SettingsBindFlags.DEFAULT
-        );
-        box.add_child(this.buttonLabel);
 
-        // DASH
-        this._reloadDash();
-        this.settings.connect('changed::dash-layout', this._reloadDash.bind(this));
-        
-        //SHORTCUT
-        this.connect('clicked', () => this._openDash());
-        Main.wm.addKeybinding('dash-shortcut', this.settings,
+        this.connect('destroy', () => this._onDestroy() );
+        this.connect('clicked', () => this._toggleDash() );
+        this._sync();
+
+        Main.wm.addKeybinding('dash-shortcut', this._settings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.ALL,
             () => this._toggleDash());
-
-        this.connect('destroy', this._onDestroy.bind(this));
     }
 
-    _reloadDash(){
-        if(this.dash) this.dash.destroy()
-
-        this.dash = new DashBoardModal(this.settings);
-        this.dash.connectObject(
-            'closed', () => {
-                this.remove_style_pseudo_class('active');
-                this.opened = false;
-            },
-            'opened', () => this.opened = true,
-            this 
-        )
+    _onDestroy(){
+        this._settings.disconnectObject(this);
+        Main.wm.removeKeybinding('dash-shortcut');
+        if(this._dash) this._dash.destroy();
     }
 
     _openDash(){
-        this.opened = true;
-        this.dash.open();
+        this._opened = true;
+        this._dash.open();
         this.add_style_pseudo_class('active');
     }
 
     _closeDash(){
-        this.opened = false;
-        this.dash.close();
+        this._opened = false;
+        this._dash.close();
         this.remove_style_pseudo_class('active');
     }
 
     _toggleDash(){
-        this.opened ? this._closeDash() : this._openDash()
+        this._opened ? this._closeDash() : this._openDash()
     }
 
-    _onDestroy(){
-        Main.wm.removeKeybinding('dash-shortcut');
+    _sync(){
+        this.visible = this._settings.get_boolean('dash-button-enable');
+        this._buttonIcon.visible = this._settings.get_boolean('dash-button-show-icon');
+        this._buttonIcon.gicon = Gio.icon_new_for_string(
+            this._settings.get_string('dash-button-icon-path')
+        );
+        this._buttonLabel.text = this._settings.get_string('dash-button-label');
+
+        if(this._dash){
+            this._dash.destroy();
+            this._dash = null;
+        }
+        this._dash = new DashBoardModal(this._settings);
+        this._dash.connectObject(
+            'closed', () => {
+                this.remove_style_pseudo_class('active');
+                this._opened = false;
+            },
+            'opened', () => {
+                this.add_style_pseudo_class('active');
+                this._opened = true;
+            },
+            'destroy', () => {
+                this._dash.disconnectObject(this);
+            },
+            this
+        );
     }
 });
 
@@ -271,8 +238,8 @@ var Extension = class Extension {
         this.settings = ExtensionUtils.getSettings();
 
         //so it comes up in dconf editor
-        this.settings.set_strv('dash-link-names', this.settings.get_strv('dash-link-names'));
-        this.settings.set_strv('dash-link-urls', this.settings.get_strv('dash-link-urls'));
+        this.settings.set_strv('dash-links-names', this.settings.get_strv('dash-links-names'));
+        this.settings.set_strv('dash-links-urls',  this.settings.get_strv('dash-links-urls'));
 
         this.settings.connect('changed::dash-button-position', () => this._reload());
         this.settings.connect('changed::dash-button-offset', () => this._reload());
@@ -286,7 +253,7 @@ var Extension = class Extension {
         this._panelButton.destroy();
         this._panelButton = null;
         this.settings = null;
-        this.activities.hide();
+        this.activities.show();
     }
 
     _activites(){

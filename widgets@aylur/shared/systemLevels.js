@@ -93,6 +93,8 @@ class UsageLevel extends St.BoxLayout{
     _init(vertical){
         super._init({
             style_class: 'usage-level',
+            x_expand: true,
+            y_expand: true
         });
         if(vertical) this.vertical = true;
         this.colorSwitchValues = [ 25, 50, 75, ];
@@ -103,7 +105,7 @@ class UsageLevel extends St.BoxLayout{
         this.label = new St.Label();
         this.level = new LevelBar(vertical);
         this.hoverLabel = new St.Label({ style_class: 'dash-label' });
-        this.icon.connect('notify::hover', () => this.toggleHoverLabel());
+        this.icon.connect('notify::hover', () => this._toggleHoverLabel());
 
         this._buildUI();
     }
@@ -151,7 +153,7 @@ class UsageLevel extends St.BoxLayout{
         }
     }
 
-    toggleHoverLabel() {
+    _toggleHoverLabel() {
         if(this.icon.hover){
             Main.layoutManager.addTopChrome(this.hoverLabel);
             this.hoverLabel.opacity = 0;

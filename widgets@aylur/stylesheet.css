@@ -21,20 +21,16 @@
 .battery-bar StIcon{ padding-top: 0; padding-bottom: 0; }
 
 /* Dash Board */
-#panel .dashboard StIcon{ padding-top: 0; padding-bottom: 0; }
-.dashboard-content{ margin: 20px; }
-.dashboard .events-button{ margin: 0; }
-.dashboard .container{ spacing: 16px; }
-.dashboard .user-box .text-box{ min-width: 120px; }
-.dashboard .user-icon-button{ padding: 0; }
-.dashboard .clock{ font-size: 2.4em; min-width: 3em; text-align: center; }
-.dashboard .day{ text-align: center; }
-.dashboard .date{ min-width: 6em; text-align: center; }
-.dashboard .message-media-control{ padding: 8px; margin: 0;}
+#panel .dashboard-button StIcon{ padding-top: 0; padding-bottom: 0; }
+.dashboard > *:first-child{ margin: 0; }
+.dashboard { padding: 18px; }
+.dashboard .container{ spacing: 12px; }
 .dashboard .popup-menu-item{ padding: 8px; margin: 0;}
-.dashboard .fade-from-bottom,
-.dashboard .fade-from-top{ border: none; box-shadow: none; margin: 0; }
-.dashboard .events-button.full{ padding: 0; }
+.dashboard .message-media-control{ padding: 8px; margin: 0;}
+.dashboard .events-button{ margin: 0; padding: 8px; }
+.dashboard .user-icon-button{ padding: 2px; }
+.dashboard .clock{ font-size: 2.4em; }
+.dashboard .day{ text-align: center; }
 
 /* date-menu-mod */
 #panel .panel-button.clock-display{
@@ -102,8 +98,9 @@
 .power-menu .button{ padding: 0; }
 
 /* workspace-indicator */
-.workspace-indicator StIcon{ margin: 0; }
-.workspace-indicator StLabel{ margin: 0 8px; }
+.workspace-indicator{ spacing: 8px; padding: 0 8px; }
+.workspace-indicator StLabel,
+.workspace-indicator StIcon{ margin: 0; padding: 0; }
 .workspace-indicator-active{ font-weight: 900; }
 .workspace-indicator-inactive{ font-weight: 300; }
 
