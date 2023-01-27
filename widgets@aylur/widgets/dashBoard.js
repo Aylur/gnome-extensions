@@ -126,7 +126,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 
     _readConfig(){
         try {
-            let file = Gio.File.new_for_path(`${Me.dir.get_path()}/config/dashboard.json`);
+            let file = Gio.File.new_for_path(`${Me.path}/config/dashboard.json`);
             let [, contents, etag] = file.load_contents(null);
             contents instanceof Uint8Array ?
                 contents = imports.byteArray.toString(contents) :

@@ -286,7 +286,7 @@ class PlayerWidget extends St.BoxLayout{
         this._mediaTitle.text = this.player.trackTitle;
 
         //track cover
-        let path = Me.dir.get_path()+'/media/mpris-cache/';
+        let path = Me.path+'/media/mpris-cache/';
         if(!GLib.file_test(path, GLib.FileTest.EXISTS))
             Gio.File.new_for_path(path).make_directory(null);
 
@@ -298,7 +298,7 @@ class PlayerWidget extends St.BoxLayout{
         `;
         let noCover =`
             border-radius: ${this.roundness}px;
-            background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
+            background-image: url("file://${Me.path}/media/missing-cover-symbolic.svg");
         `;
 
         if(this.player.trackCoverUrl === '' || this.player.trackCoverUrl === '_'){

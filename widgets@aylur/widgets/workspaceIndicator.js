@@ -72,8 +72,8 @@ class WorkspacesIndicator extends St.BoxLayout {
                     y_align: Clutter.ActorAlign.CENTER,
                     style_class: 'system-status-icon',
                     gicon : active ?
-                        Gio.icon_new_for_string(Me.dir.get_path()+'/media/workspace-active-symbolic.svg') :
-                        Gio.icon_new_for_string(Me.dir.get_path()+'/media/workspace-symbolic.svg')
+                        Gio.icon_new_for_string(Me.path+'/media/workspace-active-symbolic.svg') :
+                        Gio.icon_new_for_string(Me.path+'/media/workspace-symbolic.svg')
                 }))
 
 			ws_btn.connect('clicked', () => this._toggle_ws(index) );

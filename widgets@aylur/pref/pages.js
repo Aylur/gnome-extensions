@@ -316,7 +316,7 @@ class MediaPlayerPage extends SubPage{
         const playerGroup = new Adw.PreferencesGroup({ title: _('Player') });
         this.add(playerGroup);
 
-        this.cachePath = `${Me.dir.get_path()}/media/mpris-cache`;
+        this.cachePath = `${Me.path}/media/mpris-cache`;
         this.clearRow = new Adw.ActionRow({ title: _('Cache') });
         let clearBtn = Gtk.Button.new_with_label(_('Clear'));
         clearBtn.valign = Gtk.Align.CENTER;

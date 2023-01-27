@@ -307,7 +307,7 @@ class LinksWidget extends DashWidget{
         return new HoverButton(
             new St.Icon({
                 gicon: Gio.icon_new_for_string(
-                    `${Me.dir.get_path()}/media/${name}-symbolic.svg`
+                    `${Me.path}/media/${name}-symbolic.svg`
                 ),
                 icon_size: this._settings.get_int('dash-links-icon-size')
             }),
