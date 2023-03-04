@@ -7,7 +7,6 @@ const Me = ExtensionUtils.getCurrentExtension();
 const DateMenu = Main.panel.statusArea.dateMenu;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
-const Mainloop = imports.mainloop;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 

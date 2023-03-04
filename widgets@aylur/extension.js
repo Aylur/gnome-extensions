@@ -1,6 +1,4 @@
-/* extension.js
- *
- * This program is free software: you can redistribute it and/or modify
+/* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
@@ -58,6 +56,9 @@ class Extension {
             if(this.settings.get_boolean('quick-settings-tweaks')) this.toggleExtension(this.quickSettingsTweaks);
             this.settings.connect('changed::quick-settings-tweaks', () => this.toggleExtension(this.quickSettingsTweaks));
         }
+
+        this.dynamicPanel = new Me.imports.widgets.dynamicPanel.Extension();
+        this.dynamicPanel.enable();
     }
 
     disable() {
@@ -83,6 +84,9 @@ class Extension {
             if(this.quickSettingsTweaks.enabled){ this.quickSettingsTweaks.disable(); this.quickSettingsTweaks.enabled = false; }
             this.quickSettingsTweaks = null;
         }
+
+        this.dynamicPanel.disable();
+        this.dynamicPanel = null;
     }
 
     toggleExtension(extension){

@@ -28,6 +28,11 @@ class MediaBox extends Media.MediaBox{
         }
     }
 
+    _normal(vertical){
+        super._normal(vertical);
+        this.player.style = `max-width: ${this.player.controlsBox.width + 50}px;`;
+    }
+
     _compact(){
         let p = this.player;
         if(p.mediaCover.width > 100 || p.mediaCover.height > 100){

@@ -3,7 +3,6 @@
 const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const Mainloop = imports.mainloop;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const Dash = imports.ui.dash;
