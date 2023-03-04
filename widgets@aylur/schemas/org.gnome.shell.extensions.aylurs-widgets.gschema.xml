@@ -14,6 +14,8 @@
     <key name="notification-indicator" type="b"><default>true</default></key>
     <key name="background-clock" type="b">			<default>true</default></key>
     <key name="quick-settings-tweaks" type="b">	<default>true</default></key>
+    <key name="dynamic-panel" type="b">       	<default>true</default></key>
+    <key name="window-headerbar" type="b">     <default>true</default></key>
 
     <!-- background-clock -->
     <key name="background-clock-position" type="i">							<default>8</default></key>

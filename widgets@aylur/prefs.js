@@ -5,6 +5,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
 const Pages = Me.imports.pref.pages;
+const { SwitchRow } = Me.imports.pref.widgets;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
@@ -57,13 +58,14 @@ class AboutPage extends Adw.PreferencesPage{
         versionGroup.add(versionRow);
         this.add(versionGroup);
 
-        const credits = new Adw.PreferencesGroup({ title: _('Took code from these projects') });
+        const credits = new Adw.PreferencesGroup({ title: _('Took code or inspiration from these projects') });
         this.add(credits);
         credits.add(this._addCredit(_('ArcMenu'), _('by andrew.zaech'), 'https://extensions.gnome.org/extension/3628/arcmenu'));
         credits.add(this._addCredit(_('Workspace Indicator'), _('by fmullner'), 'https://extensions.gnome.org/extension/21/workspace-indicator'));
         credits.add(this._addCredit(_('Workspace Indicator'), _('by fthx'), 'https://extensions.gnome.org/extension/3851/workspaces-bar'));
         credits.add(this._addCredit(_('Nano System Monitor'), _('by eeeee'), 'https://extensions.gnome.org/extension/5037/nano-system-monitor'));
         credits.add(this._addCredit(_('GNOME source code'), '', 'https://gitlab.gnome.org/GNOME/gnome-shell/-/tree/main/js/ui'));
+        credits.add(this._addCredit(_('Unite'), _('by hardpixel'), 'https://extensions.gnome.org/extension/1287/unite/'));
 
         const donateGroup = new Adw.PreferencesGroup({ title: _('If you would like to support my work') });
         let donateRow = new Adw.ActionRow();
@@ -113,6 +115,8 @@ class MainPage extends Adw.PreferencesPage{
         group.add(new ToggleRow(new Pages.BatteryBarPage(settings), 'battery-bar'));
         group.add(new ToggleRow(new Pages.DashBoardPage(settings), 'dash-board'));
         group.add(new ToggleRow(new Pages.DateMenuTweakPage(settings), 'date-menu-tweaks'));
+        group.add(new SwitchRow(_('Dynamic Panel'), settings, 'dynamic-panel', _("Doesn't do anything by itself. It needs a shell theme which implements this.")));
+        group.add(new SwitchRow(_('Hide Window Headerbars'), settings, 'window-headerbar'));
         group.add(new ToggleRow(new Pages.NotificationIndicatorPage(settings), 'notification-indicator'));
         group.add(new ToggleRow(new Pages.MediaPlayerPage(settings), 'media-player'));
         group.add(new ToggleRow(new Pages.PowerMenuPage(settings), 'power-menu'));
@@ -120,6 +124,7 @@ class MainPage extends Adw.PreferencesPage{
 
         if(GnomeVersion >= 43)
         group.add(new ToggleRow(new Pages.QuickSettingsTweaksPage(settings), 'quick-settings-tweaks'));
+
     }
 });
 
