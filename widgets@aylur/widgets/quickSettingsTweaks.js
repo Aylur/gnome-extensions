@@ -10,6 +10,7 @@ const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const { NotificationList } = Me.imports.shared.notificationList;
 const SystemLevels = Me.imports.shared.systemLevels;
+const { VolumeMixer } = Me.imports.shared.volumeMixer;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -476,7 +477,8 @@ class Toggles{
             settings.get_boolean('quick-settings-show-vpn') ? null : this.vpn,
             settings.get_boolean('quick-settings-show-bluetooth') ? null : this.bt,
             settings.get_boolean('quick-settings-show-power') ? null : this.power,
-            this.nightLight, this.darkMode,
+            this.nightLight,
+            this.darkMode,
             settings.get_boolean('quick-settings-show-airplane') ? null : this.rfKill,
             settings.get_boolean('quick-settings-show-rotate') ? null : this.rotate,
         ];
@@ -552,6 +554,7 @@ class QuickSettingsTweaks{
         this.showMedia = this.settings.get_boolean('quick-settings-show-media');
         this.showNotificiations = this.settings.get_boolean('quick-settings-show-notifications');
         this.showLevels = this.settings.get_boolean('quick-settings-show-system-levels');
+        this.showAppVolumeMixer = this.settings.get_boolean('quick-settings-show-app-volume-mixer');
 
         this.toggles.detach();
         let layout = this.settings.get_int('quick-settings-style');
@@ -569,6 +572,9 @@ class QuickSettingsTweaks{
         this.toggles.grid.add_style_class_name('quick-settings');
         this.toggles.reattach();
         this.toggles.addToGrid(new NightLightSlider(), this.toggles.brightness);
+        if(this.showAppVolumeMixer)
+            this.toggles.addToGrid(new VolumeMixer(), this.toggles.output);
+        
         if(this.showLevels){
             let levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('quick-container button');
@@ -601,6 +607,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer());
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -648,6 +656,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer());
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -694,6 +704,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer());
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -768,6 +780,7 @@ var Extension = class Extension{
         this._settings.connect('changed::quick-settings-show-notifications', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-show-system-levels', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-show-media', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-app-volume-mixer', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-media-prefer-one', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-menu-width', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-adjust-roundness', () => this.tweaks.reload());

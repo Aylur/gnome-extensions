@@ -573,6 +573,8 @@ class QuickSettingsTweaksPage extends SubPage{
         mediaExpander.add_row(new SwitchRow(_('Show Loop and Shuffle'), settings, 'quick-settings-media-show-loop-shuffle', MEDIA_SUBTITLE));
         group.add(mediaExpander);
 
+        group.add(new SwitchRow(_('Show Application Volume Mixer'), settings, 'quick-settings-show-app-volume-mixer'));
+
         const togglesGroup = new Adw.PreferencesGroup({ title: _('Toggles') });
         this.add(togglesGroup);
 

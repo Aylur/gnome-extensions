@@ -274,6 +274,7 @@
     <key name="quick-settings-adjust-roundness" type="b">				<default>true</default></key>
     <key name="quick-settings-show-notifications" type="b">			<default>true</default></key>
     <key name="quick-settings-show-system-levels" type="b">			<default>true</default></key>
+    <key name="quick-settings-show-app-volume-mixer" type="b">	<default>true</default></key>
     <key name="quick-settings-levels-show-battery" type="b">		<default>true</default></key>
     <key name="quick-settings-levels-show-storage" type="b">		<default>true</default></key>
     <key name="quick-settings-levels-show-cpu" type="b">				<default>true</default></key>
