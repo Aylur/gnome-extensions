@@ -362,6 +362,7 @@ class TempLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'temperature-symbolic';
+        this.icon.fallback_icon_name = 'temp-symbolic';
         this.hoverLabel.text = _('Temperature');
         this.colorSwitchValues = [ 50, 65, 80 ];
     }
