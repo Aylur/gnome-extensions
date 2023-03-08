@@ -169,6 +169,10 @@ class BatteryBar extends St.Bin{
         }
         this.set_child(box);
 
+        this.style = `
+            padding-left: ${settings.get_int('battery-bar-padding-left')}px;
+            padding-right: ${settings.get_int('battery-bar-padding-right')}px;
+        `;
         this._sync();
     }
 
@@ -220,6 +224,8 @@ var Extension = class Extension{
         this.settings.connect('changed::battery-bar-offset', () => this.addToPanel());
         this.settings.connect('changed::battery-bar-show-icon', () => this.addToPanel());
         this.settings.connect('changed::battery-bar-icon-position', () => this.addToPanel());
+        this.settings.connect('changed::battery-bar-padding-left', () => this.addToPanel());
+        this.settings.connect('changed::battery-bar-padding-right', () => this.addToPanel());
         this.addToPanel();
         this.stockIndicator.hide();
     }

@@ -65,7 +65,9 @@
     <key name="battery-bar-font-bg-color" type="s">   <default>"#000"</default></key>
     <key name="battery-bar-width" type="i">           <default>140</default></key>
     <key name="battery-bar-height" type="i">          <default>34</default></key>
-    <key name="battery-bar-roundness" type="i">       <default>99</default></key>
+    <key name="battery-bar-padding-left" type="i">    <default>0</default></key>
+    <key name="battery-bar-padding-right" type="i">   <default>0</default></key>
+    <key name="battery-bar-roundness" type="i">       <default>18</default></key>
     <key name="battery-bar-low-threshold" type="i">   <default>30</default></key>
     <key name="battery-bar-charging-color" type="s">  <default>"#33d17a"</default></key>
     <key name="battery-bar-low-color" type="s">       <default>"#f66151"</default></key>
