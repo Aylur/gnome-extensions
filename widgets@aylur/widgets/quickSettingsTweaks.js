@@ -573,7 +573,7 @@ class QuickSettingsTweaks{
         this.toggles.reattach();
         this.toggles.addToGrid(new NightLightSlider(), this.toggles.brightness);
         if(this.showAppVolumeMixer)
-            this.toggles.addToGrid(new VolumeMixer(), this.toggles.output);
+            this.toggles.addToGrid(new VolumeMixer(this.settings), this.toggles.output);
         
         if(this.showLevels){
             let levelsBox = new LevelsBox(this.settings);
@@ -608,7 +608,7 @@ class QuickSettingsTweaks{
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
         if(this.showAppVolumeMixer)
-            sliders.add_child(new VolumeMixer());
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -657,7 +657,7 @@ class QuickSettingsTweaks{
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
         if(this.showAppVolumeMixer)
-            sliders.add_child(new VolumeMixer());
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -705,7 +705,7 @@ class QuickSettingsTweaks{
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
         if(this.showAppVolumeMixer)
-            sliders.add_child(new VolumeMixer());
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);

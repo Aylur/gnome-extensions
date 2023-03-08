@@ -236,7 +236,9 @@ var Extension = class Extension{
             this.panelButton.destroy();
             this.panelButton = null;
         }
-        this.panelButton = new BatteryBar(this.settings);
+        this.panelButton = new St.Bin({
+            child: new BatteryBar(this.settings)
+        });
 
         let pos = this.settings.get_int('battery-bar-position');
         let offset = this.settings.get_int('battery-bar-offset');

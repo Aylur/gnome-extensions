@@ -109,7 +109,7 @@ var Extension = class Extension {
 
     disable() {
     	this._panelButton.destroy();
-		this._panelButton = null;
+        this._panelButton = null;
         this._settings = null;
     }
 
@@ -118,7 +118,9 @@ var Extension = class Extension {
             this._panelButton.destroy();
             this._panelButton = null;
         }
-        this._panelButton = new WorkspacesIndicator(this._settings);
+        this._panelButton = new St.Bin({
+            child: new WorkspacesIndicator(this._settings)
+        })
 
         let pos    = this._settings.get_int('workspace-indicator-position');
         let offset = this._settings.get_int('workspace-indicator-offset');

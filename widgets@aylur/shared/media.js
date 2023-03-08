@@ -27,7 +27,6 @@ const PlayerIFace =
     </interface>
 </node>`;
 
-
 const MprisIFace =
 `<node>
     <interface name='org.mpris.MediaPlayer2'>
@@ -74,6 +73,8 @@ class MprisPlayer extends St.Widget {
         this._shuffle = false;
         this._loopStatus = '';
         this._volume = -1;
+        this._entry = '';
+        this._identity = '';
     }
 
     get busName(){ return this._busName; }
@@ -87,6 +88,8 @@ class MprisPlayer extends St.Widget {
     get shuffleStatus(){ return this._shuffle; }
     get loopStatus(){ return this._loopStatus; }
     get volume(){ return this._volume; }
+    get entry(){ return this._entry; }
+    get identity(){ return this._identity; }
 
     setVolume(value){ this._playerProxy.Volume = value; }
 
@@ -189,6 +192,8 @@ class MprisPlayer extends St.Widget {
             this._volume = -1;
         }
 
+        this._identity = this._mprisProxy.Identity;
+        this._entry = this._mprisProxy.DesktopEntry;
         this.emit('changed');
     }
 });
@@ -203,6 +208,13 @@ class PlayerWidget extends St.BoxLayout{
 
         this.player = mpris;
         this.roundness = roundness;
+
+        this.playerIcon = new St.Icon({
+            icon_name: `${this.player.entry}-symbolic`
+        });
+        this.playerName = new St.Label({
+            text: this.player.identity
+        });
 
         //control widgets
         this.mediaCover = new St.Button({

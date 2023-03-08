@@ -160,7 +160,7 @@ class UsageLevel extends St.BoxLayout{
             const labelWidth = this.hoverLabel.get_width();
             const xOffset = Math.floor((iconWidth - labelWidth) / 2);
             const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
-            const y = stageY - this.hoverLabel.height - this.icon.height;
+            const y = stageY - this.icon.height;
             this.hoverLabel.set_position(x, y);
     
             this.hoverLabel.ease({

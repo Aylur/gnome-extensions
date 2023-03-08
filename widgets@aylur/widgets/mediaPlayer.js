@@ -73,13 +73,21 @@ class MediaButton extends PanelMenu.Button{
         super._init(0.5, 'Media Player', false);
         this.settings = settings;
         this.hide();
-        this.label = new St.Label({
+
+        let box = new St.BoxLayout();
+        this._label = new St.Label({
             text: 'artist - title',
             y_align: Clutter.ActorAlign.CENTER,
         });
-        this.add_child(this.label);
+        // this._icon = new St.Icon({
+        //     style_class: 'system-status-icon',
+        //     y_align: Clutter.ActorAlign.CENTER,
+        // });
+        // box.add_child(this._icon);
+        box.add_child(this._label);
+        this.add_child(box);
         let maxWidth = settings.get_int('media-player-max-width');
-        if(maxWidth > 0) this.label.style = `max-width: ${maxWidth}px`;
+        if(maxWidth > 0) this._label.style = `max-width: ${maxWidth}px`;
 
         this.media = new MediaBox(settings, this.menu.box);
         this.media.add_style_class_name('media-player');
@@ -92,7 +100,9 @@ class MediaButton extends PanelMenu.Button{
 
     _syncLabel(){
         if(!this.player) return;
-        this.label.text = `${this.player.trackArtists.join(', ')} - ${this.player.trackTitle}`;
+        this._label.text = `${this.player.trackArtists.join(', ')} - ${this.player.trackTitle}`;
+        // this._icon.icon_name = `${this.player.entry}-symbolic`;
+        // this._icon.icon_name = this.player.entry;
     }
 
     _sync(){

@@ -267,7 +267,9 @@ var Extension = class Extension {
             this._panelButton.destroy();
             this._panelButton = null;
         }
-        this._panelButton = new DashBoardPanelButton(this.settings);
+        this._panelButton = new St.Bin({
+            child: new DashBoardPanelButton(this.settings)
+        }); 
 
         let pos = this.settings.get_int('dash-button-position');
         let offset = this.settings.get_int('dash-button-offset');

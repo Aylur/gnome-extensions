@@ -227,7 +227,9 @@ var Extension = class Extension {
             this._panelButton = null;
         }
 
-        this._panelButton = new PowerMenu(this.settings);
+        this._panelButton = new St.Bin({
+            child: new PowerMenu(this.settings)
+        });
         let pos = this.settings.get_int('power-menu-position');
         let offset = this.settings.get_int('power-menu-offset');
         this.panelBox[pos].insert_child_at_index(this._panelButton, offset);
