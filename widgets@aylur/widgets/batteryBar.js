@@ -93,48 +93,49 @@ class LevelBar extends St.Bin{
     }
 
     repaint(){
-        if(this.fillLevel.has_allocation() && this.background.has_allocation()){
-            let max = this.width;
-            let zero = Math.min(this.radius*2, this.background.height);
+        if(!this.fillLevel.has_allocation() || !this.background.has_allocation())
+            return;
+        
+        let max = this.width;
+        let zero = Math.min(this.radius*2, this.background.height);
     
-            this.fillLevel.width = Math.floor( (max-zero)*this._value + zero );
+        this.fillLevel.width = Math.floor( (max-zero)*this._value + zero );
     
-            let label = Math.floor(this._value*100).toString() + "%";
-            this.fillLevel.label.text = label;
-            this.background.label.text = label;
+        let label = Math.floor(this._value*100).toString() + "%";
+        this.fillLevel.label.text = label;
+        this.background.label.text = label;
 
-            if(this.showLabel){
-                if(this._value >= 0.4){
-                    this.fillLevel.label.show();
-                    this.background.label.hide();
-                }else{
-                    this.fillLevel.label.hide();
-                    this.background.label.show();
-                }
+        if(this.showLabel){
+            if(this._value >= 0.4){
+                this.fillLevel.label.show();
+                this.background.label.hide();
             }else{
                 this.fillLevel.label.hide();
-                this.background.label.hide();
+                this.background.label.show();
             }
+        }else{
+            this.fillLevel.label.hide();
+            this.background.label.hide();
+        }
 
-            if(this.charging){
-                this.fillLevel.style = `
-                    border-radius: ${this.radius}px;
-                    color: ${this.settings.get_string('battery-bar-font-color')};
-                    background-color: ${this.chargingColor};
-                `;
-            }else if(this._value*100 <= this.lowThreshold){
-                this.fillLevel.style = `
-                    border-radius: ${this.radius}px;
-                    color: ${this.settings.get_string('battery-bar-font-color')};
-                    background-color: ${this.lowColor};
-                `;
-            }else{
-                this.fillLevel.style = `
-                    border-radius: ${this.radius}px;
-                    color: ${this.settings.get_string('battery-bar-font-color')};
-                    background-color: ${this.color};
-                `;
-            }
+        if(this.charging){
+            this.fillLevel.style = `
+                border-radius: ${this.radius}px;
+                color: ${this.settings.get_string('battery-bar-font-color')};
+                background-color: ${this.chargingColor};
+            `;
+        }else if(this._value*100 <= this.lowThreshold){
+            this.fillLevel.style = `
+                border-radius: ${this.radius}px;
+                color: ${this.settings.get_string('battery-bar-font-color')};
+                background-color: ${this.lowColor};
+            `;
+        }else{
+            this.fillLevel.style = `
+                border-radius: ${this.radius}px;
+                color: ${this.settings.get_string('battery-bar-font-color')};
+                background-color: ${this.color};
+            `;
         }
     }
 });
@@ -144,6 +145,7 @@ class BatteryBar extends St.Bin{
     _init(settings){
         super._init({
             style_class: 'battery-bar panel-button',
+            reactive: true
         });
 
         this.settings = settings;
@@ -174,32 +176,32 @@ class BatteryBar extends St.Bin{
             padding-right: ${settings.get_int('battery-bar-padding-right')}px;
         `;
         this._sync();
+        this.connect('enter-event', this._sync.bind(this));
     }
 
     _sync(){
-        if(this._proxy.IsPresent){
-            let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
-                ? '-charging' : '';
-            let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
-            const charged =
-                this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
-                (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
+        if(!this._proxy.IsPresent)
+            return this.hide();
             
-            this.icon.icon_name = charged
-                ? 'battery-level-100-charged-symbolic'
-                : `battery-level-${fillLevel}${chargingState}-symbolic`;
-    
-            this.icon.fallback_icon_name = this._proxy.IconName;
-    
-            this._proxy.State === UPower.DeviceState.CHARGING ||
-            this._proxy.State === UPower.DeviceState.FULLY_CHARGED ?
-                this.level.charging = true :
-                this.level.charging = false;
+        let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
+            ? '-charging' : '';
+        let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
+        const charged =
+            this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
+            (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
             
-            this.level.value = this._proxy.Percentage/100;
-        }else{
-            this.hide();
-        }
+        this.icon.icon_name = charged
+            ? 'battery-level-100-charged-symbolic'
+            : `battery-level-${fillLevel}${chargingState}-symbolic`;
+    
+        this.icon.fallback_icon_name = this._proxy.IconName;
+    
+        this._proxy.State === UPower.DeviceState.CHARGING ||
+        this._proxy.State === UPower.DeviceState.FULLY_CHARGED ?
+            this.level.charging = true :
+            this.level.charging = false;
+            
+        this.level.value = this._proxy.Percentage/100;
     }
 });
 
