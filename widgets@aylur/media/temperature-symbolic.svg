@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg3812"
+   sodipodi:docname="temperature-symbolic.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata3818">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3816" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1376"
+     id="namedview3814"
+     showgrid="false"
+     inkscape:zoom="7.875"
+     inkscape:cx="7.0950318"
+     inkscape:cy="4.2683798"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3812" />
+  <path
+     sodipodi:nodetypes="sscssscsssscssscssccsssccc"
+     inkscape:connector-curvature="0"
+     id="path31532"
+     d="m 8.0000001,-7e-8 c -1.662,0 -3,1.33800007 -3,3.00000007 v 6.375 c -0.615,0.703 -1,1.6134 -1,2.625 0,2.216 1.784,4 4,4 C 10.216,16 12,14.216 12,12 12,10.9884 11.615,10.078 11,9.375 V 3 C 11,1.338 9.6620001,-7e-8 8.0000001,-7e-8 Z m 0,1 C 9.1080001,0.99999993 9.9999999,1.8921 9.9999999,3 V 9.7754 C 10.6101,10.3238 11,11.1113 11,12 c 0,1.662 -1.3379999,3 -2.9999999,3 -1.662,0 -3,-1.338 -3,-3 0,-0.8887 0.3899,-1.6762 1,-2.2246 V 3 c 0,-1.1079 0.892,-2.00000007 2,-2.00000007 z M 7.0000001,5 v 5.2754 c -0.5958,0.3456 -1,0.9836 -1,1.7246 0,1.108 0.892,2 2,2 1.108,0 1.9999998,-0.892 1.9999998,-2 0,-0.741 -0.4041998,-1.379 -0.9999998,-1.7246 V 5 Z"
+     style="opacity:1;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+</svg>
