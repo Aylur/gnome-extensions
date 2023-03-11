@@ -221,6 +221,10 @@
     <key name="date-menu-media-show-volume" type="b">				<default>false</default></key>
     <key name="date-menu-media-prefer" type="s">						<default>"firefox"</default></key>
 
+    <!-- dynamic-panel -->
+    <key name="dynamic-panel-floating-style" type="b">                  <default>false</default></key>
+    <key name="dynamic-panel-useless-gaps" type="i">                  <default>9</default></key>
+
     <!-- notification-indicator -->
     <key name="notification-indicator-position" type="i">				<default>0</default></key>
     <key name="notification-indicator-offset" type="i">					<default>0</default></key>

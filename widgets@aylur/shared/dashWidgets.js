@@ -93,25 +93,24 @@ class HoverButton extends St.Button{
     }
 
     _toggleHoverLabel() {
-        if(this.hover){
-            Main.layoutManager.addTopChrome(this._hoverLabel);
-            this._hoverLabel.opacity = 0;
-            let [stageX, stageY] = this.get_transformed_position();
-            const iconWidth = this.allocation.get_width();
-            const labelWidth = this._hoverLabel.get_width();
-            const xOffset = Math.floor((iconWidth - labelWidth) / 2);
-            const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
-            const y = stageY - this._hoverLabel.height - this.height;
-            this._hoverLabel.set_position(x, stageY);
+        if(!this.hover)
+            return Main.layoutManager.removeChrome(this._hoverLabel);
+
+        Main.layoutManager.addTopChrome(this._hoverLabel);
+        this._hoverLabel.opacity = 0;
+        let [stageX, stageY] = this.get_transformed_position();
+        const iconWidth = this.allocation.get_width();
+        const labelWidth = this._hoverLabel.get_width();
+        const xOffset = Math.floor((iconWidth - labelWidth) / 2);
+        const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
+        const y = stageY - this._hoverLabel.height;
+        this._hoverLabel.set_position(x, y);
     
-            this._hoverLabel.ease({
-                opacity: 255,
-                duration: 300,
-                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-            });
-        }else{
-            Main.layoutManager.removeChrome(this._hoverLabel);
-        }
+        this._hoverLabel.ease({
+            opacity: 255,
+            duration: 300,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        });
     }
 });
 

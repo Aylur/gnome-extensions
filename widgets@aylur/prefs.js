@@ -115,7 +115,7 @@ class MainPage extends Adw.PreferencesPage{
         group.add(new ToggleRow(new Pages.BatteryBarPage(settings), 'battery-bar'));
         group.add(new ToggleRow(new Pages.DashBoardPage(settings), 'dash-board'));
         group.add(new ToggleRow(new Pages.DateMenuTweakPage(settings), 'date-menu-tweaks'));
-        group.add(new SwitchRow(_('Dynamic Panel'), settings, 'dynamic-panel', _("Doesn't do anything by itself. It needs a shell theme which implements this.")));
+        group.add(new ToggleRow(new Pages.DynamicPanelPage(settings), 'dynamic-panel'));
         group.add(new SwitchRow(_('Hide Window Headerbars'), settings, 'window-headerbar'));
         group.add(new ToggleRow(new Pages.NotificationIndicatorPage(settings), 'notification-indicator'));
         group.add(new ToggleRow(new Pages.MediaPlayerPage(settings), 'media-player'));
