@@ -76,6 +76,9 @@
 
 /* media */
 .panel-media-controls StIcon{ padding-top: 0; padding-bottom: 0; }
+.panel-player-icon { padding-left: 0; padding-right: 0; }
+.panel-player-icon.left  { margin-left: 0; }
+.panel-player-icon.right { margin-right: 0; }
 .media-player > StBoxLayout{ padding: 14px; spacing: 8px; }
 .media-menu-box.full,
 .media-menu-box.full .media-player > StBoxLayout{ padding: 0; }

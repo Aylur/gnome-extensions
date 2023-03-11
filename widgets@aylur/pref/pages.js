@@ -323,6 +323,10 @@ class MediaPlayerPage extends SubPage{
         let trackBtnExpander = new ExpanderRow(_('Track Button'), settings, 'media-player-enable-track');
         trackBtnExpander.add_row(new PositionRow(_('Position'), settings, 'media-player-position', 'media-player-offset'));
         trackBtnExpander.add_row(new SpinButtonRow(_('Max Width'), settings, 'media-player-max-width', 0, 1200, 10, _('0 to unset')));
+        trackBtnExpander.add_row(new SwitchRow(_('Show Player Icon'), settings, 'media-player-show-player-icon'));
+        trackBtnExpander.add_row(new SwitchRow(_('Colored Player Icon'), settings, 'media-player-colored-player-icon'));
+        trackBtnExpander.add_row(new DropDownRow(_('Player Icon Position'), settings, 'media-player-player-icon-position', [_('Left'), _('Right')]));
+
         let controlsExpander = new ExpanderRow(_('Controls'), settings, 'media-player-enable-controls');
         controlsExpander.add_row(new PositionRow(_('Position'), settings, 'media-player-controls-position', 'media-player-controls-offset'));
         buttonGroup.add(trackBtnExpander);
