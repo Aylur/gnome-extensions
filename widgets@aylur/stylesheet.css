@@ -146,6 +146,8 @@
 .quick-settings.adjusted .media,
 .quick-settings.adjusted .button,
 .quick-settings.adjusted .message{ border-radius: 21px; }
+.quick-settings.adjusted .quick-menu-toggle .quick-toggle{ border-radius: 21px 0 0 21px; }
+.quick-settings.adjusted .quick-menu-toggle .quick-toggle-arrow{ border-radius: 0 21px 21px 0; }
 .quick-settings.adjusted .popup-menu-content{
     padding: 16px;
     border-radius: 36px;
