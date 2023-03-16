@@ -287,6 +287,7 @@ class CpuLevel extends UsageLevel{
             this.lastCPUTotal = currentCPUTotal;
             this.lastCPUUsed = currentCPUUsed;
         } catch (e) {
+            this.hide();
             logError(e);
         }
 
@@ -346,6 +347,7 @@ class RamLevel extends UsageLevel{
                 currentMemoryUsage = memUsed / memTotal;
             }
         }catch (e) {
+            this.hide();
             logError(e);
         }
 
@@ -379,10 +381,9 @@ class TempLevel extends UsageLevel{
 
             this.level.value = temperature;
             this.label.text = Math.floor(temperature*100).toString() + '\˚';
-
-            this.show();
         }catch (e) {
             this.hide();
+            logError(e);
         }
     }
 });
