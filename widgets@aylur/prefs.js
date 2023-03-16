@@ -3,7 +3,6 @@
 const { Adw, Gtk, Gio, GObject, GdkPixbuf } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const GnomeVersion = Math.floor(imports.misc.config.PACKAGE_VERSION);
 const Pages = Me.imports.pref.pages;
 const { SwitchRow } = Me.imports.pref.widgets;
 
@@ -120,11 +119,8 @@ class MainPage extends Adw.PreferencesPage{
         group.add(new ToggleRow(new Pages.NotificationIndicatorPage(settings), 'notification-indicator'));
         group.add(new ToggleRow(new Pages.MediaPlayerPage(settings), 'media-player'));
         group.add(new ToggleRow(new Pages.PowerMenuPage(settings), 'power-menu'));
-        group.add(new ToggleRow(new Pages.WorkspaceIndicatorPage(settings), 'workspace-indicator'));
-
-        if(GnomeVersion >= 43)
         group.add(new ToggleRow(new Pages.QuickSettingsTweaksPage(settings), 'quick-settings-tweaks'));
-
+        group.add(new ToggleRow(new Pages.WorkspaceIndicatorPage(settings), 'workspace-indicator'));
     }
 });
 

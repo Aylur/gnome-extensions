@@ -217,7 +217,8 @@ class BackgroundClock extends St.Widget {
         if (this._laterId)
             return;
 
-        this._laterId = Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
+        const laters = global.compositor.get_laters();
+        this._laterId = laters.add(Meta.LaterType.BEFORE_REDRAW, () => {
             this._updateScale();
 
             this._laterId = 0;
@@ -227,7 +228,7 @@ class BackgroundClock extends St.Widget {
 
     _onDestroy() {
         if (this._laterId)
-            Meta.later_remove(this._laterId);
+            global.compositor.get_laters().remove(this._laterId);
         this._laterId = 0;
 
         this._backgroundActor.layout_manager = null;
@@ -244,7 +245,7 @@ var Extension = class Extension {
         const { _createBackgroundOrig } = this;
         this._bgManagerProto._createBackgroundActor = function () {
             const backgroundActor = _createBackgroundOrig.call(this);
-            const logo_ = new BackgroundClock(backgroundActor);
+            new BackgroundClock(backgroundActor);
 
             return backgroundActor;
         };
