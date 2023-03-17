@@ -1,0 +1,87 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-11 13:25+0100\n"
+"PO-Revision-Date: 2023-03-17 19:05+0100\n"
+"Last-Translator: Amerey.eu <info@amerey.eu>\n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n>=2 && n<=4 ? 1 : 2);\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#: prefs.js:51
+msgid "About"
+msgstr "O aplikaci"
+
+#: prefs.js:56
+msgid "Verison:"
+msgstr "Verze:"
+
+#: prefs.js:61
+msgid "Took code or inspiration from these projects"
+msgstr "Z těchto projektů jsem si vzal kód nebo inspiraci"
+
+#: prefs.js:63
+msgid "ArcMenu"
+msgstr "ArcMenu"
+
+#: prefs.js:63
+msgid "by andrew.zaech"
+msgstr "vytvořil: andrew.zaech"
+
+#: prefs.js:64 prefs.js:65
+msgid "Workspace Indicator"
+msgstr "Workspace Indicator"
+
+#: prefs.js:64
+msgid "by fmullner"
+msgstr "vytvořil:  fmullner"
+
+#: prefs.js:65
+msgid "by fthx"
+msgstr "vytvořil: fthx"
+
+#: prefs.js:66
+msgid "Nano System Monitor"
+msgstr "Nano System Monitor"
+
+#: prefs.js:66
+msgid "by eeeee"
+msgstr "vytvořil: eeeee"
+
+#: prefs.js:67
+msgid "GNOME source code"
+msgstr "Zdrojový kód GNOME"
+
+#: prefs.js:68
+msgid "Unite"
+msgstr "Unite"
+
+#: prefs.js:68
+msgid "by hardpixel"
+msgstr "vytvořil: hardpixel"
+
+#: prefs.js:70
+msgid "If you would like to support my work"
+msgstr "Pokud byste chtěli podpořit mou práci"
+
+#: prefs.js:84
+msgid "Also consider donating to"
+msgstr "Zvažte také možnost darovat"
+
+#: prefs.js:106
+msgid "Extensions"
+msgstr "Rozšíření"
+
+#: prefs.js:119
+msgid "Hide Window Headerbars"
+msgstr "Skrýt záhlaví oken"
