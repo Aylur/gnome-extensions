@@ -1,5 +1,3 @@
-'use strict';
-
 const { St, Meta, GLib } = imports.gi;
 const Main = imports.ui.main;
 const Panel = Main.panel;

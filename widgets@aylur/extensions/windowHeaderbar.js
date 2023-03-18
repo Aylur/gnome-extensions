@@ -1,5 +1,3 @@
-'use strict';
-
 const { Meta } = imports.gi;
 const Util = imports.misc.util;
 

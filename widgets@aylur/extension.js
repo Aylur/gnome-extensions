@@ -41,7 +41,7 @@ class Extension {
         for (const extension in Extensions) { if (Object.hasOwnProperty.call(Extensions, extension)) {
             const settings_key = Extensions[extension];
             
-            this[extension] = new Me.imports.widgets[extension].Extension(settings);
+            this[extension] = new Me.imports.extensions[extension].Extension(settings);
             if(settings.get_boolean(settings_key))
                 this._toggleExtension(this[extension]);
             

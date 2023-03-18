@@ -1,5 +1,3 @@
-'use strict'
-
 const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, UPowerGlib: UPower } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();

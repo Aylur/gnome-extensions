@@ -1,10 +1,6 @@
-'use strict';
-// this is a fork of this
-// https://github.com/fthx/workspaces-bar
-
+// fork of https://github.com/fthx/workspaces-bar
 const { Clutter, Gio, GObject, Shell, St } = imports.gi;
 const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 

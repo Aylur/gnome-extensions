@@ -1,5 +1,3 @@
-'use strict';
-
 const { St, GObject, Clutter, Pango, Gio, GLib, GnomeDesktop, Shell } = imports.gi; 
 const Main = imports.ui.main;
 const ExtensionUtils = imports.misc.extensionUtils;
