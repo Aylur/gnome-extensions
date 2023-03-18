@@ -10,17 +10,17 @@ const PowerButton = GObject.registerClass(
 class PowerButton extends St.Button{
     _init(powerIcon, powerLabel, action, parentDialog){
         super._init({ style_class: action });
-        this.settings = parentDialog.settings;
+        this._settings = parentDialog._settings;
 
         this.action = action;
         this.parentDialog = parentDialog;
 
-        this.radius = this.settings.get_int('power-menu-button-roundness');
-        this.padding = this.settings.get_int('power-menu-icon-padding');
+        this.radius = this._settings.get_int('power-menu-button-roundness');
+        this.padding = this._settings.get_int('power-menu-icon-padding');
 
         this._icon = new St.Icon({
             icon_name: powerIcon,
-            icon_size: this.settings.get_int('power-menu-icon-size'),
+            icon_size: this._settings.get_int('power-menu-icon-size'),
             x_align: Clutter.ActorAlign.CENTER,
         });
         this._label = new St.Label({
@@ -28,7 +28,7 @@ class PowerButton extends St.Button{
             x_align: Clutter.ActorAlign.CENTER,
         });
 
-        switch (this.settings.get_int('power-menu-label-position')) {
+        switch (this._settings.get_int('power-menu-label-position')) {
             case 0: this._inside(); break;
             case 1: this._outside(); break;
             default: this._hidden(); break;
@@ -55,7 +55,7 @@ class PowerButton extends St.Button{
 
         //icon-size + label (assume it's 16px) + padding;
         let size = this._icon.icon_size + 16 +
-            this.settings.get_int('power-menu-icon-padding') * 2;
+            this._settings.get_int('power-menu-icon-padding') * 2;
         this.style = `
             padding: ${this.padding/2}px;
             border-radius: ${this.radius}px;
