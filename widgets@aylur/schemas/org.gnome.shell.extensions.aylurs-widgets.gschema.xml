@@ -16,7 +16,7 @@
     <key name="quick-settings-tweaks" type="b">  <default>true</default></key>
     <key name="dynamic-panel" type="b">          <default>true</default></key>
     <key name="window-headerbar" type="b">       <default>false</default></key>
-    <key name="stylish-osd" type="b">            <default>false</default></key>
+    <key name="stylish-osd" type="b">            <default>true</default></key>
 
     <!-- background-clock -->
     <key name="background-clock-position" type="i">          <default>8</default></key>
@@ -279,14 +279,14 @@
     <key name="workspace-indicator-active-name" type="s">    <default>""</default></key>
 
     <!-- stylish osd -->
-    <key name="stylish-osd-position" type="i">               <default>7</default></key>
-    <key name="stylish-osd-vertical" type="b">               <default>false</default></key>
+    <key name="stylish-osd-position" type="i">               <default>5</default></key>
+    <key name="stylish-osd-vertical" type="b">               <default>true</default></key>
     <key name="stylish-osd-roundness" type="i">              <default>14</default></key>
-    <key name="stylish-osd-width" type="i">                  <default>200</default></key>
-    <key name="stylish-osd-height" type="i">                 <default>34</default></key>
+    <key name="stylish-osd-width" type="i">                  <default>60</default></key>
+    <key name="stylish-osd-height" type="i">                 <default>300</default></key>
     <key name="stylish-osd-padding" type="i">                <default>3</default></key>
     <key name="stylish-osd-margin" type="i">                 <default>40</default></key>
-    <key name="stylish-osd-icon-size" type="i">              <default>20</default></key>
+    <key name="stylish-osd-icon-size" type="i">              <default>36</default></key>
 
     <!-- quick-toggles -->
     <key name="quick-settings-menu-width" type="i">                       <default>400</default></key>
