@@ -14,6 +14,7 @@ class BatteryLevelBar extends LevelBar{
         this.y_align = Clutter.ActorAlign.CENTER;
         this._settings = settings;
 
+        this._fillLevel.x_expand = false;
         this._fillLevel.label = new St.Label({
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,

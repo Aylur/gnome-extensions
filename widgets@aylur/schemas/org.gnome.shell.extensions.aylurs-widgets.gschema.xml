@@ -63,7 +63,7 @@
     <key name="battery-bar-icon-position" type="i">          <default>0</default></key>
     <key name="battery-bar-show-percentage" type="b">        <default>true</default></key>
     <key name="battery-bar-font-color" type="s">             <default>"#000"</default></key>
-    <key name="battery-bar-font-bg-color" type="s">          <default>"#000"</default></key>
+    <key name="battery-bar-font-bg-color" type="s">          <default>"#fff"</default></key>
     <key name="battery-bar-width" type="i">                  <default>140</default></key>
     <key name="battery-bar-height" type="i">                 <default>34</default></key>
     <key name="battery-bar-padding-left" type="i">           <default>0</default></key>

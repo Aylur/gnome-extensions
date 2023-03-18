@@ -22,6 +22,15 @@ class LevelBar extends St.BoxLayout{
         this.roundness = props.roundness || 0;
         this.zero = props.zero || 0;
         this._timeoutDelay = props.timeoutDelay || 80;
+
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        if (this._timeoutId){
+            GLib.source_remove(this._timeoutId);
+            this._timeoutId = 0;
+        }
     }
 
     set roundness(radii){
