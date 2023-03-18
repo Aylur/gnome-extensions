@@ -84,6 +84,7 @@ class MediaButton extends PanelMenu.Button{
 
         this._icon = new St.Icon({
             style_class: 'system-status-icon panel-player-icon',
+            fallback_icon_name: 'audio-x-generic-symbolic',
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._coloredIcon = settings.get_boolean('media-player-colored-player-icon');

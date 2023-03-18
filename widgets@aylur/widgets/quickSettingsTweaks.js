@@ -469,7 +469,13 @@ class Toggles{
         this.rfKill = QS._rfkill.quickSettingsItems[0];
         this.rotate = QS._autoRotate.quickSettingsItems[0];
 
-        this.list = [ this.system, this.output, this.input, this.brightness,
+        this.bgApps = QS._backgroundApps.quickSettingsItems[0];
+
+        this.list = [
+            this.system,
+            this.output,
+            this.input,
+            this.brightness,
             settings.get_boolean('quick-settings-show-wired') ? null : this.wired,
             settings.get_boolean('quick-settings-show-wifi') ? null : this.wifi,
             settings.get_boolean('quick-settings-show-modem') ? null : this.modem,
@@ -481,6 +487,7 @@ class Toggles{
             this.darkMode,
             settings.get_boolean('quick-settings-show-airplane') ? null : this.rfKill,
             settings.get_boolean('quick-settings-show-rotate') ? null : this.rotate,
+            settings.get_boolean('quick-settings-show-bg-apps') ? null : this.bgApps
         ];
     }
 
@@ -794,6 +801,7 @@ var Extension = class Extension{
         this._settings.connect('changed::quick-settings-show-power', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-show-airplane', () => this.tweaks.reload());
         this._settings.connect('changed::quick-settings-show-rotate', () => this.tweaks.reload());
+        this._settings.connect('changed::quick-settings-show-bg-apps', () => this.tweaks.reload());
 
         this.tweaks.reload();
 

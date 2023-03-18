@@ -400,6 +400,24 @@ class PowerMenuPage extends SubPage{
     }
 });
 
+var StylishOSDPage = GObject.registerClass(
+class StylishOSDPage extends SubPage{
+    _init(settings){
+        super._init(_('Stylish On Screen Display'), settings);
+
+        const group = new Adw.PreferencesGroup({ title: _('OSD'), description: _('The popup when brightness/volume is changed') });
+        this.add(group);
+
+        group.add(new DropDownRow(_('Position'), settings, 'stylish-osd-position', [_('Top Start'), _('Top Center'), _('Top End'), _('Middle Start'), _('Middle Center'), _('Middle End'), _('Bottom Start'), _('Bottom Center'), _('Bottom End')]));
+        group.add(new SwitchRow(_('Vertical'), settings, 'stylish-osd-vertical'));
+        group.add(new SpinButtonRow(_('Width'), settings, 'stylish-osd-width', 4, 500, 2));
+        group.add(new SpinButtonRow(_('Height'), settings, 'stylish-osd-height', 4, 500, 2));
+        group.add(new SpinButtonRow(_('Roundness'), settings, 'stylish-osd-roundness', 0, 250, 1));
+        group.add(new SpinButtonRow(_('Padding'), settings, 'stylish-osd-padding', 0, 100, 1));
+        group.add(new SpinButtonRow(_('Icon Size'), settings, 'stylish-osd-icon-size', 1, 250, 1));
+    }
+});
+
 var WorkspaceIndicatorPage = GObject.registerClass(
 class WorkspaceIndicatorPage extends SubPage{
     _init(settings){
@@ -612,5 +630,6 @@ class QuickSettingsTweaksPage extends SubPage{
         togglesGroup.add(new SwitchRow(_('Power'), settings, 'quick-settings-show-power'));
         togglesGroup.add(new SwitchRow(_('Airplane Mode'), settings, 'quick-settings-show-airplane'));
         togglesGroup.add(new SwitchRow(_('Rotate'), settings, 'quick-settings-show-rotate'));
+        togglesGroup.add(new SwitchRow(_('Background Apps'), settings, 'quick-settings-show-bg-apps'));
     }
 });

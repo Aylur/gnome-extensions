@@ -29,7 +29,8 @@ const Extensions = {
     workspaceIndicator: 'workspace-indicator',
     dynamicPanel: 'dynamic-panel',
     windowHeaderbar: 'window-headerbar',
-    quickSettingsTweaks: 'quick-settings-tweaks'
+    quickSettingsTweaks: 'quick-settings-tweaks',
+    stylishOSD: 'stylish-osd'
 }
 
 class Extension {
