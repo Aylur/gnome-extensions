@@ -179,10 +179,9 @@ var Extension = class Extension{
     }
 
     disable(){
-        this.widget.destroy();
-    }
-
-    _reload(){
-
+        this._osdManagerProto._monitorsChanged = this._monitorsChangedOrig;
+        Main.osdWindowManager._osdWindows.forEach(w => w.destroy);
+        Main.osdWindowManager._osdWindows = [];
+        Main.osdWindowManager._monitorsChanged();
     }
 }
