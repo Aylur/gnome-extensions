@@ -1,4 +1,4 @@
- const { Clutter, St, GObject, GLib } = imports.gi;
+const { Clutter, St, GObject, GLib } = imports.gi;
 
 var LevelBar = GObject.registerClass(
 class LevelBar extends St.BoxLayout{
@@ -8,8 +8,8 @@ class LevelBar extends St.BoxLayout{
             pseudo_class: `${props.pseudo_class}`,
             y_expand: true,
             x_expand: true,
-            x_align: Clutter.ActorAlign.FILL,
-            y_align: Clutter.ActorAlign.FILL,
+            x_align: props.x_align || Clutter.ActorAlign.FILL,
+            y_align: props.y_align || Clutter.ActorAlign.FILL,
         });
         this._fillLevel = new St.Bin({
             style_class: 'level-fill',
@@ -17,10 +17,11 @@ class LevelBar extends St.BoxLayout{
             y_expand: true,
         });
         this.add_child(this._fillLevel);
-        this.roundness = props.roundness || 8;
         this._value = props.value || 0;
         this.vertical = props.vertical || false;
+        this.roundness = props.roundness || 0;
         this.zero = props.zero || 0;
+        this._timeoutDelay = props.timeoutDelay || 80;
     }
 
     set roundness(radii){
@@ -60,7 +61,7 @@ class LevelBar extends St.BoxLayout{
         }
         if(!this.has_allocation()){
             this._timeoutId = GLib.timeout_add(
-                GLib.PRIORITY_DEFAULT, 50, () => this._repaint(animate));
+                GLib.PRIORITY_DEFAULT, this._timeoutDelay, () => this._repaint(animate));
             return;
         }
 

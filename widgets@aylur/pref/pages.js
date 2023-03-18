@@ -68,10 +68,10 @@ class BatteryBarPage extends SubPage{
         group.add(labelExpanderRow);
         group.add(new SpinButtonRow(_('Width'), settings, 'battery-bar-width', 50, 800, 10));
         group.add(new SpinButtonRow(_('Height'), settings, 'battery-bar-height', 1, 100, 1));
-        group.add(new SpinButtonRow(_('Bar Roundness'), settings, 'battery-bar-roundness', 1, 50, 1));
+        group.add(new SpinButtonRow(_('Bar Roundness'), settings, 'battery-bar-roundness', 0, 50, 1));
         group.add(new SpinButtonRow(_('Low Threshold'), settings, 'battery-bar-low-threshold', 0, 100, 5));
-        group.add(new SpinButtonRow(_('Padding Right'), settings, 'battery-bar-padding-right', -100, 100, 1));
-        group.add(new SpinButtonRow(_('Padding Left'), settings, 'battery-bar-padding-left', -100, 100, 1));
+        group.add(new SpinButtonRow(_('Padding Right'), settings, 'battery-bar-padding-right', 0, 100, 1));
+        group.add(new SpinButtonRow(_('Padding Left'), settings, 'battery-bar-padding-left', 0, 100, 1));
 
         let colorExpander = new Adw.ExpanderRow({ title: _('Bar Colors') });
         colorExpander.add_row(new ColorRow(_('Color'), settings, 'battery-bar-color'));

@@ -22,10 +22,11 @@ class OsdWidget extends St.Bin{
         this._level._fillLevel.add_style_class_name('calendar-today');
         this._level._fillLevel.add_style_pseudo_class('selected');
         this._level._fillLevel.set_child(this._iconBin);
-        this.child = new St.Bin({
+        this._osdWindow = new St.Bin({
             style_class: 'osd-window',
             child: this._level
         });
+        this.set_child(this._osdWindow);
 
         this._setings = settings;
         settings.connectObject(
@@ -66,10 +67,10 @@ class OsdWidget extends St.Bin{
         ];
         let x_pos = pos % 3;
         let y_pos = Math.floor(pos / 3);
-        this.child.y_align = cal[y_pos];
-        this.child.x_align = cal[x_pos];
-        this.child.width = width;
-        this.child.height = height;
+        this._osdWindow.y_align = cal[y_pos];
+        this._osdWindow.x_align = cal[x_pos];
+        this._osdWindow.width = width;
+        this._osdWindow.height = height;
 
         this._iconBin.y_align = vertical ? Clutter.ActorAlign.END : Clutter.ActorAlign.CENTER;
         this._iconBin.x_align = vertical ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START;        
@@ -83,7 +84,7 @@ class OsdWidget extends St.Bin{
         this._level.zero = iconSize;
         this._level.vertical = vertical;
         this._level.roundness = radii;
-        this.child.style = `
+        this._osdWindow.style = `
             border-radius: ${radii > 0 ? radii+padding : 0}px;
             padding: ${padding}px;
             margin: ${margin}px;

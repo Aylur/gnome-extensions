@@ -1,11 +1,11 @@
 .level-bar{
-    height: 16px; /* horizontal width */
-    width: 16px; /* vertical width */
-    border-radius: 8px;
+    height: 14px; /* horizontal width */
+    width: 14px; /* vertical width */
+    border-radius: 7px;
     margin: 0;
 }
 .level-fill{
-    border-radius: 8px;
+    border-radius: 7px;
     border: none;
     box-shadow: none;
 }

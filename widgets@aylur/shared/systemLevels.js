@@ -2,6 +2,7 @@ const { St, GLib, Shell, Gio, Clutter, GObject, GnomeDesktop, UPowerGlib: UPower
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Mainloop = imports.mainloop;
+const { LevelBar } = Me.imports.shared.levelBar;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
@@ -17,72 +18,28 @@ try {
 }
 
 //shouldn't be more than half the widthness of the bar
-const ROUNDNESS = 8;
-const ZERO_VALUE = ROUNDNESS*2;
+const ROUNDNESS = 7;
 
-const LevelBar = GObject.registerClass(
-class LevelBar extends St.Bin{
+const SystemLevelBar = GObject.registerClass(
+class SystemLevelBar extends LevelBar{
     _init(vertical){
         super._init({
-            y_expand: true,
-            x_expand: true,
+            vertical,
+            roundness: ROUNDNESS,
+            style_class: 'calendar',
+            pseudo_class: 'active',
         });
-        this.background = new St.Bin({
-            style_class: 'level-bar calendar',
-            pseudo_class: 'active'
-        });
-        this.fillLevel = new St.Widget({
-            style_class: 'level-fill calendar-today',
-            pseudo_class: 'selected'
-        });
-        this.set_child(this.background);
-        this.background.set_child(this.fillLevel);
 
-        this.value = 0;
-        if(vertical) this.set_vertical();
-        else this.set_horizontal();
+        this._fillLevel.add_style_class_name('calendar-today');
+        this._fillLevel.add_style_pseudo_class('selected');
 
-        this.connect('notify::value', () => this.repaint());
-    }
-
-    repaint(){
-        if(this.value > 1) this.value = 1;
-        if(this.value < 0) this.value = 0;
-        if(this.vertical){
-            let max = this.background.height;
-            this.fillLevel.height = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
+        if(this._vertical){
+            this.x_align = Clutter.ActorAlign.CENTER;
+            this.y_align = Clutter.ActorAlign.FILL;
         }else{
-            let max = this.background.width;
-            this.fillLevel.width = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
+            this.x_align = Clutter.ActorAlign.FILL;
+            this.y_align = Clutter.ActorAlign.CENTER;
         }
-        if(this.value*100 < 1)
-            this.fillLevel.hide();
-        else
-            this.fillLevel.show();
-    }
-
-    set_vertical(){
-        this.background.y_expand = true;
-        this.background.y_align = Clutter.ActorAlign.FILL;
-        this.background.x_expand = true;
-        this.background.x_align = Clutter.ActorAlign.CENTER;
-        this.fillLevel.y_expand = true;
-        this.fillLevel.y_align = Clutter.ActorAlign.END;
-        this.fillLevel.x_expand = true;
-        this.fillLevel.x_align = Clutter.ActorAlign.FILL;
-        this.vertical = true;
-    }
-
-    set_horizontal(){
-        this.background.y_expand = true;
-        this.background.y_align = Clutter.ActorAlign.CENTER;
-        this.background.x_expand = true;
-        this.background.x_align = Clutter.ActorAlign.FILL;
-        this.fillLevel.y_expand = true;
-        this.fillLevel.y_align = Clutter.ActorAlign.FILL;
-        this.fillLevel.x_expand = true;
-        this.fillLevel.x_align = Clutter.ActorAlign.START;
-        this.vertical = false;
     }
 });
 
@@ -99,7 +56,7 @@ class UsageLevel extends St.BoxLayout{
 
         this.icon = new St.Icon({ reactive: true, track_hover: true });
         this.label = new St.Label();
-        this.level = new LevelBar(vertical);
+        this.level = new SystemLevelBar(vertical);
         this.hoverLabel = new St.Label({ style_class: 'dash-label' });
         this.icon.connect('notify::hover', () => this._toggleHoverLabel());
 
@@ -109,7 +66,6 @@ class UsageLevel extends St.BoxLayout{
     updateLevel(){
         this.setUsage();
         this.setColorClass();
-        this.level.repaint();
     }
     
     setColorClass(){
