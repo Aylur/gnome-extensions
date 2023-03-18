@@ -1,10 +1,9 @@
 const { GObject, St, Clutter } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const SystemActions = imports.misc.systemActions;
 const ModalDialog = imports.ui.modalDialog;
 
-const Me = ExtensionUtils.getCurrentExtension();
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const PowerButton = GObject.registerClass(
@@ -105,7 +104,7 @@ const PowerDialog = GObject.registerClass(
 class PowerDialog extends ModalDialog.ModalDialog{
     _init(settings){
         super._init();
-        this.settings = settings;
+        this._settings = settings;
 
         this.dialogLayout._dialog.add_style_class_name('power-menu');
         this.dialogLayout._dialog.style = `
@@ -140,7 +139,7 @@ class PowerDialog extends ModalDialog.ModalDialog{
     }
 
     _buildUI(){
-        switch (this.settings.get_int('power-menu-layout')) {
+        switch (this._settings.get_int('power-menu-layout')) {
             case 0: this.layout2x2(); break;
             default: this.layout1x4(); break;
         }
@@ -180,7 +179,7 @@ class PowerMenu extends St.Button {
             })
         });
 
-        this.settings = settings;
+        this._settings = settings;
 
         this.connect('button-press-event',
             () => this._showDialog());
@@ -192,31 +191,33 @@ class PowerMenu extends St.Button {
     }
 
     _showDialog(){
-        this.dialog = new PowerDialog(this.settings);
+        this.dialog = new PowerDialog(this._settings);
         this.dialog.open();
     }
 });
 
 var Extension = class Extension {
-    constructor() {
-        this.panelBox = [
+    constructor(settings) {
+        this._settings = settings;
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
             Main.panel._rightBox
-        ]
+        ];
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-        
-        this.settings.connect('changed::power-menu-position', () => this._addToPanel());
+        this._settings.connectObject(
+            'changed::power-menu-position', this._addToPanel.bind(this),
+            this
+        );
         this._addToPanel();
     }
 
     disable() {
         this._panelButton.destroy();
         this._panelButton = null;
-        this.settings = null;
+        this._settings.disconnectObject(this);
     }
 
     _addToPanel(){
@@ -226,10 +227,11 @@ var Extension = class Extension {
         }
 
         this._panelButton = new St.Bin({
-            child: new PowerMenu(this.settings)
+            child: new PowerMenu(this._settings)
         });
-        let pos = this.settings.get_int('power-menu-position');
-        let offset = this.settings.get_int('power-menu-offset');
-        this.panelBox[pos].insert_child_at_index(this._panelButton, offset);
+
+        let pos = this._settings.get_int('power-menu-position');
+        let offset = this._settings.get_int('power-menu-offset');
+        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
     }
 }

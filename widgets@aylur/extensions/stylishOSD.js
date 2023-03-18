@@ -1,14 +1,12 @@
-const { Clutter, Gio, GObject, Shell, St, GLib, Meta } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const { Clutter, GObject, St, GLib, Meta } = imports.gi;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const { OsdWindow, OsdWindowManager }= imports.ui.osdWindow;
+const { OsdWindowManager }= imports.ui.osdWindow;
 const { LevelBar } = Me.imports.shared.levelBar;
 const { MonitorConstraint } = imports.ui.layout;
 
 const HIDE_TIMEOUT = 1500;
 const FADE_TIME = 100;
-const LEVEL_ANIMATION_TIME = 100;
 
 const OsdWidget = GObject.registerClass(
 class OsdWidget extends St.Bin{
@@ -20,8 +18,7 @@ class OsdWidget extends St.Bin{
             y_align: Clutter.ActorAlign.CENTER
         });
         this._iconBin = new St.Bin({ child: this._icon });
-        this._level = new LevelBar();
-        this._level.add_style_class_name('calendar');
+        this._level = new LevelBar({ style_class: 'calendar' });
         this._level._fillLevel.add_style_class_name('calendar-today');
         this._level._fillLevel.add_style_pseudo_class('selected');
         this._level._fillLevel.set_child(this._iconBin);
@@ -41,11 +38,15 @@ class OsdWidget extends St.Bin{
             'changed::stylish-osd-icon-size',this._updateStyle.bind(this),
             this
         );
-        this.connect('destroy', () => settings.disconnectObject(this));
+        this.connect('destroy', this._onDestroy.bind(this));
         this._updateStyle();
 
         this.add_constraint(new MonitorConstraint({ index: monitorIndex }));
         Main.uiGroup.add_child(this);
+    }
+
+    _onDestroy(){
+        this._setings.disconnectObject(this);
     }
 
     _updateStyle(){
@@ -89,19 +90,17 @@ class OsdWidget extends St.Bin{
         `;
     }
 
-    setLabel(label) { }
-    setMaxLevel(maxLevel = 1) { }
+    setLabel() { } //for compatibility
+    setMaxLevel() { } //for compatibility
 
     setIcon(icon) { this._icon.gicon = icon }
 
     setLevel(value) {
         this._level.visible = value != undefined;
         if (value != undefined) {
-            if (this.visible) {
-                this._level.animate(value);
-            } else {
-                this._level.value = value;
-            }
+            this.visible
+                ? this._level.animate(value)
+                : this._level.value = value;
         }
     }
 

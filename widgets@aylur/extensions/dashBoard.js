@@ -1,6 +1,5 @@
-const { GObject, St, Gio, Clutter, Meta, Shell, GLib } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Widgets = Me.imports.shared.dashWidgets;
 const ConfigParser = Me.imports.shared.dashConfigParser;
@@ -223,25 +222,27 @@ class DashBoardPanelButton extends St.Button{
 });
 
 var Extension = class Extension {
-    constructor() {
-        this.panelBox = [
+    constructor(settings) {
+        this._settings = settings;
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
             Main.panel._rightBox
-        ]
+        ];
         this.activities = Main.panel.statusArea.activities.get_parent();
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-
         //so it comes up in dconf editor
-        this.settings.set_strv('dash-links-names', this.settings.get_strv('dash-links-names'));
-        this.settings.set_strv('dash-links-urls',  this.settings.get_strv('dash-links-urls'));
+        this._settings.set_strv('dash-links-names', this._settings.get_strv('dash-links-names'));
+        this._settings.set_strv('dash-links-urls',  this._settings.get_strv('dash-links-urls'));
 
-        this.settings.connect('changed::dash-button-position', () => this._reload());
-        this.settings.connect('changed::dash-button-offset', () => this._reload());
-        this.settings.connect('changed::dash-hide-activities', () => this._activites());
+        this._settings.connectObject(
+            'changed::dash-button-position', this._reload.bind(this),
+            'changed::dash-button-offset', this._reload.bind(this),
+            'changed::dash-hide-activities', this._activites.bind(this),
+            this
+        );
         
         this._activites();
         this._reload();
@@ -250,12 +251,12 @@ var Extension = class Extension {
     disable() {
         this._panelButton.destroy();
         this._panelButton = null;
-        this.settings = null;
+        this._settings.disconnectObject(this);
         this.activities.show();
     }
 
     _activites(){
-        this.settings.get_boolean('dash-hide-activities') ?
+        this._settings.get_boolean('dash-hide-activities') ?
             this.activities.hide():
             this.activities.show();
     }
@@ -265,12 +266,13 @@ var Extension = class Extension {
             this._panelButton.destroy();
             this._panelButton = null;
         }
+
         this._panelButton = new St.Bin({
-            child: new DashBoardPanelButton(this.settings)
+            child: new DashBoardPanelButton(this._settings)
         }); 
 
-        let pos = this.settings.get_int('dash-button-position');
-        let offset = this.settings.get_int('dash-button-offset');
-        this.panelBox[pos].insert_child_at_index(this._panelButton, offset);
+        let pos = this._settings.get_int('dash-button-position');
+        let offset = this._settings.get_int('dash-button-offset');
+        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
     }
 }

@@ -4,7 +4,8 @@ var LevelBar = GObject.registerClass(
 class LevelBar extends St.BoxLayout{
     _init(props = {}){
         super._init({
-            style_class: 'level-bar',
+            style_class: `level-bar ${props.style_class}`,
+            pseudo_class: `${props.pseudo_class}`,
             y_expand: true,
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,

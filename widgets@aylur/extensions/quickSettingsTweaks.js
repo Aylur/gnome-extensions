@@ -1,9 +1,8 @@
 const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, UPowerGlib: UPower } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const { QuickSlider, QuickToggle } = imports.ui.quickSettings; 
 const QS = Main.panel.statusArea.quickSettings;
+const { QuickSlider, QuickToggle } = imports.ui.quickSettings;
 const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const { NotificationList } = Me.imports.shared.notificationList;
@@ -774,32 +773,35 @@ class QuickSettingsTweaks{
 }
 
 var Extension = class Extension{
-    constructor(){}
+    constructor(settings){
+        this._settings = settings;
+    }
 
     enable(){
-        this._settings = ExtensionUtils.getSettings();
         QS.menu.box.add_style_class_name('tweaked');
-
         this.tweaks = new QuickSettingsTweaks(this._settings);
-        this._settings.connect('changed::quick-settings-style', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-notifications', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-system-levels', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-media', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-app-volume-mixer', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-media-prefer-one', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-menu-width', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-adjust-roundness', () => this.tweaks.reload());
 
-        this._settings.connect('changed::quick-settings-show-wired', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-wifi', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-modem', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-network-bt', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-vpn', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-bluetooth', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-power', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-airplane', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-rotate', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-bg-apps', () => this.tweaks.reload());
+        this._settings.connectObject(
+            'changed::quick-settings-style',                () => this.tweaks.reload(),
+            'changed::quick-settings-show-notifications',   () => this.tweaks.reload(),
+            'changed::quick-settings-show-system-levels',   () => this.tweaks.reload(),
+            'changed::quick-settings-show-media',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-app-volume-mixer',() => this.tweaks.reload(),
+            'changed::quick-settings-media-prefer-one',     () => this.tweaks.reload(),
+            'changed::quick-settings-menu-width',           () => this.tweaks.reload(),
+            'changed::quick-settings-adjust-roundness',     () => this.tweaks.reload(),
+            'changed::quick-settings-show-wired',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-wifi',            () => this.tweaks.reload(),
+            'changed::quick-settings-show-modem',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-network-bt',      () => this.tweaks.reload(),
+            'changed::quick-settings-show-vpn',             () => this.tweaks.reload(),
+            'changed::quick-settings-show-bluetooth',       () => this.tweaks.reload(),
+            'changed::quick-settings-show-power',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-airplane',        () => this.tweaks.reload(),
+            'changed::quick-settings-show-rotate',          () => this.tweaks.reload(),
+            'changed::quick-settings-show-bg-apps',         () => this.tweaks.reload(),
+            this
+        );
 
         this.tweaks.reload();
 
@@ -807,7 +809,7 @@ var Extension = class Extension{
     }
 
     disable(){
-        this._settings = null;
+        this._settings.disconnectObject(this);
         this.tweaks.reset();
         QS.menu.box.remove_style_class_name('tweaked');
         Main.layoutManager.disconnect(this.binding);

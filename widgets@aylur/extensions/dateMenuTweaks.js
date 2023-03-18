@@ -215,7 +215,8 @@ class CustomMenu extends St.BoxLayout{
 });
 
 var Extension = class Extension {
-    constructor() {
+    constructor(settings) {
+        this._settings = settings;
         this.panel = [
             Main.panel._leftBox,
             Main.panel._centerBox,
@@ -238,26 +239,26 @@ var Extension = class Extension {
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::date-menu-position', () => this.reload());
-        this.settings.connect('changed::date-menu-offset', () => this.reload());
-        this.settings.connect('changed::date-menu-remove-padding', () => this.reload());
-        this.settings.connect('changed::date-menu-indicator-position', () => this.reload());
-        this.settings.connect('changed::date-menu-mirror', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-notifications', () => this.reload());
-        this.settings.connect('changed::date-menu-custom-menu', () => this.reload());
-        this.settings.connect('changed::date-menu-show-events', () => this.reload());
-        this.settings.connect('changed::date-menu-show-user', () => this.reload());
-        this.settings.connect('changed::date-menu-show-clocks', () => this.reload());
-        this.settings.connect('changed::date-menu-show-weather', () => this.reload());
-        this.settings.connect('changed::date-menu-show-media', () => this.reload());
-        this.settings.connect('changed::date-menu-show-system-levels', () => this.reload());
-
-        this.settings.connect('changed::date-menu-date-format', () => {
-            this.dateFormat = this.settings.get_string('date-menu-date-format');
-            this.updateClock()
-        });
-        this.dateFormat = this.settings.get_string('date-menu-date-format');
+        this._settings.connectObject(
+            'changed::date-menu-position',           this.reload.bind(this),
+            'changed::date-menu-offset',             this.reload.bind(this),
+            'changed::date-menu-remove-padding',     this.reload.bind(this),
+            'changed::date-menu-indicator-position', this.reload.bind(this),
+            'changed::date-menu-mirror',             this.reload.bind(this),
+            'changed::date-menu-hide-notifications', this.reload.bind(this),
+            'changed::date-menu-custom-menu',        this.reload.bind(this),
+            'changed::date-menu-show-events',        this.reload.bind(this),
+            'changed::date-menu-show-user',          this.reload.bind(this),
+            'changed::date-menu-show-clocks',        this.reload.bind(this),
+            'changed::date-menu-show-weather',       this.reload.bind(this),
+            'changed::date-menu-show-media',         this.reload.bind(this),
+            'changed::date-menu-show-system-levels', this.reload.bind(this),
+            'changed::date-menu-date-format', () => {
+                this.dateFormat = this._settings.get_string('date-menu-date-format');
+                this.updateClock() },
+            this
+        );
+        this.dateFormat = this._settings.get_string('date-menu-date-format');
 
         DateMenu.menu.box.add_style_class_name('date-menu-tweaked');
 
@@ -274,12 +275,12 @@ var Extension = class Extension {
         this.reload();
 
         //mpris
-        this.settings.connect('changed::date-menu-hide-stock-mpris', () => this._mpris());
+        this._settings.connect('changed::date-menu-hide-stock-mpris', () => this._mpris());
         this._mpris();
     }
 
     _mpris(show = false){
-        if(show || !this.settings.get_boolean('date-menu-hide-stock-mpris')){
+        if(show || !this._settings.get_boolean('date-menu-hide-stock-mpris')){
             this.stockMpris._shouldShow = this.shouldShow;
             this.stockMpris.visible = this.stockMpris._shouldShow();
         }else{
@@ -297,7 +298,7 @@ var Extension = class Extension {
         this.dateMenu.get_parent().remove_child(this.dateMenu);
         this.panel[1].insert_child_at_index(this.dateMenu, 0);
 
-        this.settings = null;
+        this._settings.disconnectObject(this);
         this.wallclock = null;
     }
 
@@ -309,14 +310,14 @@ var Extension = class Extension {
         this.reset();
 
         this.dateMenu.get_parent().remove_child(this.dateMenu);
-        this.panel[this.settings.get_int('date-menu-position')]
-            .insert_child_at_index(this.dateMenu, this.settings.get_int('date-menu-offset'));
+        this.panel[this._settings.get_int('date-menu-position')]
+            .insert_child_at_index(this.dateMenu, this._settings.get_int('date-menu-offset'));
 
         //indicator & padding
         this.panelBox.remove_all_children();
 
-        let pos = this.settings.get_int('date-menu-indicator-position');
-        let padding = this.settings.get_boolean('date-menu-remove-padding');
+        let pos = this._settings.get_int('date-menu-indicator-position');
+        let padding = this._settings.get_boolean('date-menu-remove-padding');
 
         if(pos === 0){
             this.panelBox.add_child(this.indicator);
@@ -331,19 +332,19 @@ var Extension = class Extension {
         }
 
         //mirror
-        if(this.settings.get_boolean('date-menu-mirror')){
+        if(this._settings.get_boolean('date-menu-mirror')){
             this.menuBox.remove_child(this.calendar);
             this.menuBox.insert_child_at_index(this.calendar, 0);
         }
         
         //custom menu
-        if(this.settings.get_boolean('date-menu-custom-menu')){
-            this.custom = new CustomMenu(this.settings);
+        if(this._settings.get_boolean('date-menu-custom-menu')){
+            this.custom = new CustomMenu(this._settings);
             this.menuBox.replace_child(this.calendar, this.custom);
         }
 
         //notifications
-        if(this.settings.get_boolean('date-menu-hide-notifications'))
+        if(this._settings.get_boolean('date-menu-hide-notifications'))
             this.menuBox.remove_child(this.notifications);
     }
 

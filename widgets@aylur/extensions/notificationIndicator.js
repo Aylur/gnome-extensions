@@ -1,6 +1,5 @@
 const { GObject, St, Clutter, Gio } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -174,56 +173,54 @@ class PanelButton extends PanelMenu.Button{
 });
 
 var Extension = class Extension{
-    constructor(){
-        this.pos = [
+    constructor(settings){
+        this._settings = settings;
+        this._pos = [
             'left',
             'center',
             'right'
         ];
-        this.panelBox = [
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
             Main.panel._rightBox
-        ]
+        ];
     }
 
     enable(){
-        this.settings = ExtensionUtils.getSettings();
-
-        this.settings.connect('changed::notification-indicator-position', () => this.reload());
-        this.settings.connect('changed::notification-indicator-offset', () => this.reload());
-        this.settings.connect('changed::notification-indicator-style', () => this.reload());
-        this.reload();
+        this._settings.connectObject(
+            'changed::notification-indicator-position', this._reload.bind(this),
+            'changed::notification-indicator-offset',   this._reload.bind(this),
+            'changed::notification-indicator-style',    this._reload.bind(this),
+            this
+        );
+        this._reload();
     }
 
     disable(){
-        this.settings = null;
-        this.indicator.destroy();
-        this.indicator = null;
+        this._indicator.destroy();
+        this._indicator = null;
+        this._settings.disconnectObject(this);
     }
 
-    reload(){
-        if(this.indicator){
-            this.indicator.destroy();
-            this.indicator = null;
+    _reload(){
+        if(this._indicator){
+            this._indicator.destroy();
+            this._indicator = null;
         }
 
-        let position = this.settings.get_int('notification-indicator-position');
-        let offset = this.settings.get_int('notification-indicator-offset');
+        let pos = this._settings.get_int('notification-indicator-position');
+        let offset = this._settings.get_int('notification-indicator-offset');
 
-        if(position === 3){
-            this.settings.get_int('notification-indicator-style') === 1 ?
-                this.indicator = new IconsIndicator(this.settings):
-                this.indicator = new Indicator(this.settings);
+        if(pos === 3){
+            this._settings.get_int('notification-indicator-style') === 1
+                ? this._indicator = new IconsIndicator(this._settings)
+                : this._indicator = new Indicator(this._settings);
 
-            if(Main.panel.statusArea.quickSettings)
-                Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this.indicator, offset);
-    
-            if(Main.panel.statusArea.aggregateMenu)
-                Main.panel.statusArea.aggregateMenu._indicators.insert_child_at_index(this.indicator, offset);
+            Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this._indicator, offset);
         }else{
-            this.indicator = new PanelButton(this.settings);
-            Main.panel.addToStatusArea('Notifications', this.indicator, offset, this.pos[position]);
+            this._indicator = new PanelButton(this._settings);
+            Main.panel.addToStatusArea('Notifications', this._indicator, offset, this._pos[pos]);
         }
     }
 }

@@ -1,6 +1,5 @@
 const { GObject, St, Clutter, Gio, UPowerGlib: UPower } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension()
+const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
@@ -44,7 +43,7 @@ class LevelBar extends St.Bin{
 
 
         this._value = 0;
-        this.settings = settings;
+        this._settings = settings;
 
         settings.connectObject(
             'changed::battery-bar-show-percentage', () => this._updateStyle(),
@@ -71,20 +70,20 @@ class LevelBar extends St.Bin{
     }
 
     _updateStyle(repaint = true){
-        this.width = this.settings.get_int('battery-bar-width');
-        this.background.height = this.settings.get_int('battery-bar-height');
+        this.width = this._settings.get_int('battery-bar-width');
+        this.background.height = this._settings.get_int('battery-bar-height');
 
-        this.showLabel = this.settings.get_boolean('battery-bar-show-percentage');
-        this.chargingColor = this.settings.get_string('battery-bar-charging-color');
-        this.lowColor = this.settings.get_string('battery-bar-low-color');
-        this.color = this.settings.get_string('battery-bar-color');
-        this.lowThreshold = this.settings.get_int('battery-bar-low-threshold');
+        this.showLabel = this._settings.get_boolean('battery-bar-show-percentage');
+        this.chargingColor = this._settings.get_string('battery-bar-charging-color');
+        this.lowColor = this._settings.get_string('battery-bar-low-color');
+        this.color = this._settings.get_string('battery-bar-color');
+        this.lowThreshold = this._settings.get_int('battery-bar-low-threshold');
 
-        this.radius = this.settings.get_int('battery-bar-roundness');
+        this.radius = this._settings.get_int('battery-bar-roundness');
         this.background.style = `
             border-radius: ${this.radius}px;
-            color: ${this.settings.get_string('battery-bar-font-bg-color')};
-            background-color: ${this.settings.get_string('battery-bar-bg-color')};
+            color: ${this._settings.get_string('battery-bar-font-bg-color')};
+            background-color: ${this._settings.get_string('battery-bar-bg-color')};
         `;
 
         if(repaint) this.repaint();
@@ -119,19 +118,19 @@ class LevelBar extends St.Bin{
         if(this.charging){
             this.fillLevel.style = `
                 border-radius: ${this.radius}px;
-                color: ${this.settings.get_string('battery-bar-font-color')};
+                color: ${this._settings.get_string('battery-bar-font-color')};
                 background-color: ${this.chargingColor};
             `;
         }else if(this._value*100 <= this.lowThreshold){
             this.fillLevel.style = `
                 border-radius: ${this.radius}px;
-                color: ${this.settings.get_string('battery-bar-font-color')};
+                color: ${this._settings.get_string('battery-bar-font-color')};
                 background-color: ${this.lowColor};
             `;
         }else{
             this.fillLevel.style = `
                 border-radius: ${this.radius}px;
-                color: ${this.settings.get_string('battery-bar-font-color')};
+                color: ${this._settings.get_string('battery-bar-font-color')};
                 background-color: ${this.color};
             `;
         }
@@ -146,7 +145,7 @@ class BatteryBar extends St.Bin{
             reactive: true
         });
 
-        this.settings = settings;
+        this._settings = settings;
 
         this._proxy = new PowerManagerProxy(
             Gio.DBus.system,
@@ -156,16 +155,16 @@ class BatteryBar extends St.Bin{
         this.binding = this._proxy.connect('g-properties-changed', () => this._sync());
         this.connect('destroy', () => {this._proxy.disconnect(this.binding); this._proxy = null});
 
-        this.level = new LevelBar(this.settings);
+        this.level = new LevelBar(this._settings);
         this.icon = new St.Icon({ style_class: 'system-status-icon' });
 
         let box = new St.BoxLayout();
-        if(this.settings.get_int('battery-bar-icon-position') === 0){
-            if(this.settings.get_boolean('battery-bar-show-icon')) box.add_child(this.icon);
+        if(this._settings.get_int('battery-bar-icon-position') === 0){
+            if(this._settings.get_boolean('battery-bar-show-icon')) box.add_child(this.icon);
             box.add_child(this.level);
         }else{
             box.add_child(this.level);
-            if(this.settings.get_boolean('battery-bar-show-icon')) box.add_child(this.icon);
+            if(this._settings.get_boolean('battery-bar-show-icon')) box.add_child(this.icon);
         }
         this.set_child(box);
 
@@ -204,51 +203,50 @@ class BatteryBar extends St.Bin{
 });
 
 var Extension = class Extension{
-    constructor() {
-        this.panel = [
+    constructor(settings) {
+        this._settings = settings;
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
             Main.panel._rightBox
         ]
 
-        if(Main.panel.statusArea.quickSettings)
-            this.stockIndicator = Main.panel.statusArea.quickSettings._system;
-
-        if(Main.panel.statusArea.aggregateMenu)
-            this.stockIndicator = Main.panel.statusArea.aggregateMenu._power;
+        this.stockIndicator = Main.panel.statusArea.quickSettings._system;
     }
 
     enable(){
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::battery-bar-position', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-offset', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-show-icon', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-icon-position', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-padding-left', () => this.addToPanel());
-        this.settings.connect('changed::battery-bar-padding-right', () => this.addToPanel());
-        this.addToPanel();
+        this._settings.connectObject(
+            'changed::battery-bar-position',     this._addToPanel.bind(this),
+            'changed::battery-bar-offset',       this._addToPanel.bind(this),
+            'changed::battery-bar-show-icon',    this._addToPanel.bind(this),
+            'changed::battery-bar-icon-position',this._addToPanel.bind(this),
+            'changed::battery-bar-padding-left', this._addToPanel.bind(this),
+            'changed::battery-bar-padding-right',this._addToPanel.bind(this),
+            this                
+        );
+        this._addToPanel();
         this.stockIndicator.hide();
     }
 
     disable(){
-        this.settings = null;
-        this.panelButton.destroy();
-        this.panelButton = null;
+        this._settings.disconnectObject(this);
+        this._panelButton.destroy();
+        this._panelButton = null;
         this.stockIndicator.show();
     }
     
-    addToPanel(){
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
+    _addToPanel(){
+        if(this._panelButton){
+            this._panelButton.destroy();
+            this._panelButton = null;
         }
-        this.panelButton = new St.Bin({
-            child: new BatteryBar(this.settings)
+        this._panelButton = new St.Bin({
+            child: new BatteryBar(this._settings)
         });
 
-        let pos = this.settings.get_int('battery-bar-position');
-        let offset = this.settings.get_int('battery-bar-offset');
+        let pos = this._settings.get_int('battery-bar-position');
+        let offset = this._settings.get_int('battery-bar-offset');
 
-        this.panel[pos].insert_child_at_index(this.panelButton, offset);
+        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
     }
 }
