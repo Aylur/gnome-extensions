@@ -48,6 +48,8 @@ class OsdWidget extends St.Bin{
 
     _onDestroy(){
         this._setings.disconnectObject(this);
+        if (this._hideTimeoutId)
+            GLib.source_remove(this._hideTimeoutId);
     }
 
     _updateStyle(){
@@ -126,8 +128,10 @@ class OsdWidget extends St.Bin{
 
         if (this._hideTimeoutId)
             GLib.source_remove(this._hideTimeoutId);
+
         this._hideTimeoutId = GLib.timeout_add(
             GLib.PRIORITY_DEFAULT, HIDE_TIMEOUT, this._hide.bind(this));
+        
         GLib.Source.set_name_by_id(this._hideTimeoutId, '[gnome-shell] this._hide');
     }
 
