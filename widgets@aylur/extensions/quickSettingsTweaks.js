@@ -29,7 +29,7 @@ class QuickSettingsSystem extends St.BoxLayout{
         userBtn.style_class = 'icon-button user-btn';
         userBtn.set_child(new St.Widget({
             y_expand: true,
-            style_class: 'user-icon',
+            style_class: 'user-icon icon-button',
             style: `
                 background-image: url("/var/lib/AccountsService/icons/${GLib.get_user_name()}");
                 background-size: cover;`,

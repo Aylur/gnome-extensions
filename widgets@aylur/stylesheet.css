@@ -50,14 +50,14 @@
 .datemenu-levels{ spacing: 8px; }
 
 /* dynamic-panel */
-#panel.floating { padding: 8px; }
-#panel.floating .panel-button{
+#panel.dynamic.floating { padding: 8px; }
+#panel.dynamic.floating .panel-button{
     margin-top: 8px;
     margin-bottom: 8px;
 }
-#panel.floating #panelLeft{ margin-left: 8px; }
-#panel.floating #panelRight{ margin-right: 8px; }
-#panel.floating:overlaps{
+#panel.dynamic.floating #panelLeft{ margin-left: 8px; }
+#panel.dynamic.floating #panelRight{ margin-right: 8px; }
+#panel.dynamic.floating:floating{
     border-radius: 99px;
     box-shadow: inset 0 0 0 0 transparent;
     border: 8px solid transparent;

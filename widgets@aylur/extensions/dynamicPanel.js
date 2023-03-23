@@ -96,7 +96,7 @@ var Extension = class Extension{
         const panel_top = Panel.get_transformed_position()[1];
         const panel_bottom = panel_top + Panel.get_height();
         
-        let overlaps = true;
+        let overlaps = false;
         windows.forEach(window => {
             const monitor_index = window.get_monitor();
             const primary_index = Main.layoutManager.primaryMonitor.index;
@@ -105,13 +105,13 @@ var Extension = class Extension{
 
             const window_y_pos = window.get_frame_rect().y;
             if(window_y_pos < (panel_bottom + this._gaps) * scale)
-                overlaps = false;
+                overlaps = true;
         })
         this._overlap(overlaps);
     }
 
     _overlap(b){
-        b ? Main.panel.add_style_pseudo_class('overlaps')
-          : Main.panel.remove_style_pseudo_class('overlaps');
+        b ? Main.panel.remove_style_pseudo_class('floating')
+          : Main.panel.add_style_pseudo_class('floating');
     }
 }

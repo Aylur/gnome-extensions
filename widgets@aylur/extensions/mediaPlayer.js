@@ -69,6 +69,7 @@ const MediaButton = GObject.registerClass(
 class MediaButton extends PanelMenu.Button{
     _init(settings){
         super._init(0.5, 'Media Player', false);
+        this.add_style_class_name('panel-media-button');
         this.hide();
 
         let box = new St.BoxLayout();
@@ -273,7 +274,9 @@ var Extension = class Extension {
         pos = this._settings.get_int('media-player-controls-position');
         offset = this._settings.get_int('media-player-controls-offset');
         if(this._settings.get_boolean('media-player-enable-controls')){
-            this.controls = new MediaControls(this._settings.get_string('media-player-prefer'));
+            this.controls = new St.Bin ({
+                child: new MediaControls(this._settings.get_string('media-player-prefer')),
+            });
             this.panelBox[pos].insert_child_at_index(this.controls, offset);
         }
     }

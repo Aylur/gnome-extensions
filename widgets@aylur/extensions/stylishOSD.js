@@ -23,7 +23,7 @@ class OsdWidget extends St.Bin{
         this._level._fillLevel.add_style_pseudo_class('selected');
         this._level._fillLevel.set_child(this._iconBin);
         this._osdWindow = new St.Bin({
-            style_class: 'osd-window',
+            style_class: 'osd-window stylish-osd',
             child: this._level
         });
         this.set_child(this._osdWindow);
@@ -59,6 +59,8 @@ class OsdWidget extends St.Bin{
         let margin = this._setings.get_int('stylish-osd-margin');
         let radii = this._setings.get_int('stylish-osd-roundness');
         let iconSize = this._setings.get_int('stylish-osd-icon-size');
+
+        iconSize = Math.min(iconSize, (Math.min(width, height)-padding*2) );
 
         let cal = [
             Clutter.ActorAlign.START,
