@@ -412,6 +412,8 @@ class StylishOSDPage extends SubPage{
         group.add(new SwitchRow(_('Vertical'), settings, 'stylish-osd-vertical'));
         group.add(new SpinButtonRow(_('Width'), settings, 'stylish-osd-width', 4, 500, 2));
         group.add(new SpinButtonRow(_('Height'), settings, 'stylish-osd-height', 4, 500, 2));
+        group.add(new SpinButtonRow(_('Horizontal Offset'), settings, 'stylish-osd-margin-x', 0, 500, 2));
+        group.add(new SpinButtonRow(_('Vertical Offset'), settings, 'stylish-osd-margin-y', 0, 500, 2));
         group.add(new SpinButtonRow(_('Roundness'), settings, 'stylish-osd-roundness', 0, 250, 1));
         group.add(new SpinButtonRow(_('Padding'), settings, 'stylish-osd-padding', 0, 100, 1));
         group.add(new SpinButtonRow(_('Icon Size'), settings, 'stylish-osd-icon-size', 1, 250, 1));

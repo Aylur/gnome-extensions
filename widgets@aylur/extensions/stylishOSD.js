@@ -28,12 +28,14 @@ class OsdWidget extends St.Bin{
         });
         this.set_child(this._osdWindow);
 
-        this._setings = settings;
+        this._settings = settings;
         settings.connectObject(
             'changed::stylish-osd-position', this._updateStyle.bind(this),
             'changed::stylish-osd-vertical', this._updateStyle.bind(this),
             'changed::stylish-osd-width',    this._updateStyle.bind(this),
             'changed::stylish-osd-height',   this._updateStyle.bind(this),
+            'changed::stylish-osd-margin-x', this._updateStyle.bind(this),
+            'changed::stylish-osd-margin-y', this._updateStyle.bind(this),
             'changed::stylish-osd-padding',  this._updateStyle.bind(this),
             'changed::stylish-osd-roundness',this._updateStyle.bind(this),
             'changed::stylish-osd-icon-size',this._updateStyle.bind(this),
@@ -47,20 +49,21 @@ class OsdWidget extends St.Bin{
     }
 
     _onDestroy(){
-        this._setings.disconnectObject(this);
+        this._settings.disconnectObject(this);
         if (this._hideTimeoutId)
             GLib.source_remove(this._hideTimeoutId);
     }
 
     _updateStyle(){
-        let pos = this._setings.get_int('stylish-osd-position');
-        let vertical = this._setings.get_boolean('stylish-osd-vertical'); 
-        let width = this._setings.get_int('stylish-osd-width');    
-        let height = this._setings.get_int('stylish-osd-height');   
-        let padding = this._setings.get_int('stylish-osd-padding');
-        let margin = this._setings.get_int('stylish-osd-margin');
-        let radii = this._setings.get_int('stylish-osd-roundness');
-        let iconSize = this._setings.get_int('stylish-osd-icon-size');
+        let pos = this._settings.get_int('stylish-osd-position');
+        let vertical = this._settings.get_boolean('stylish-osd-vertical'); 
+        let width = this._settings.get_int('stylish-osd-width');    
+        let height = this._settings.get_int('stylish-osd-height');   
+        let padding = this._settings.get_int('stylish-osd-padding');
+        let margin_y = this._settings.get_int('stylish-osd-margin-y');
+        let margin_x = this._settings.get_int('stylish-osd-margin-x');
+        let radii = this._settings.get_int('stylish-osd-roundness');
+        let iconSize = this._settings.get_int('stylish-osd-icon-size');
 
         iconSize = Math.min(iconSize, (Math.min(width, height)-padding*2) );
 
@@ -91,7 +94,7 @@ class OsdWidget extends St.Bin{
         this._osdWindow.style = `
             border-radius: ${radii > 0 ? radii+padding : 0}px;
             padding: ${padding}px;
-            margin: ${margin}px;
+            margin: ${margin_y}px ${margin_x}px;
         `;
     }
 

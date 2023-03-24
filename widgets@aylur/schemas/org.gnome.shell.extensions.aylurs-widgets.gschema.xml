@@ -285,7 +285,8 @@
     <key name="stylish-osd-width" type="i">                  <default>60</default></key>
     <key name="stylish-osd-height" type="i">                 <default>300</default></key>
     <key name="stylish-osd-padding" type="i">                <default>3</default></key>
-    <key name="stylish-osd-margin" type="i">                 <default>40</default></key>
+    <key name="stylish-osd-margin-x" type="i">                 <default>40</default></key>
+    <key name="stylish-osd-margin-y" type="i">                 <default>40</default></key>
     <key name="stylish-osd-icon-size" type="i">              <default>36</default></key>
 
     <!-- quick-toggles -->
