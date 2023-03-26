@@ -302,7 +302,7 @@ class DateMenuTweakPage extends SubPage{
 var DynamicPanelPage = GObject.registerClass(
 class DynamicPanelPage extends SubPage{
     _init(settings){
-        super._init(_('Dynaimc Panel'), settings);
+        super._init(_('Dynamic Panel'), settings);
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
