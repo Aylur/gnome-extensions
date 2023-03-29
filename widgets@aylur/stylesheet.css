@@ -82,26 +82,29 @@
 .media-player > StBoxLayout{ padding: 14px; spacing: 8px; }
 .media-menu-box.full,
 .media-menu-box.full .media-player > StBoxLayout{ padding: 0; }
-.media-container .fade-from-top{
+
+.media-cover .no-fade{ padding: 6px; }
+.media-cover .fade-from-top{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
-    background-gradient-start: black;
+    background-gradient-start: rgba(0,0,0,0.5);
     background-gradient-end: transparent;
-    padding: 4px;
+    padding: 6px;
     padding-bottom: 18px;
 }
-.media-container .fade-from-bottom{
+.media-cover .fade-from-bottom{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
     background-gradient-start: transparent;
-    background-gradient-end: black;
+    background-gradient-end: rgba(0,0,0,0.5);
     padding-top: 18px;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
 }
-.media-container .fill{ background-color: rgba(0,0,0,0.5); padding: 6px; }
+.media-cover{
+    box-shadow: none;
+    border: none;
+}
 
-
-.media-cover{ padding: 0; margin: 0; border: none; box-shadow: none; }
 .media-container{ spacing: 8px; }
 .media-controls .message-media-control{ padding: 6px; margin: 0; }
 .media-controls .message-media-control StIcon{ icon-size: 24px; }

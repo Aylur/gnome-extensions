@@ -518,6 +518,7 @@ class MediaBox extends Media{
         this._connect('show-volume');
         this._connect('style');
         this._connect('prefer');
+        this._connect('fade');
 
         this.connect('updated', () => this._sync());
         this.connect('destroy', this._onDestroy.bind(this));
@@ -541,6 +542,7 @@ class MediaBox extends Media{
     _sync(){
         this.preferred = this.settings.get_string(`${this.settingName}-prefer`);
         this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
+        this.fade = this.settings.get_boolean(`${this.settingName}-fade`);
         let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
         let mpris = this.getPreferred();
         if(mpris){
@@ -598,18 +600,20 @@ class MediaBox extends Media{
         
         p.titleBox.width = p.mediaCover.width;
         let vbox = new St.BoxLayout({
+            style: `border-radius: ${this.coverRadius-1}px;`,
+            style_class: `${this.fade ? "" : "no-fade"}`,
             vertical: true,
             x_expand: true,
             y_expand: true,
         });
         if(this.textPosition == 0){
-            p.titleBox.add_style_class_name('fade-from-top');
+            if(this.fade) p.titleBox.add_style_class_name('fade-from-top');
             p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
             if(this.showText) vbox.add_child(p.titleBox);
             vbox.add_child(new St.Widget({ y_expand: true }));
         }
         else{
-            p.titleBox.add_style_class_name('fade-from-bottom');
+            if(this.fade) p.titleBox.add_style_class_name('fade-from-bottom');
             p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             vbox.add_child(new St.Widget({ y_expand: true }));
             if(this.showText) vbox.add_child(p.titleBox);
@@ -640,20 +644,26 @@ class MediaBox extends Media{
         p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
         p.controlsBox.add_child(new St.Widget({ x_expand: true }));
         p.titleBox.width = p.mediaCover.width;
-        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        let vbox = new St.BoxLayout({
+            style: `border-radius: ${this.coverRadius-1}px;`,
+            style_class: `${this.fade ? "" : "no-fade"}`,
+            vertical: true,
+            x_expand: true,
+            y_expand: true
+        });
         if(this.textPosition == 0){
-            p.titleBox.add_style_class_name('fade-from-top');
+            if(this.fade)  p.titleBox.add_style_class_name('fade-from-top');
             p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-            p.controlsBox.add_style_class_name('fade-from-bottom');
+            if(this.fade)  p.controlsBox.add_style_class_name('fade-from-bottom');
             p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             if(this.showText) vbox.add_child(p.titleBox);
             vbox.add_child(new St.Widget({ y_expand: true }));
             vbox.add_child(p.controlsBox);
         }
         else{
-            p.controlsBox.add_style_class_name('fade-from-top');
+            if(this.fade)  p.controlsBox.add_style_class_name('fade-from-top');
             p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-            p.titleBox.add_style_class_name('fade-from-bottom');
+            if(this.fade)  p.titleBox.add_style_class_name('fade-from-bottom');
             p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             vbox.add_child(p.controlsBox);
             vbox.add_child(new St.Widget({ y_expand: true }));

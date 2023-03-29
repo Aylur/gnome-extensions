@@ -157,6 +157,7 @@
     <key name="dash-media-text-position" type="i">           <default>1</default></key>
     <key name="dash-media-show-volume" type="b">             <default>true</default></key>
     <key name="dash-media-prefer" type="s">                  <default>"spotify"</default></key>
+    <key name="dash-media-fade" type="b">                    <default>true</default></key>
 
     <key name="dash-settings-x-align" type="i">              <default>0</default></key>
     <key name="dash-settings-y-align" type="i">              <default>0</default></key>
@@ -220,6 +221,7 @@
     <key name="date-menu-media-text-align" type="i">         <default>1</default></key>
     <key name="date-menu-media-text-position" type="i">      <default>0</default></key>
     <key name="date-menu-media-show-volume" type="b">        <default>false</default></key>
+    <key name="date-menu-media-fade" type="b">               <default>true</default></key>
     <key name="date-menu-media-prefer" type="s">             <default>"firefox"</default></key>
 
     <!-- dynamic-panel -->
@@ -240,6 +242,7 @@
     <key name="media-player-position" type="i">              <default>1</default></key>
     <key name="media-player-offset" type="i">                <default>0</default></key>
     <key name="media-player-prefer" type="s">                <default>"spotify"</default></key>
+    <key name="media-player-fade" type="b">                  <default>true</default></key>
     <key name="media-player-style" type="i">                 <default>0</default></key>
     <key name="media-player-controls-position" type="i">     <default>1</default></key>
     <key name="media-player-controls-offset" type="i">       <default>0</default></key>
@@ -307,6 +310,7 @@
     <key name="quick-settings-media-prefer-one" type="b">                 <default>false</default></key>
     <key name="quick-settings-media-prefer" type="s">                     <default>"spotify"</default></key>
     <key name="quick-settings-media-style" type="i">                      <default>1</default></key>
+    <key name="quick-settings-media-fade" type="b">                       <default>true</default></key>
     <key name="quick-settings-media-cover-roundness" type="i">            <default>13</default></key>
     <key name="quick-settings-media-cover-width" type="i">                <default>70</default></key>
     <key name="quick-settings-media-cover-height" type="i">               <default>70</default></key>

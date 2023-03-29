@@ -425,6 +425,7 @@ class MultiMediaBox extends MediaBox{
 
     _sync(){
         this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
+        this.fade = this.settings.get_boolean(`${this.settingName}-fade`);
         let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
         let mprisList = this.getPlayers();
         if(mprisList.length === 0) this._onNoPlayer();

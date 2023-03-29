@@ -81,7 +81,7 @@ var Extension = class Extension{
 
     _sync(){
         if(Main.panel.has_style_pseudo_class('overview'))
-            return this._overlap(false);
+            return this._overlap(true);
         
         const workspace = global.workspace_manager.get_active_workspace();
         const windows = workspace.list_windows().filter(window =>

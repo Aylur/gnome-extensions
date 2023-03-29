@@ -12,6 +12,7 @@ const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const MEDIA_SUBTITLE = _("Doesn't work with every media player");
 const MEDIA_SUBTITLE2 = _("Doesn't work on every style");
+const MEDIA_SUBTITLE_FADE = _('Fading behind controls buttons and title.')
 
 const SubPage = GObject.registerClass(
 class SubPage extends Gtk.Box{
@@ -164,6 +165,7 @@ class DashBoardPage extends SubPage{
         media.add_row(new SpinButtonRow(_('Cover Width'), settings, 'dash-media-cover-width', 100, 800, 5));
         media.add_row(new SpinButtonRow(_('Cover Height'), settings, 'dash-media-cover-height', 100, 800, 5));
         media.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'dash-media-cover-roundness', 0, 48, 1));
+        media.add_row(new SwitchRow(_('Fade'), settings, 'dash-media-fade', MEDIA_SUBTITLE_FADE));
             let textExpander = new ExpanderRow(_('Show Title'), settings, 'date-menu-media-show-text');
             textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'date-menu-media-text-align', [_('Left'), _('Center'), _('Right')]));
             textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'date-menu-media-text-position', [_('Top'), _('Bot')], MEDIA_SUBTITLE2));
@@ -252,6 +254,7 @@ class DateMenuTweakPage extends SubPage{
         mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'date-menu-media-cover-width', 100, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'date-menu-media-cover-height', 100, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'date-menu-media-cover-roundness', 0, 48, 1));
+        mediaExpander.add_row(new SwitchRow(_('Fade'), settings, 'date-menu-media-fade', MEDIA_SUBTITLE_FADE));
             let textExpander = new ExpanderRow(_('Show Title'), settings, 'date-menu-media-show-text');
             textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'date-menu-media-text-align', [_('Left'),_('Center'),_('Right')]));
             textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'date-menu-media-text-position', [_('Top'),_('Bot')], MEDIA_SUBTITLE2));
@@ -349,6 +352,7 @@ class MediaPlayerPage extends SubPage{
         playerGroup.add(new SpinButtonRow(_('Cover Roundness'), settings, 'media-player-cover-roundness', 1, 99, 1));
         playerGroup.add(new SpinButtonRow(_('Cover Width'), settings, 'media-player-cover-width', 50, 500, 2));
         playerGroup.add(new SpinButtonRow(_('Cover Height'), settings, 'media-player-cover-height', 50, 500, 2));
+        playerGroup.add(new SwitchRow(_('Fade'), settings, 'media-player-fade', MEDIA_SUBTITLE_FADE));
         let textExpander = new ExpanderRow(_('Show Title'), settings, 'media-player-show-text');
         textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'media-player-text-align', [_('Left'),_('Center'),_('Right')]));
         textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'media-player-text-position', [_('Top'),_('Bot')], MEDIA_SUBTITLE2));
@@ -607,6 +611,7 @@ class QuickSettingsTweaksPage extends SubPage{
         mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'quick-settings-media-cover-roundness', 0, 42, 1));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'quick-settings-media-cover-width', 40, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'quick-settings-media-cover-height', 40, 300, 5));
+        mediaExpander.add_row(new SwitchRow(_('Fade'), settings, 'quick-settings-media-fade', MEDIA_SUBTITLE_FADE));
             let titleExpander = new ExpanderRow(_('Show Title'), settings, 'quick-settings-media-show-text');
             titleExpander.add_row(new DropDownRow(_('Title Align'), settings, 'quick-settings-media-text-align', [_('Left'), _('Center'), _('Right')]));
             titleExpander.add_row(new DropDownRow(_('Title Position'), settings, 'quick-settings-media-text-position', [_('Top'), _('Bottom')]));
