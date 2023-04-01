@@ -39,7 +39,7 @@ class QuickSettingsSystem extends St.BoxLayout{
             vertical: true,
             y_align: Clutter.ActorAlign.CENTER
         });
-        greetBox.add_child(new St.Label({ text: GLib.get_user_name() }));
+        greetBox.add_child(new St.Label({ text: GLib.get_real_name() != "" ? GLib.get_real_name() : GLib.get_user_name() }));
         greetBox.add_child(new St.Label({ text: this._greet() }));
 
         this.add_child(userBtn);
