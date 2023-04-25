@@ -159,7 +159,7 @@ class SystemActionsBox extends St.BoxLayout{
 
     _addBtn(iconName, callback){
         let btn = new St.Button({
-            style_class: 'button quick-toggle',
+            style_class: 'icon-button button quick-toggle',
             x_expand: true,
             child: new St.Icon({
                 icon_name: iconName
