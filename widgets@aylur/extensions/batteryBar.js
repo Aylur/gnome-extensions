@@ -223,10 +223,9 @@ var Extension = class Extension{
             this._panelButton = null;
         }
 
+        this._panelButton = new BatteryBar(this._settings);
         let pos = this._settings.get_int('battery-bar-position');
         let offset = this._settings.get_int('battery-bar-offset');
-
-        this._panelButton = new BatteryBar(this._settings);
         Main.panel.addToStatusArea('Battery Bar', this._panelButton, offset, this.pos[pos]);
     }
 }

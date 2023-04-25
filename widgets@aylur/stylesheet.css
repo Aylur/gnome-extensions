@@ -65,10 +65,7 @@
 }
 
 /* notification-indicator */
-.notification-indicator StIcon{
-    padding: 0;
-    margin: 0;
-}
+.notification-indicator StIcon{ padding: 0; margin: 0; }
 .notification-indicator > StBoxLayout{ spacing: 4px; }
 .notifications-placeholder > StIcon{ icon-size: 68px; }
 .notifications-placeholder { padding: 12px; }
@@ -113,7 +110,7 @@
 .media-container .media-title-box{ padding-left: 6px; padding-right: 6px;}
 
 /* power-menu */
-.power-menu-panel-button StIcon{ padding-top: 0; padding-bottom: 0; }
+.power-menu-panel-button StIcon{ padding: 0; margin: 0; }
 .power-menu-panel-button:hover{ color: #f66151; }
 .power-menu-panel-button:active{ color: #e01b24; }
 .power-menu .button{ padding: 0; }

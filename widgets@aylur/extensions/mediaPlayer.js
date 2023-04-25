@@ -130,20 +130,21 @@ class MediaButton extends PanelMenu.Button{
 });
 
 const MediaControls = GObject.registerClass(
-class MediaControls extends St.BoxLayout{
+class MediaControls extends PanelMenu.Button{
     _init(preferred){
-        super._init({
-            visible: false,
-            style_class: 'panel-media-controls'
-        });
+        super._init(0, 'Media Controls', true);
+        this.style_class = 'panel-media-controls';
+        this.visible = false;
 
         this.prevBtn = this._addButton('media-skip-backward-symbolic', () => this.player.previous());
         this.playBtn = this._addButton('media-playback-start-symbolic', () => this.player.playPause());
         this.nextBtn = this._addButton('media-skip-forward-symbolic', () => this.player.next());
 
-        this.add_child(this.prevBtn);
-        this.add_child(this.playBtn);
-        this.add_child(this.nextBtn);
+        let box = new St.BoxLayout();
+        this.add_child(box);
+        box.add_child(this.prevBtn);
+        box.add_child(this.playBtn);
+        box.add_child(this.nextBtn);
 
         this.media = new Media.Media({}, preferred);
         this.media.connect('updated', () => this._sync());
@@ -213,11 +214,6 @@ var Extension = class Extension {
             'center',
             'right'
         ];
-        this.panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
-        ]
     }
 
     enable() {
@@ -274,10 +270,8 @@ var Extension = class Extension {
         pos = this._settings.get_int('media-player-controls-position');
         offset = this._settings.get_int('media-player-controls-offset');
         if(this._settings.get_boolean('media-player-enable-controls')){
-            this.controls = new St.Bin ({
-                child: new MediaControls(this._settings.get_string('media-player-prefer')),
-            });
-            this.panelBox[pos].insert_child_at_index(this.controls, offset);
+            this.controls = new MediaControls(this._settings.get_string('media-player-prefer'));
+            Main.panel.addToStatusArea('Media Controls', this.controls, offset, this.pos[pos]);
         }
     }
 }

@@ -3,6 +3,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const SystemActions = imports.misc.systemActions;
 const ModalDialog = imports.ui.modalDialog;
+const PanelMenu = imports.ui.panelMenu;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
@@ -169,17 +170,16 @@ class PowerDialog extends ModalDialog.ModalDialog{
 });
 
 const PowerMenu = GObject.registerClass(
-class PowerMenu extends St.Button {
+class PowerMenu extends PanelMenu.Button {
     _init(settings) {
-        super._init({
-            style_class: 'panel-button power-menu-panel-button',
-            child: new St.Icon({
-                icon_name: 'system-shutdown-symbolic',
-                style_class: 'system-status-icon',
-            })
-        });
-
+        super._init(0, 'Power Menu', true);
         this._settings = settings;
+
+        this.add_style_class_name('power-menu-panel-button');
+        this.add_child(new St.Icon({
+            icon_name: 'system-shutdown-symbolic',
+            style_class: 'system-status-icon',
+        }));
 
         this.connect('button-press-event',
             () => this._showDialog());
@@ -199,10 +199,10 @@ class PowerMenu extends St.Button {
 var Extension = class Extension {
     constructor(settings) {
         this._settings = settings;
-        this._panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
+        this.pos = [
+            'left',
+            'center',
+            'right'
         ];
     }
 
@@ -226,12 +226,9 @@ var Extension = class Extension {
             this._panelButton = null;
         }
 
-        this._panelButton = new St.Bin({
-            child: new PowerMenu(this._settings)
-        });
-
+        this._panelButton = new PowerMenu(this._settings);
         let pos = this._settings.get_int('power-menu-position');
         let offset = this._settings.get_int('power-menu-offset');
-        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
+        Main.panel.addToStatusArea('Power Menu', this._panelButton, offset, this.pos[pos]);
     }
 }

@@ -1,6 +1,7 @@
 const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
 const Widgets = Me.imports.shared.dashWidgets;
 const ConfigParser = Me.imports.shared.dashConfigParser;
 
@@ -138,12 +139,13 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 });
 
 const DashBoardPanelButton = GObject.registerClass(
-class DashBoardPanelButton extends St.Button{
+class DashBoardPanelButton extends PanelMenu.Button{
     _init(settings){
-        super._init({ style_class: 'panel-button dashboard-button' });
+        super._init(0, 'Dash Board', true);
         this._settings = settings;
+        this.add_style_class_name('dashboard-button');
         let box = new St.BoxLayout();
-        this.set_child(box);
+        this.add_child(box);
 
         this._buttonIcon = new St.Icon({ style_class: 'system-status-icon' });
         this._buttonLabel = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
@@ -160,7 +162,7 @@ class DashBoardPanelButton extends St.Button{
         );
 
         this.connect('destroy', () => this._onDestroy() );
-        this.connect('clicked', () => this._toggleDash() );
+        this.connect('button-press-event', () => this._toggleDash() );
         this._sync();
 
         Main.wm.addKeybinding('dash-shortcut', this._settings,
@@ -224,10 +226,10 @@ class DashBoardPanelButton extends St.Button{
 var Extension = class Extension {
     constructor(settings) {
         this._settings = settings;
-        this._panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
+        this.pos = [
+            'left',
+            'center',
+            'right'
         ];
         this.activities = Main.panel.statusArea.activities.get_parent();
     }
@@ -267,12 +269,9 @@ var Extension = class Extension {
             this._panelButton = null;
         }
 
-        this._panelButton = new St.Bin({
-            child: new DashBoardPanelButton(this._settings)
-        }); 
-
+        this._panelButton = new DashBoardPanelButton(this._settings);
         let pos = this._settings.get_int('dash-button-position');
         let offset = this._settings.get_int('dash-button-offset');
-        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
+        Main.panel.addToStatusArea('Dash Board', this._panelButton, offset, this.pos[pos]);
     }
 }

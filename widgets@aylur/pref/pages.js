@@ -435,6 +435,7 @@ class WorkspaceIndicatorPage extends SubPage{
         group.add(new PositionRow(_('Position'), settings, 'workspace-indicator-position', 'workspace-indicator-offset'));
         group.add(new SwitchRow(_('Show Names'), settings, 'workspace-indicator-show-names'));
         group.add(new DropDownRow(_('Style'), settings, 'workspace-indicator-style', [_('Joined'), _('Seperated')]));
+        group.add(new SpinButtonRow(_('Spacing'), settings, 'workspace-indicator-spacing', 0, 100, 1));
         group.add(new EntryRow(_('Active Name'), settings, 'workspace-indicator-active-name', _('Empty to disable')));
 
         this.add(new wsNamesGroup());
@@ -454,7 +455,7 @@ class NotificationIndicatorPage extends SubPage{
 
         const menuGroup = new Adw.PreferencesGroup({ title: _('Menu'), description: _('Does not work if the position is set to System Indicators') });
         this.add(menuGroup);
-        menuGroup.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10, ));
+        menuGroup.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10));
         menuGroup.add(new SwitchRow(_('Show Do Not Disturb'), settings, 'notification-indicator-show-dnd'));
 
         const iconsGroup = new Adw.PreferencesGroup({ title: _('Icons') })

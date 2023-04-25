@@ -80,7 +80,7 @@
     <key name="dash-button-position" type="i">               <default>0</default></key>
     <key name="dash-button-offset" type="i">                 <default>0</default></key>
     <key name="dash-button-enable" type="b">                 <default>true</default></key>
-    <key name="dash-button-label" type="s">                  <default>"  Dash  "</default></key>
+    <key name="dash-button-label" type="s">                  <default>"Dash"</default></key>
     <key name="dash-button-icon-path" type="s">              <default>""</default></key>
     <key name="dash-button-show-icon" type="b">              <default>false</default></key>
     <key name="dash-shortcut" type="as">                     <default><![CDATA[['<Super>d']]]></default></key>
@@ -278,6 +278,7 @@
     <key name="workspace-indicator-position" type="i">       <default>0</default></key>
     <key name="workspace-indicator-offset" type="i">         <default>2</default></key>
     <key name="workspace-indicator-style" type="i">          <default>0</default></key>
+    <key name="workspace-indicator-spacing" type="i">        <default>2</default></key>
     <key name="workspace-indicator-show-names" type="b">     <default>false</default></key>
     <key name="workspace-indicator-active-name" type="s">    <default>""</default></key>
 
@@ -288,8 +289,8 @@
     <key name="stylish-osd-width" type="i">                  <default>60</default></key>
     <key name="stylish-osd-height" type="i">                 <default>300</default></key>
     <key name="stylish-osd-padding" type="i">                <default>3</default></key>
-    <key name="stylish-osd-margin-x" type="i">                 <default>40</default></key>
-    <key name="stylish-osd-margin-y" type="i">                 <default>40</default></key>
+    <key name="stylish-osd-margin-x" type="i">               <default>40</default></key>
+    <key name="stylish-osd-margin-y" type="i">               <default>40</default></key>
     <key name="stylish-osd-icon-size" type="i">              <default>36</default></key>
 
     <!-- quick-toggles -->
