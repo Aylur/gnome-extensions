@@ -1,6 +1,7 @@
 const { GObject, St, Clutter, Gio, UPowerGlib: UPower } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
 const { LevelBar } = Me.imports.shared.levelBar
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
@@ -100,12 +101,11 @@ class BatteryLevelBar extends LevelBar{
 });
 
 const BatteryBar = GObject.registerClass(
-class BatteryBar extends St.BoxLayout{
+class BatteryBar extends PanelMenu.Button{
     _init(settings){
-        super._init({
-            style_class: 'battery-bar panel-button',
-            reactive: true
-        });
+        super._init(0, 'Battery Bar', true);
+        this.reactive = false;
+        this.add_style_class_name('battery-bar');
         this._settings = settings;
 
         this._proxy = new PowerManagerProxy(
@@ -118,9 +118,11 @@ class BatteryBar extends St.BoxLayout{
             this
         );
 
+        this._box = new St.BoxLayout();
         this._level = new BatteryLevelBar(this._settings);
         this._icon = new St.Icon({ style_class: 'system-status-icon' });
-        this.add_child(this._level);
+        this._box.add_child(this._level);
+        this.add_child(this._box);
 
         this._settings.connectObject(
             'changed::battery-bar-show-icon',    this._updateStyle.bind(this),
@@ -147,13 +149,13 @@ class BatteryBar extends St.BoxLayout{
     }
 
     _updateStyle(){
-        this.remove_child(this._icon);
+        this._box.remove_child(this._icon);
 
         let iconPos = this._settings.get_int('battery-bar-icon-position');
         let showIcon = this._settings.get_boolean('battery-bar-show-icon');
         
         this._icon.visible = showIcon;
-        this.insert_child_at_index(this._icon, iconPos);
+        this._box.insert_child_at_index(this._icon, iconPos);
         
         this.style = `
             padding-left:  ${this._settings.get_int('battery-bar-padding-left')}px;
@@ -190,12 +192,11 @@ class BatteryBar extends St.BoxLayout{
 var Extension = class Extension{
     constructor(settings) {
         this._settings = settings;
-        this._panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
+        this.pos = [
+            'left',
+            'center',
+            'right'
         ];
-
         this.stockIndicator = Main.panel.statusArea.quickSettings._system;
     }
 
@@ -222,12 +223,10 @@ var Extension = class Extension{
             this._panelButton = null;
         }
 
-        this._panelButton = new St.Bin({
-            child: new BatteryBar(this._settings)
-        });
-
         let pos = this._settings.get_int('battery-bar-position');
         let offset = this._settings.get_int('battery-bar-offset');
-        this._panelBox[pos].insert_child_at_index(this._panelButton, offset);
+
+        this._panelButton = new BatteryBar(this._settings);
+        Main.panel.addToStatusArea('Battery Bar', this._panelButton, offset, this.pos[pos]);
     }
 }
