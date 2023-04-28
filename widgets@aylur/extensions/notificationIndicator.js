@@ -1,12 +1,68 @@
-'use strict';
-
 const { GObject, St, Clutter, Gio } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
 const { NotificationList } = Me.imports.shared.notificationList;
+
+const IconsIndicator = GObject.registerClass(
+class IconsIndicator extends St.BoxLayout{
+    _init(settings){
+        super._init();
+
+        this.maxIcons = settings.get_int('notification-indicator-max-icons');
+        settings.connect('changed::notification-indicator-max-icons', () => {
+            this.maxIcons = settings.get_int('notification-indicator-max-icons');
+            this.sync();
+        });
+
+        this._bannerSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.notifications' });
+        this._bannerSettings.connect('changed::show-banners', this.sync.bind(this));
+
+        this.list = Main.panel.statusArea.dateMenu._messageList._notificationSection._list;
+        this.list.connectObject(
+            'actor-added', this.sync.bind(this),
+            'actor-removed', this.sync.bind(this),
+            this
+        );
+        this.sync();
+
+        this.connect('destroy', () => {
+            this.list.disconnectObject(this);
+            this._bannerSettings = null;
+        });
+    }
+
+    sync(){
+        this.destroy_all_children();
+
+        let count = 0;
+        if(!this._bannerSettings.get_boolean('show-banners')){
+            this.add_child(new St.Icon({
+                icon_name: 'notifications-disabled-symbolic',
+                style_class: 'system-status-icon'
+            }));
+            count++;
+        }
+
+        this.list.get_children().forEach(message => {
+            if(count < this.maxIcons)
+                this.add_child(new St.Icon({
+                    gicon: message.child._getIcon().gicon,
+                    style_class: 'system-status-icon notification-indicator-icon'
+                }));
+            count++;
+        });
+
+        if(count > this.maxIcons)
+            this.add_child(new St.Label({
+                text: '...',
+                y_align: Clutter.ActorAlign.CENTER
+            }))
+
+        this.visible = count > 0;
+    }
+});
 
 const Indicator = GObject.registerClass(
 class Indicator extends St.BoxLayout{
@@ -26,7 +82,7 @@ class Indicator extends St.BoxLayout{
         );
 
         this._bannerSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.notifications' });
-        let bind = this._bannerSettings.connect('changed::show-banners', () => this._syncIcon());
+        this._bannerSettings.connect('changed::show-banners', () => this._syncIcon());
         
         this.settings = settings;
         this.settings.connectObject(
@@ -34,15 +90,20 @@ class Indicator extends St.BoxLayout{
             'changed::notification-indicator-hide-on-zero', () => this._syncCounter(),
             this
         );
-        this._syncIcon();
-        this._syncCounter();
 
         this.connect('destroy', () => {
             this.list._list.disconnectObject(this);
             this.settings.disconnectObject(this);
-            this._bannerSettings.disconnect(bind);
             this._bannerSettings = null;
         });
+
+        this.sync();
+    }
+
+    sync(){
+        this._syncIndicatorVisibility();
+        this._syncIcon();
+        this._syncCounter();
     }
 
     _syncIndicatorVisibility(){
@@ -82,16 +143,18 @@ class PanelButton extends PanelMenu.Button{
         super._init(0.5, 'Notifications', false);
 
         this.add_style_class_name('notification-indicator');
-        this.indicator = new Indicator(settings);
+
+        settings.get_int('notification-indicator-style') === 1 ?
+            this.indicator = new IconsIndicator(settings):
+            this.indicator = new Indicator(settings);
         this.add_child(this.indicator);
 
         this.bind_property('visible',
             this.indicator, 'visible',
         GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL);
 
-        this.indicator._syncCounter();
+        this.indicator.sync();
 
-        //UI
         this.list = new NotificationList(settings.get_boolean('notification-indicator-show-dnd'));
         this.menu.box.add_child(this.list);
         settings.connect('changed::notification-indicator-show-dnd', () => {
@@ -110,53 +173,54 @@ class PanelButton extends PanelMenu.Button{
 });
 
 var Extension = class Extension{
-    constructor(){
-        this.pos = [
+    constructor(settings){
+        this._settings = settings;
+        this._pos = [
             'left',
             'center',
             'right'
         ];
-        this.panelBox = [
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
             Main.panel._rightBox
-        ]
+        ];
     }
 
     enable(){
-        this.settings = ExtensionUtils.getSettings();
-
-        this.settings.connect('changed::notification-indicator-position', () => this.reload());
-        this.settings.connect('changed::notification-indicator-offset', () => this.reload());
-        this.reload();
+        this._settings.connectObject(
+            'changed::notification-indicator-position', this._reload.bind(this),
+            'changed::notification-indicator-offset',   this._reload.bind(this),
+            'changed::notification-indicator-style',    this._reload.bind(this),
+            this
+        );
+        this._reload();
     }
 
     disable(){
-        this.settings = null;
-        this.indicator.destroy();
-        this.indicator = null;
+        this._indicator.destroy();
+        this._indicator = null;
+        this._settings.disconnectObject(this);
     }
 
-    reload(){
-        if(this.indicator){
-            this.indicator.destroy();
-            this.indicator = null;
+    _reload(){
+        if(this._indicator){
+            this._indicator.destroy();
+            this._indicator = null;
         }
 
-        let position = this.settings.get_int('notification-indicator-position');
-        let offset = this.settings.get_int('notification-indicator-offset');
+        let pos = this._settings.get_int('notification-indicator-position');
+        let offset = this._settings.get_int('notification-indicator-offset');
 
-        if(position === 3){
-            this.indicator = new Indicator(this.settings);
+        if(pos === 3){
+            this._settings.get_int('notification-indicator-style') === 1
+                ? this._indicator = new IconsIndicator(this._settings)
+                : this._indicator = new Indicator(this._settings);
 
-            if(Main.panel.statusArea.quickSettings)
-                Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this.indicator, offset);
-    
-            if(Main.panel.statusArea.aggregateMenu)
-                Main.panel.statusArea.aggregateMenu._indicators.insert_child_at_index(this.indicator, offset);
+            Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(this._indicator, offset);
         }else{
-            this.indicator = new PanelButton(this.settings);
-            Main.panel.addToStatusArea('Notifications', this.indicator, offset, this.pos[position]);
+            this._indicator = new PanelButton(this._settings);
+            Main.panel.addToStatusArea('Notifications', this._indicator, offset, this._pos[pos]);
         }
     }
 }

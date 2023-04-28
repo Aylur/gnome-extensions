@@ -1,0 +1,94 @@
+{
+    "x_align": "CENTER",
+    "y_align": "CENTER",
+    "x_offset": 0,
+    "y_offset": 0,
+    "darken": true,
+
+    "vertical": true,
+    "children": [
+        {
+            "vertical": false,
+            "x_align": "FILL",
+            "x_expand": true,
+            "children": [
+                "clock",
+                "settings",
+                "system"
+            ]
+        },
+        {
+            "vertical": false,
+            "children": [
+                {
+                    "vertical": true,
+                    "children": [
+                        "media",
+                        "links"
+                    ]
+                },
+                "apps"
+            ]
+        },
+        {
+            "vertical": false,
+            "children": [
+                "user",
+                "levels"
+            ]
+        }
+    ],
+    "modules" : {
+        "clock": {
+            "x_align": "FILL",
+            "y_align": "FILL",
+            "x_expand": true,
+            "vertical": false,
+            "background": false,
+            "width": 200
+        },
+        "settings": {
+            "icon_size": 34,
+            "vertical": false
+        },
+        "system": {
+            "icon_size": 34,
+            "background": true,
+            "layout": 0
+        },
+        "media": {
+            "style": 1,
+            "cover_width": 200,
+            "cover_height": 200
+        },
+        "links": {
+            "vertical": false,
+            "icon_size": 58,
+            "urls": {
+                "reddit": "https://www.reddit.com/",
+                "youtube": "https://www.youtube.com/",
+                "gmail": "https://www.gmail.com/",
+                "github": "https://www.github.com/"
+            }
+        },
+        "apps": {
+            "rows": 3,
+            "cols": 3,
+            "icon_size": 34
+        },
+        "user": {
+            "x_align": "CENTER",
+            "y_align": "CENTER",
+            "x_expand": false,
+            "vertical": true,
+            "icon_roundness": 99,
+            "background": false
+        },
+        "levels": {
+            "vertical": false,
+            "background": true,
+            "x_expand": true,
+            "x_align": "FILL"
+        }
+    }
+}

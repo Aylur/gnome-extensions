@@ -1,11 +1,11 @@
 .level-bar{
-    height: 16px; /* horizontal width */
-    width: 16px; /* vertical width */
-    border-radius: 8px;
+    height: 14px; /* horizontal width */
+    width: 14px; /* vertical width */
+    border-radius: 7px;
     margin: 0;
 }
 .level-fill{
-    border-radius: 8px;
+    border-radius: 7px;
     border: none;
     box-shadow: none;
 }
@@ -21,20 +21,16 @@
 .battery-bar StIcon{ padding-top: 0; padding-bottom: 0; }
 
 /* Dash Board */
-#panel .dashboard StIcon{ padding-top: 0; padding-bottom: 0; }
-.dashboard-content{ margin: 20px; }
-.dashboard .events-button{ margin: 0; }
-.dashboard .container{ spacing: 16px; }
-.dashboard .user-box .text-box{ min-width: 120px; }
-.dashboard .user-icon-button{ padding: 0; }
-.dashboard .clock{ font-size: 2.4em; min-width: 3em; text-align: center; }
-.dashboard .day{ text-align: center; }
-.dashboard .date{ min-width: 6em; text-align: center; }
-.dashboard .message-media-control{ padding: 8px; margin: 0;}
+#panel .dashboard-button StIcon{ padding-top: 0; padding-bottom: 0; }
+.dashboard > *:first-child{ margin: 0; }
+.dashboard { padding: 18px; }
+.dashboard .container{ spacing: 12px; }
 .dashboard .popup-menu-item{ padding: 8px; margin: 0;}
-.dashboard .fade-from-bottom,
-.dashboard .fade-from-top{ border: none; box-shadow: none; margin: 0; }
-.dashboard .events-button.full{ padding: 0; }
+.dashboard .message-media-control{ padding: 8px; margin: 0;}
+.dashboard .events-button{ margin: 0; padding: 8px; }
+.dashboard .user-icon-button{ padding: 2px; }
+.dashboard .clock{ font-size: 2.4em; }
+.dashboard .day{ text-align: center; }
 
 /* date-menu-mod */
 #panel .panel-button.clock-display{
@@ -53,40 +49,59 @@
 .datemenu-user > StButton > StWidget{ border-radius: 99px; }
 .datemenu-levels{ spacing: 8px; }
 
-/* notification-indicator */
-.notification-indicator StIcon{
-    padding: 0;
-    margin: 0;
+/* dynamic-panel */
+#panel.dynamic.floating { padding: 8px; }
+#panel.dynamic.floating .panel-button{
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
+#panel.dynamic.floating #panelLeft{ margin-left: 8px; }
+#panel.dynamic.floating #panelRight{ margin-right: 8px; }
+#panel.dynamic.floating:floating{
+    border-radius: 99px;
+    box-shadow: inset 0 0 0 0 transparent;
+    border: 8px solid transparent;
+    padding: 0;
+}
+
+/* notification-indicator */
+.notification-indicator StIcon{ padding: 0; margin: 0; }
 .notification-indicator > StBoxLayout{ spacing: 4px; }
 .notifications-placeholder > StIcon{ icon-size: 68px; }
 .notifications-placeholder { padding: 12px; }
+.notification-indicator-icon{ -st-icon-style: symbolic; }
 
 /* media */
 .panel-media-controls StIcon{ padding-top: 0; padding-bottom: 0; }
+.panel-player-icon { padding-left: 0; padding-right: 0; }
+.panel-player-icon.left  { margin-left: 0; }
+.panel-player-icon.right { margin-right: 0; }
 .media-player > StBoxLayout{ padding: 14px; spacing: 8px; }
 .media-menu-box.full,
 .media-menu-box.full .media-player > StBoxLayout{ padding: 0; }
-.media-container .fade-from-top{
+
+.media-cover .no-fade{ padding: 6px; }
+.media-cover .fade-from-top{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
-    background-gradient-start: black;
+    background-gradient-start: rgba(0,0,0,0.5);
     background-gradient-end: transparent;
-    padding: 4px;
+    padding: 6px;
     padding-bottom: 18px;
 }
-.media-container .fade-from-bottom{
+.media-cover .fade-from-bottom{
     background-color: rgba(0,0,0,0.01);
     background-gradient-direction: vertical;
     background-gradient-start: transparent;
-    background-gradient-end: black;
+    background-gradient-end: rgba(0,0,0,0.5);
     padding-top: 18px;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
 }
-.media-container .fill{ background-color: rgba(0,0,0,0.5); padding: 6px; }
+.media-cover{
+    box-shadow: none;
+    border: none;
+}
 
-
-.media-cover{ padding: 0; margin: 0; border: none; box-shadow: none; }
 .media-container{ spacing: 8px; }
 .media-controls .message-media-control{ padding: 6px; margin: 0; }
 .media-controls .message-media-control StIcon{ icon-size: 24px; }
@@ -95,14 +110,15 @@
 .media-container .media-title-box{ padding-left: 6px; padding-right: 6px;}
 
 /* power-menu */
-.power-menu-panel-button StIcon{ padding-top: 0; padding-bottom: 0; }
+.power-menu-panel-button StIcon{ padding: 0; margin: 0; }
 .power-menu-panel-button:hover{ color: #f66151; }
 .power-menu-panel-button:active{ color: #e01b24; }
 .power-menu .button{ padding: 0; }
 
 /* workspace-indicator */
-.workspace-indicator StIcon{ margin: 0; }
-.workspace-indicator StLabel{ margin: 0 8px; }
+.workspace-indicator{ spacing: 8px; padding: 0 8px; }
+.workspace-indicator StLabel,
+.workspace-indicator StIcon{ margin: 0; padding: 0; }
 .workspace-indicator-active{ font-weight: 900; }
 .workspace-indicator-inactive{ font-weight: 300; }
 
@@ -121,7 +137,6 @@
 .quick-settings.tweaked .power-btn .container{ spacing: 6px; }
 .quick-settings.tweaked .small-toggle{ min-width: 1em; }
 .quick-settings.tweaked .user-btn{ width: 66px; height: 66px; padding: 2px; }
-.quick-settings.tweaked .user-btn StIcon{ icon-size: 64px; }
 .quick-settings.tweaked .message-list-clear-button{ padding-top: 4px; padding-bottom: 4px; }
 .quick-settings.tweaked .media{ padding: 8px; /* border-radius: 21px; */ }
 .quick-settings.tweaked .quick-container{ margin: 0; padding: 12px; }
@@ -131,7 +146,12 @@
 .quick-settings.adjusted .media,
 .quick-settings.adjusted .button,
 .quick-settings.adjusted .message{ border-radius: 21px; }
+.quick-settings.adjusted .quick-menu-toggle .quick-toggle{ border-radius: 21px 0 0 21px; }
+.quick-settings.adjusted .quick-menu-toggle .quick-toggle-arrow{ border-radius: 0 21px 21px 0; }
 .quick-settings.adjusted .popup-menu-content{
     padding: 16px;
     border-radius: 36px;
 }
+.quick-settings.adjusted .message-list-controls{ padding: 0; margin-bottom: 12px; margin-left: 6px; }
+.quick-settings.adjusted .message{ margin: 0; }
+.quick-settings.adjusted .messages > StWidget > StWidget{ spacing: 12px; }

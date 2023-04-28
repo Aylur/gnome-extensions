@@ -27,7 +27,6 @@ const PlayerIFace =
     </interface>
 </node>`;
 
-
 const MprisIFace =
 `<node>
     <interface name='org.mpris.MediaPlayer2'>
@@ -74,6 +73,8 @@ class MprisPlayer extends St.Widget {
         this._shuffle = false;
         this._loopStatus = '';
         this._volume = -1;
+        this._entry = '';
+        this._identity = '';
     }
 
     get busName(){ return this._busName; }
@@ -87,6 +88,8 @@ class MprisPlayer extends St.Widget {
     get shuffleStatus(){ return this._shuffle; }
     get loopStatus(){ return this._loopStatus; }
     get volume(){ return this._volume; }
+    get entry(){ return this._entry; }
+    get identity(){ return this._identity; }
 
     setVolume(value){ this._playerProxy.Volume = value; }
 
@@ -189,6 +192,8 @@ class MprisPlayer extends St.Widget {
             this._volume = -1;
         }
 
+        this._identity = this._mprisProxy.Identity;
+        this._entry = this._mprisProxy.DesktopEntry;
         this.emit('changed');
     }
 });
@@ -203,6 +208,13 @@ class PlayerWidget extends St.BoxLayout{
 
         this.player = mpris;
         this.roundness = roundness;
+
+        this.playerIcon = new St.Icon({
+            icon_name: `${this.player.entry}-symbolic`
+        });
+        this.playerName = new St.Label({
+            text: this.player.identity
+        });
 
         //control widgets
         this.mediaCover = new St.Button({
@@ -286,7 +298,7 @@ class PlayerWidget extends St.BoxLayout{
         this._mediaTitle.text = this.player.trackTitle;
 
         //track cover
-        let path = Me.dir.get_path()+'/media/mpris-cache/';
+        let path = Me.path+'/media/mpris-cache/';
         if(!GLib.file_test(path, GLib.FileTest.EXISTS))
             Gio.File.new_for_path(path).make_directory(null);
 
@@ -298,10 +310,10 @@ class PlayerWidget extends St.BoxLayout{
         `;
         let noCover =`
             border-radius: ${this.roundness}px;
-            background-image: url("file://${Me.dir.get_path()}/media/missing-cover-symbolic.svg");
+            background-image: url("file://${Me.path}/media/missing-cover-symbolic.svg");
         `;
 
-        if(this.player.trackCoverUrl === ''){
+        if(this.player.trackCoverUrl === '' || this.player.trackCoverUrl === '_'){
             this.mediaCover.style = noCover;
         }
         else if(GLib.file_test(fname, GLib.FileTest.EXISTS)){
@@ -506,6 +518,7 @@ class MediaBox extends Media{
         this._connect('show-volume');
         this._connect('style');
         this._connect('prefer');
+        this._connect('fade');
 
         this.connect('updated', () => this._sync());
         this.connect('destroy', this._onDestroy.bind(this));
@@ -529,6 +542,7 @@ class MediaBox extends Media{
     _sync(){
         this.preferred = this.settings.get_string(`${this.settingName}-prefer`);
         this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
+        this.fade = this.settings.get_boolean(`${this.settingName}-fade`);
         let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
         let mpris = this.getPreferred();
         if(mpris){
@@ -572,7 +586,7 @@ class MediaBox extends Media{
             y_align: Clutter.ActorAlign.CENTER,
             x_expand: true,
         });
-        vbox.add_child(p.titleBox);
+        if(this.showText) vbox.add_child(p.titleBox);
         vbox.add_child(p.controlsBox);
         if(this.showVolume)
             vbox.add_child(p.volumeBox);
@@ -586,18 +600,20 @@ class MediaBox extends Media{
         
         p.titleBox.width = p.mediaCover.width;
         let vbox = new St.BoxLayout({
+            style: `border-radius: ${this.coverRadius-1}px;`,
+            style_class: `${this.fade ? "" : "no-fade"}`,
             vertical: true,
             x_expand: true,
             y_expand: true,
         });
         if(this.textPosition == 0){
-            p.titleBox.add_style_class_name('fade-from-top');
+            if(this.fade) p.titleBox.add_style_class_name('fade-from-top');
             p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
             if(this.showText) vbox.add_child(p.titleBox);
             vbox.add_child(new St.Widget({ y_expand: true }));
         }
         else{
-            p.titleBox.add_style_class_name('fade-from-bottom');
+            if(this.fade) p.titleBox.add_style_class_name('fade-from-bottom');
             p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             vbox.add_child(new St.Widget({ y_expand: true }));
             if(this.showText) vbox.add_child(p.titleBox);
@@ -628,20 +644,26 @@ class MediaBox extends Media{
         p.controlsBox.insert_child_at_index(new St.Widget({ x_expand: true }),0);
         p.controlsBox.add_child(new St.Widget({ x_expand: true }));
         p.titleBox.width = p.mediaCover.width;
-        let vbox = new St.BoxLayout({ vertical: true, x_expand: true, y_expand: true });
+        let vbox = new St.BoxLayout({
+            style: `border-radius: ${this.coverRadius-1}px;`,
+            style_class: `${this.fade ? "" : "no-fade"}`,
+            vertical: true,
+            x_expand: true,
+            y_expand: true
+        });
         if(this.textPosition == 0){
-            p.titleBox.add_style_class_name('fade-from-top');
+            if(this.fade)  p.titleBox.add_style_class_name('fade-from-top');
             p.titleBox.style += `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-            p.controlsBox.add_style_class_name('fade-from-bottom');
+            if(this.fade)  p.controlsBox.add_style_class_name('fade-from-bottom');
             p.controlsBox.style = `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             if(this.showText) vbox.add_child(p.titleBox);
             vbox.add_child(new St.Widget({ y_expand: true }));
             vbox.add_child(p.controlsBox);
         }
         else{
-            p.controlsBox.add_style_class_name('fade-from-top');
+            if(this.fade)  p.controlsBox.add_style_class_name('fade-from-top');
             p.controlsBox.style = `border-radius: ${this.coverRadius-1}px ${this.coverRadius-1}px 0 0;`;
-            p.titleBox.add_style_class_name('fade-from-bottom');
+            if(this.fade)  p.titleBox.add_style_class_name('fade-from-bottom');
             p.titleBox.style += `border-radius: 0 0 ${this.coverRadius-1}px ${this.coverRadius-1}px;`;
             vbox.add_child(p.controlsBox);
             vbox.add_child(new St.Widget({ y_expand: true }));

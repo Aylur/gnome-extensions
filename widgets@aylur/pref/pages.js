@@ -12,6 +12,7 @@ const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const MEDIA_SUBTITLE = _("Doesn't work with every media player");
 const MEDIA_SUBTITLE2 = _("Doesn't work on every style");
+const MEDIA_SUBTITLE_FADE = _('Fading behind controls buttons and title.')
 
 const SubPage = GObject.registerClass(
 class SubPage extends Gtk.Box{
@@ -68,8 +69,10 @@ class BatteryBarPage extends SubPage{
         group.add(labelExpanderRow);
         group.add(new SpinButtonRow(_('Width'), settings, 'battery-bar-width', 50, 800, 10));
         group.add(new SpinButtonRow(_('Height'), settings, 'battery-bar-height', 1, 100, 1));
-        group.add(new SpinButtonRow(_('Bar Roundness'), settings, 'battery-bar-roundness', 1, 100, 1));
+        group.add(new SpinButtonRow(_('Bar Roundness'), settings, 'battery-bar-roundness', 0, 50, 1));
         group.add(new SpinButtonRow(_('Low Threshold'), settings, 'battery-bar-low-threshold', 0, 100, 5));
+        group.add(new SpinButtonRow(_('Padding Right'), settings, 'battery-bar-padding-right', 0, 100, 1));
+        group.add(new SpinButtonRow(_('Padding Left'), settings, 'battery-bar-padding-left', 0, 100, 1));
 
         let colorExpander = new Adw.ExpanderRow({ title: _('Bar Colors') });
         colorExpander.add_row(new ColorRow(_('Color'), settings, 'battery-bar-color'));
@@ -121,41 +124,99 @@ class DashBoardPage extends SubPage{
         shortcutRow.add_suffix(shortcutCell);
         shortcutRow.add_suffix(hotkeyButton);
 
+        let readConfigRow = new Adw.ActionRow({ title: _('Read Config'), subtitle: '~/.local/share/gnome-shell/extensions/widgets@aylur/config/dashboard.json' });
+        let readConfigBtn = new Gtk.Button({
+            label: _('Apply'),
+            valign: Gtk.Align.CENTER,
+        });
+        readConfigBtn.connect('clicked', () => {
+            settings.set_int('dash-read-config', settings.get_int('dash-read-config')+1 );
+        });
+        readConfigRow.add_suffix(readConfigBtn);
+
+        dashGroup.add(readConfigRow);
         dashGroup.add(shortcutRow);
-        dashGroup.add(new DropDownRow(_('Layout'), settings, 'dash-layout', ['1', '2', '3',], _('Send me your layout ideas and I will add it.')));
+        dashGroup.add(new DropDownRow(_('X Align'), settings, `dash-board-x-align`, [_('Fill'), _('Start'), _('Center'), _('End')]));
+        dashGroup.add(new DropDownRow(_('Y Align'), settings, `dash-board-y-align`, [_('Fill'), _('Start'), _('Center'), _('End')]));
+        dashGroup.add(new SpinButtonRow(_('X Offset'), settings, 'dash-board-x-offset', -1000, 1000, 10));
+        dashGroup.add(new SpinButtonRow(_('Y Offset'), settings, 'dash-board-y-offset', -1000, 1000, 10));
+        dashGroup.add(new SwitchRow(_('Darken Background'), settings, 'dash-board-darken'));
 
-        let appBoxExpander = new Adw.ExpanderRow({ title: _('App Launcher') });
-        appBoxExpander.add_row(new SpinButtonRow(_('Rows'), settings, 'dash-apps-rows', 1, 5, 1));
-        appBoxExpander.add_row(new SpinButtonRow(_('Columns'), settings, 'dash-apps-cols', 1, 5, 1));
-        appBoxExpander.add_row(new SpinButtonRow(_('Icon Size'), settings, 'dash-app-icon-size', 16, 64, 2));
-        dashGroup.add(appBoxExpander);
+        const widgetsGroup = new Adw.PreferencesGroup({ title: _('Widgets') });
+        this.add(widgetsGroup);
 
-        let levelsExpander = new Adw.ExpanderRow({ title: _('System Levels') });
-        levelsExpander.add_row(new SwitchRow(_('Battery'), settings, 'dash-levels-show-battery'));
-        levelsExpander.add_row(new SwitchRow(_('Storage'), settings, 'dash-levels-show-storage'));
-        levelsExpander.add_row(new SwitchRow(_('CPU'), settings, 'dash-levels-show-cpu'));
-        levelsExpander.add_row(new SwitchRow(_('RAM'), settings, 'dash-levels-show-ram'));
-        levelsExpander.add_row(new SwitchRow(_('Temperature'), settings, 'dash-levels-show-temp'));
-        dashGroup.add(levelsExpander);
+        let user = this._makeExpander(_('User'), 'user', settings);
+        user.add_row(new SpinButtonRow(_('Icon Roundness'), settings, 'dash-user-icon-roundness', 0, 99, 1));
+        user.add_row(new SpinButtonRow(_('Icon Width'), settings, 'dash-user-icon-width', 10, 500, 2));
+        user.add_row(new SpinButtonRow(_('Icon Height'), settings, 'dash-user-icon-height', 10, 500, 2));
+        user.add_row(new SwitchRow(_('Vertical'), settings, 'dash-user-vertical'));
 
-        let mediaExpander = new Adw.ExpanderRow({ title: _('Media Player') });
-        mediaExpander.add_row(new EntryRow(_('Prefer'), settings, 'dash-media-prefer'));
-        mediaExpander.add_row(new DropDownRow(_('Style'), settings, 'dash-media-style', [_('Normal'), _('Vertical'), _('Label on Cover'), _('Label on Cover +Vertical Controls'), _('Full')]));
-        mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'dash-media-cover-width', 100, 800, 5));
-        mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'dash-media-cover-height', 100, 800, 5));
-        mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'dash-media-cover-roundness', 0, 48, 1));
+        let levels = this._makeExpander(_('System Levels'), 'levels', settings);
+        levels.add_row(new SwitchRow(_('Vertical'), settings, 'dash-levels-vertical'));
+        levels.add_row(new SwitchRow(_('Show Battery'), settings, 'dash-levels-show-battery'));
+        levels.add_row(new SwitchRow(_('Show Storage'), settings, 'dash-levels-show-storage'));
+        levels.add_row(new SwitchRow(_('Show CPU'), settings, 'dash-levels-show-cpu'));
+        levels.add_row(new SwitchRow(_('Show RAM'), settings, 'dash-levels-show-ram'));
+        levels.add_row(new SwitchRow(_('Show Temperature'), settings, 'dash-levels-show-temp'));
+
+        let media = this._makeExpander(_('Media Player'), 'media', settings);
+        media.add_row(new EntryRow(_('Prefer'), settings, 'dash-media-prefer'));
+        media.add_row(new DropDownRow(_('Style'), settings, 'dash-media-style', [_('Normal Vertical'), _('Normal Horizontal'), _('Label on Cover'), _('Label on Cover +Vertical Controls'), _('Full')]));
+        media.add_row(new SpinButtonRow(_('Cover Width'), settings, 'dash-media-cover-width', 100, 800, 5));
+        media.add_row(new SpinButtonRow(_('Cover Height'), settings, 'dash-media-cover-height', 100, 800, 5));
+        media.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'dash-media-cover-roundness', 0, 48, 1));
+        media.add_row(new SwitchRow(_('Fade'), settings, 'dash-media-fade', MEDIA_SUBTITLE_FADE));
             let textExpander = new ExpanderRow(_('Show Title'), settings, 'date-menu-media-show-text');
             textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'date-menu-media-text-align', [_('Left'), _('Center'), _('Right')]));
             textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'date-menu-media-text-position', [_('Top'), _('Bot')], MEDIA_SUBTITLE2));
-            mediaExpander.add_row(textExpander);
-        mediaExpander.add_row(new SwitchRow(_('Show Volume Slider'), settings, 'dash-media-show-volume', MEDIA_SUBTITLE));
-        mediaExpander.add_row(new SwitchRow(_('Show Loop and Shuffle'), settings, 'dash-media-show-loop-shuffle', MEDIA_SUBTITLE));
-        dashGroup.add(mediaExpander);
+            media.add_row(textExpander);
+        media.add_row(new SwitchRow(_('Show Volume Slider'), settings, 'dash-media-show-volume', MEDIA_SUBTITLE));
+        media.add_row(new SwitchRow(_('Show Loop and Shuffle'), settings, 'dash-media-show-loop-shuffle', MEDIA_SUBTITLE));
 
-        dashGroup.add(new Adw.ActionRow({
+        let links = this._makeExpander(_('Links'), 'links', settings);
+        links.add_row(new SwitchRow(_('Vertical'), settings, 'dash-links-vertical'));
+        links.add_row(new SpinButtonRow(_('Icon Size'), settings, 'dash-links-icon-size', 4, 100, 2));
+        links.add_row(new Adw.ActionRow({
             title: _('Web Links'),
             subtitle: _(`You can change the links through dconf editor.\nIf you want your own icon: find an svg and name it theNameYouGaveItInDconf-symbolic.svg.`)
         }));
+
+        let clock = this._makeExpander(_('Clock'), 'clock', settings);
+        clock.add_row(new SwitchRow(_('Vertical'), settings, 'dash-clock-vertical'));
+        
+        let apps = this._makeExpander(_('App Launcher'), 'apps', settings);
+        apps.add_row(new SpinButtonRow(_('Rows'), settings, 'dash-apps-rows', 1, 6, 1));
+        apps.add_row(new SpinButtonRow(_('Columns'), settings, 'dash-apps-cols', 1, 6, 1));
+        apps.add_row(new SpinButtonRow(_('Icon Size'), settings, 'dash-apps-icon-size', 4, 100, 2));
+
+        let setting = this._makeExpander(_('Settings'), 'settings', settings);
+        setting.add_row(new SwitchRow(_('Vertical'), settings, 'dash-settings-vertical'));
+        setting.add_row(new SpinButtonRow(_('Icon Size'), settings, 'dash-settings-icon-size', 4, 100, 2));
+
+        let system = this._makeExpander(_('System Actions'), 'system', settings);
+        system.add_row(new DropDownRow(_('Layout'), settings, 'dash-system-layout', [_('Vertical'), _('Horizontal'), _('2x2')]));
+        system.add_row(new SpinButtonRow(_('Icon Size'), settings, 'dash-system-icon-size', 4, 100, 2));
+
+        widgetsGroup.add(apps);
+        widgetsGroup.add(clock);
+        widgetsGroup.add(levels);
+        widgetsGroup.add(links);
+        widgetsGroup.add(media);
+        widgetsGroup.add(setting);
+        widgetsGroup.add(system);
+        widgetsGroup.add(user);
+    }
+
+    _makeExpander(title, widget, settings){
+        let expander = new Adw.ExpanderRow({ title: title });
+        expander.add_row(new DropDownRow(_('X Axis Align'), settings, `dash-${widget}-x-align`, [_('Fill'), _('Start'), _('Center'), _('End')]));
+        expander.add_row(new DropDownRow(_('Y Axis Align'), settings, `dash-${widget}-y-align`, [_('Fill'), _('Start'), _('Center'), _('End')]));
+        expander.add_row(new SwitchRow(_('X Axis Expand'), settings, `dash-${widget}-x-expand`));
+        expander.add_row(new SwitchRow(_('Y Axis Expand'), settings, `dash-${widget}-y-expand`));
+        expander.add_row(new SpinButtonRow(_('Width'), settings, `dash-${widget}-width`, 0, 500, 5, _('0 for dynamic width')));
+        expander.add_row(new SpinButtonRow(_('Height'), settings, `dash-${widget}-height`, 0, 500, 5, _('0 for dynamic width')));
+        expander.add_row(new SwitchRow(_('Background'), settings, `dash-${widget}-background`));
+        return expander;
     }
 });
 
@@ -193,6 +254,7 @@ class DateMenuTweakPage extends SubPage{
         mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'date-menu-media-cover-width', 100, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'date-menu-media-cover-height', 100, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'date-menu-media-cover-roundness', 0, 48, 1));
+        mediaExpander.add_row(new SwitchRow(_('Fade'), settings, 'date-menu-media-fade', MEDIA_SUBTITLE_FADE));
             let textExpander = new ExpanderRow(_('Show Title'), settings, 'date-menu-media-show-text');
             textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'date-menu-media-text-align', [_('Left'),_('Center'),_('Right')]));
             textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'date-menu-media-text-position', [_('Top'),_('Bot')], MEDIA_SUBTITLE2));
@@ -240,6 +302,19 @@ class DateMenuTweakPage extends SubPage{
     }
 });
 
+var DynamicPanelPage = GObject.registerClass(
+class DynamicPanelPage extends SubPage{
+    _init(settings){
+        super._init(_('Dynaimc Panel'), settings);
+
+        const group = new Adw.PreferencesGroup();
+        this.add(group);
+
+        group.add(new SwitchRow(_('Floating'), settings, 'dynamic-panel-floating-style', _('Best used with default shell themes')));
+        group.add(new SpinButtonRow(_('Gap'), settings, 'dynamic-panel-useless-gaps', 0, 64, 1, _('Space beetween panel and window needed to make the panel react')));
+    }
+});
+
 var MediaPlayerPage = GObject.registerClass(
 class MediaPlayerPage extends SubPage{
     _init(settings){
@@ -251,6 +326,10 @@ class MediaPlayerPage extends SubPage{
         let trackBtnExpander = new ExpanderRow(_('Track Button'), settings, 'media-player-enable-track');
         trackBtnExpander.add_row(new PositionRow(_('Position'), settings, 'media-player-position', 'media-player-offset'));
         trackBtnExpander.add_row(new SpinButtonRow(_('Max Width'), settings, 'media-player-max-width', 0, 1200, 10, _('0 to unset')));
+        trackBtnExpander.add_row(new SwitchRow(_('Show Player Icon'), settings, 'media-player-show-player-icon'));
+        trackBtnExpander.add_row(new SwitchRow(_('Colored Player Icon'), settings, 'media-player-colored-player-icon'));
+        trackBtnExpander.add_row(new DropDownRow(_('Player Icon Position'), settings, 'media-player-player-icon-position', [_('Left'), _('Right')]));
+
         let controlsExpander = new ExpanderRow(_('Controls'), settings, 'media-player-enable-controls');
         controlsExpander.add_row(new PositionRow(_('Position'), settings, 'media-player-controls-position', 'media-player-controls-offset'));
         buttonGroup.add(trackBtnExpander);
@@ -259,9 +338,9 @@ class MediaPlayerPage extends SubPage{
         const playerGroup = new Adw.PreferencesGroup({ title: _('Player') });
         this.add(playerGroup);
 
-        this.cachePath = `${Me.dir.get_path()}/media/mpris-cache`;
+        this.cachePath = `${Me.path}/media/mpris-cache`;
         this.clearRow = new Adw.ActionRow({ title: _('Cache') });
-        let clearBtn = Gtk.Button.new_with_label(_('Cache'));
+        let clearBtn = Gtk.Button.new_with_label(_('Clear'));
         clearBtn.valign = Gtk.Align.CENTER;
         clearBtn.connect('clicked', () => this._clearCache());
         this.clearRow.add_suffix(clearBtn);
@@ -273,6 +352,7 @@ class MediaPlayerPage extends SubPage{
         playerGroup.add(new SpinButtonRow(_('Cover Roundness'), settings, 'media-player-cover-roundness', 1, 99, 1));
         playerGroup.add(new SpinButtonRow(_('Cover Width'), settings, 'media-player-cover-width', 50, 500, 2));
         playerGroup.add(new SpinButtonRow(_('Cover Height'), settings, 'media-player-cover-height', 50, 500, 2));
+        playerGroup.add(new SwitchRow(_('Fade'), settings, 'media-player-fade', MEDIA_SUBTITLE_FADE));
         let textExpander = new ExpanderRow(_('Show Title'), settings, 'media-player-show-text');
         textExpander.add_row(new DropDownRow(_('Title Align'), settings, 'media-player-text-align', [_('Left'),_('Center'),_('Right')]));
         textExpander.add_row(new DropDownRow(_('Title Position'), settings, 'media-player-text-position', [_('Top'),_('Bot')], MEDIA_SUBTITLE2));
@@ -284,6 +364,9 @@ class MediaPlayerPage extends SubPage{
     _cacheSize(){
         let path = Me.dir.get_path()+'/media/mpris-cache/';
         let dir = Gio.File.new_for_path(path);
+        if(!GLib.file_test(path, GLib.FileTest.EXISTS))
+            dir.make_directory(null);
+
         let info = dir.query_info('standard::*', Gio.FileQueryInfoFlags.NONE, null);
         this.clearRow.set_subtitle(`${info.get_size()} bytes`);
     }
@@ -315,9 +398,29 @@ class PowerMenuPage extends SubPage{
 
         let dialogExpander = new ExpanderRow(_('Dialog Background'), settings, 'power-menu-dialog-show-bg');
         dialogExpander.add_row(new SpinButtonRow(_('Dialog Padding'), settings, 'power-menu-dialog-padding', 0, 150, 2));
-        dialogExpander.add_row(new SpinButtonRow(_('Dialog Roundness'), settings, 'power-menu-dialog-roundness', 0, 100, 1));
+        dialogExpander.add_row(new SpinButtonRow(_('Dialog Roundness'), settings, 'power-menu-dialog-roundness', -100, 100, 1));
 
         group.add(dialogExpander);
+    }
+});
+
+var StylishOSDPage = GObject.registerClass(
+class StylishOSDPage extends SubPage{
+    _init(settings){
+        super._init(_('Stylish On Screen Display'), settings);
+
+        const group = new Adw.PreferencesGroup({ title: _('OSD'), description: _('The popup when brightness/volume is changed') });
+        this.add(group);
+
+        group.add(new DropDownRow(_('Position'), settings, 'stylish-osd-position', [_('Top Start'), _('Top Center'), _('Top End'), _('Middle Start'), _('Middle Center'), _('Middle End'), _('Bottom Start'), _('Bottom Center'), _('Bottom End')]));
+        group.add(new SwitchRow(_('Vertical'), settings, 'stylish-osd-vertical'));
+        group.add(new SpinButtonRow(_('Width'), settings, 'stylish-osd-width', 4, 500, 2));
+        group.add(new SpinButtonRow(_('Height'), settings, 'stylish-osd-height', 4, 500, 2));
+        group.add(new SpinButtonRow(_('Horizontal Offset'), settings, 'stylish-osd-margin-x', 0, 500, 2));
+        group.add(new SpinButtonRow(_('Vertical Offset'), settings, 'stylish-osd-margin-y', 0, 500, 2));
+        group.add(new SpinButtonRow(_('Roundness'), settings, 'stylish-osd-roundness', 0, 250, 1));
+        group.add(new SpinButtonRow(_('Padding'), settings, 'stylish-osd-padding', 0, 100, 1));
+        group.add(new SpinButtonRow(_('Icon Size'), settings, 'stylish-osd-icon-size', 1, 250, 1));
     }
 });
 
@@ -331,6 +434,9 @@ class WorkspaceIndicatorPage extends SubPage{
 
         group.add(new PositionRow(_('Position'), settings, 'workspace-indicator-position', 'workspace-indicator-offset'));
         group.add(new SwitchRow(_('Show Names'), settings, 'workspace-indicator-show-names'));
+        group.add(new DropDownRow(_('Style'), settings, 'workspace-indicator-style', [_('Joined'), _('Seperated')]));
+        group.add(new SpinButtonRow(_('Spacing'), settings, 'workspace-indicator-spacing', 0, 100, 1));
+        group.add(new EntryRow(_('Active Name'), settings, 'workspace-indicator-active-name', _('Empty to disable')));
 
         this.add(new wsNamesGroup());
     }
@@ -341,15 +447,25 @@ class NotificationIndicatorPage extends SubPage{
     _init(settings){
         super._init(_('Notification Indicator'), settings);
 
-        const group = new Adw.PreferencesGroup({ title: _('Notification Indicator') });
-        this.add(group);
+        const buttonGroup = new Adw.PreferencesGroup({ title: _('Panel Button') });
+        this.add(buttonGroup);
+        buttonGroup.add(new DropDownRow(_('Position'), settings, 'notification-indicator-position', [_('Left'),_('Center'),_('Right'), _('System Indicators')]));
+        buttonGroup.add(new SpinButtonRow(_('Offset'), settings, 'notification-indicator-offset', 0, 16, 1));
+        buttonGroup.add(new DropDownRow(_('Style'), settings, 'notification-indicator-style', [_('Counter'), _('Icons')]));
 
-        group.add(new DropDownRow(_('Position'), settings, 'notification-indicator-position', [_('Left'),_('Center'),_('Right'), _('Setting Indicators')]));
-        group.add(new SpinButtonRow(_('Offset'), settings, 'notification-indicator-offset', 0, 16, 1));
-        group.add(new SwitchRow(_('Hide on Zero'), settings, 'notification-indicator-hide-on-zero'));
-        group.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10));
-        group.add(new SwitchRow(_('Hide Counter'), settings, 'notification-indicator-hide-counter'));
-        group.add(new SwitchRow(_('Show Do Nut Disturb'), settings, 'notification-indicator-show-dnd'));
+        const menuGroup = new Adw.PreferencesGroup({ title: _('Menu'), description: _('Does not work if the position is set to System Indicators') });
+        this.add(menuGroup);
+        menuGroup.add(new SpinButtonRow(_('Menu Width'), settings, 'notification-indicator-menu-width', 100, 1000, 10));
+        menuGroup.add(new SwitchRow(_('Show Do Not Disturb'), settings, 'notification-indicator-show-dnd'));
+
+        const iconsGroup = new Adw.PreferencesGroup({ title: _('Icons') })
+        this.add(iconsGroup);
+        iconsGroup.add(new SpinButtonRow(_('Max Icons'), settings, 'notification-indicator-max-icons', 1, 20, 1));
+
+        const counterGroup = new Adw.PreferencesGroup({ title: _('Counter') });
+        this.add(counterGroup);
+        counterGroup.add(new SwitchRow(_('Hide on Zero'), settings, 'notification-indicator-hide-on-zero'));
+        counterGroup.add(new SwitchRow(_('Hide Counter'), settings, 'notification-indicator-hide-counter'));
     }
 });
     
@@ -374,10 +490,10 @@ class BackgroundClockPage extends SubPage{
         clockExpander.add_row(new SpinButtonRow(_('Clock Size'), settings, 'background-clock-clock-size', 1, 200, 2));
         clockExpander.add_row(this._addCustomFontRow(settings, 'background-clock-clock-custom-font', 'background-clock-clock-font'));
         clockExpander.add_row(new ColorRow(_('Clock Color'), settings, 'background-clock-clock-color'));
-        clockExpander.add_row(new SpinButtonRow(_('Text Shadow x Offset'), settings, 'background-clock-clock-shadow-x', 0, 50, 1));
-        clockExpander.add_row(new SpinButtonRow(_('Text Shadow y Offset'), settings, 'background-clock-clock-shadow-y', 0, 50, 1));
+        clockExpander.add_row(new SpinButtonRow(_('Text Shadow x Offset'), settings, 'background-clock-clock-shadow-x', -50, 50, 1));
+        clockExpander.add_row(new SpinButtonRow(_('Text Shadow y Offset'), settings, 'background-clock-clock-shadow-y', -50, 50, 1));
         clockExpander.add_row(new SpinButtonRow(_('Text Shadow Blur Amount'), settings, 'background-clock-clock-shadow-blur', 0, 50, 1));
-        clockExpander.add_row(new SpinButtonRow(_('Text Shadow Width'), settings, 'background-clock-clock-shadow-width', 0, 50, 1));
+        clockExpander.add_row(new SpinButtonRow(_('Text Shadow Width'), settings, 'background-clock-clock-shadow-width', -50, 50, 1));
         clockExpander.add_row(new ColorRow(_('Text Shadow Color'), settings, 'background-clock-clock-shadow-color'));
 
         let dateExpander = new ExpanderRow(_('Date'), settings, 'background-clock-enable-date');
@@ -385,10 +501,10 @@ class BackgroundClockPage extends SubPage{
         dateExpander.add_row(new SpinButtonRow(_('Date Size'), settings, 'background-clock-date-size', 1, 200, 2));
         dateExpander.add_row(this._addCustomFontRow(settings, 'background-clock-date-custom-font', 'background-clock-date-font'));
         dateExpander.add_row(new ColorRow(_('Date Color'), settings, 'background-clock-date-color'));
-        dateExpander.add_row(new SpinButtonRow(_('Text Shadow x Offset'), settings, 'background-clock-date-shadow-x', 0, 50, 1));
-        dateExpander.add_row(new SpinButtonRow(_('Text Shadow y Offset'), settings, 'background-clock-date-shadow-y', 0, 50, 1));
+        dateExpander.add_row(new SpinButtonRow(_('Text Shadow x Offset'), settings, 'background-clock-date-shadow-x', -50, 50, 1));
+        dateExpander.add_row(new SpinButtonRow(_('Text Shadow y Offset'), settings, 'background-clock-date-shadow-y', -50, 50, 1));
         dateExpander.add_row(new SpinButtonRow(_('Text Shadow Blur Amount'), settings, 'background-clock-date-shadow-blur', 0, 50, 1));
-        dateExpander.add_row(new SpinButtonRow(_('Text Shadow Width'), settings, 'background-clock-date-shadow-width', 0, 50, 1));
+        dateExpander.add_row(new SpinButtonRow(_('Text Shadow Width'), settings, 'background-clock-date-shadow-width', -50, 50, 1));
         dateExpander.add_row(new ColorRow(_('Text Shadow Color'), settings, 'background-clock-date-shadow-color'));
 
         let styleExpander = new Adw.ExpanderRow({ title: _('Widget Style') });
@@ -398,10 +514,10 @@ class BackgroundClockPage extends SubPage{
         styleExpander.add_row(new ColorRow(_('Border Color'), settings, 'background-clock-bg-border-color'));
         styleExpander.add_row(new SpinButtonRow(_('Roundness'), settings, 'background-clock-bg-border-radius', 0, 100, 1));
         styleExpander.add_row(new SwitchRow(_('Shadow Inset'), settings, 'background-clock-bg-shadow-inset'));
-        styleExpander.add_row(new SpinButtonRow(_('Shadow x Offset'), settings, 'background-clock-bg-shadow-x', 0, 100, 1));
-        styleExpander.add_row(new SpinButtonRow(_('Shadow y Offset'), settings, 'background-clock-bg-shadow-y', 0, 100, 1));
+        styleExpander.add_row(new SpinButtonRow(_('Shadow x Offset'), settings, 'background-clock-bg-shadow-x', -100, 100, 1));
+        styleExpander.add_row(new SpinButtonRow(_('Shadow y Offset'), settings, 'background-clock-bg-shadow-y', -100, 100, 1));
         styleExpander.add_row(new SpinButtonRow(_('Shadow Blur Amount'), settings, 'background-clock-bg-shadow-blur', 0, 100, 1));
-        styleExpander.add_row(new SpinButtonRow(_('Shadow Width'), settings, 'background-clock-bg-shadow-width', 0, 100, 1));
+        styleExpander.add_row(new SpinButtonRow(_('Shadow Width'), settings, 'background-clock-bg-shadow-width', -100, 100, 1));
         styleExpander.add_row(new ColorRow(_('Shadow Color'), settings, 'background-clock-bg-shadow-color'));
 
         group.add(clockExpander);
@@ -496,6 +612,7 @@ class QuickSettingsTweaksPage extends SubPage{
         mediaExpander.add_row(new SpinButtonRow(_('Cover Roundness'), settings, 'quick-settings-media-cover-roundness', 0, 42, 1));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Width'), settings, 'quick-settings-media-cover-width', 40, 500, 5));
         mediaExpander.add_row(new SpinButtonRow(_('Cover Height'), settings, 'quick-settings-media-cover-height', 40, 300, 5));
+        mediaExpander.add_row(new SwitchRow(_('Fade'), settings, 'quick-settings-media-fade', MEDIA_SUBTITLE_FADE));
             let titleExpander = new ExpanderRow(_('Show Title'), settings, 'quick-settings-media-show-text');
             titleExpander.add_row(new DropDownRow(_('Title Align'), settings, 'quick-settings-media-text-align', [_('Left'), _('Center'), _('Right')]));
             titleExpander.add_row(new DropDownRow(_('Title Position'), settings, 'quick-settings-media-text-position', [_('Top'), _('Bottom')]));
@@ -503,5 +620,24 @@ class QuickSettingsTweaksPage extends SubPage{
         mediaExpander.add_row(new SwitchRow(_('Show Volume Slider'), settings, 'quick-settings-media-show-volume', MEDIA_SUBTITLE));
         mediaExpander.add_row(new SwitchRow(_('Show Loop and Shuffle'), settings, 'quick-settings-media-show-loop-shuffle', MEDIA_SUBTITLE));
         group.add(mediaExpander);
+
+        let appMixer = new ExpanderRow(_('Show Application Volume Mixer'), settings, 'quick-settings-show-app-volume-mixer');
+        appMixer.add_row(new SwitchRow(_('Show Description'), settings, 'quick-settings-app-volume-mixer-show-description'));
+        appMixer.add_row(new SwitchRow(_('Show Name'), settings, 'quick-settings-app-volume-mixer-show-name'));
+        group.add(appMixer);
+
+        const togglesGroup = new Adw.PreferencesGroup({ title: _('Toggles') });
+        this.add(togglesGroup);
+
+        togglesGroup.add(new SwitchRow(_('Wired'), settings, 'quick-settings-show-wired'));
+        togglesGroup.add(new SwitchRow(_('Wifi'), settings, 'quick-settings-show-wifi'));
+        togglesGroup.add(new SwitchRow(_('Modem'), settings, 'quick-settings-show-modem'));
+        togglesGroup.add(new SwitchRow(_('Network Bluetooth'), settings, 'quick-settings-show-network-bt'));
+        togglesGroup.add(new SwitchRow(_('VPN'), settings, 'quick-settings-show-vpn'));
+        togglesGroup.add(new SwitchRow(_('Bluetooth'), settings, 'quick-settings-show-bluetooth'));
+        togglesGroup.add(new SwitchRow(_('Power'), settings, 'quick-settings-show-power'));
+        togglesGroup.add(new SwitchRow(_('Airplane Mode'), settings, 'quick-settings-show-airplane'));
+        togglesGroup.add(new SwitchRow(_('Rotate'), settings, 'quick-settings-show-rotate'));
+        togglesGroup.add(new SwitchRow(_('Background Apps'), settings, 'quick-settings-show-bg-apps'));
     }
 });

@@ -1,15 +1,13 @@
-'use strict'
-
 const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, UPowerGlib: UPower } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const { QuickSlider, QuickToggle } = imports.ui.quickSettings; 
 const QS = Main.panel.statusArea.quickSettings;
+const { QuickSlider, QuickToggle } = imports.ui.quickSettings;
 const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const { NotificationList } = Me.imports.shared.notificationList;
 const SystemLevels = Me.imports.shared.systemLevels;
+const { VolumeMixer } = Me.imports.shared.volumeMixer;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -25,14 +23,13 @@ class QuickSettingsSystem extends St.BoxLayout{
     _init(){
         super._init({ style_class: 'container' });
 
-        //userBtn
         let userBtn = this._addBtn('', 
             () =>  Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate()
         );
         userBtn.style_class = 'icon-button user-btn';
         userBtn.set_child(new St.Widget({
             y_expand: true,
-            style_class: 'user-icon',
+            style_class: 'user-icon icon-button',
             style: `
                 background-image: url("/var/lib/AccountsService/icons/${GLib.get_user_name()}");
                 background-size: cover;`,
@@ -162,7 +159,7 @@ class SystemActionsBox extends St.BoxLayout{
 
     _addBtn(iconName, callback){
         let btn = new St.Button({
-            style_class: 'button quick-toggle',
+            style_class: 'icon-button button quick-toggle',
             x_expand: true,
             child: new St.Icon({
                 icon_name: iconName
@@ -182,7 +179,6 @@ class Footer extends St.BoxLayout{
     _init(){
         super._init({ style_class: 'footer' });
 
-        //clock
         this.clock = new St.Label();
         this.wallClock = new GnomeDesktop.WallClock({ time_only: true });
         this.wallClock.connectObject(
@@ -322,9 +318,9 @@ class DarkModeToggle extends SmallToggle{
 
 const SmallToggleRow = GObject.registerClass(
 class SmallToggleRow extends St.BoxLayout{
-    _init(){
+    _init(powerButton = true){
         super._init({ style_class: 'container' });
-        this.add_child(new PowerButton(true));
+        if(powerButton) this.add_child(new PowerButton(true));
         this.add_child(new NightLightToggle());
         this.add_child(new DoNotDisturbToggle());
         this.add_child(new DarkModeToggle());
@@ -335,6 +331,7 @@ const LevelsBox = GObject.registerClass(
 class LevelsBox extends SystemLevels.LevelsBox{
     _init(settings){
         super._init(settings, 'quick-settings-levels-show');
+        this.y_expand = false;
         this.add_style_class_name('quick-settings-levels');
 
         let bind = QS.menu.connect('open-state-changed', (self, open) => {
@@ -352,6 +349,7 @@ class MediaBox extends Media.MediaBox{
     _init(settings){
         super._init(settings, 'quick-settings-media');
         this.add_style_class_name('button media');
+        this.y_expand = false;
     }
 
     _buildPlayerUI(){
@@ -427,6 +425,7 @@ class MultiMediaBox extends MediaBox{
 
     _sync(){
         this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
+        this.fade = this.settings.get_boolean(`${this.settingName}-fade`);
         let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
         let mprisList = this.getPlayers();
         if(mprisList.length === 0) this._onNoPlayer();
@@ -445,7 +444,7 @@ class MultiMediaBox extends MediaBox{
 });
 
 class Toggles{
-    constructor(){
+    constructor(settings){
         this.menus = QS.menu._overlay;
         this.grid = QS.menu._grid;
         this.addedItems = [];
@@ -467,6 +466,27 @@ class Toggles{
         this.darkMode = QS._darkMode.quickSettingsItems[0];
         this.rfKill = QS._rfkill.quickSettingsItems[0];
         this.rotate = QS._autoRotate.quickSettingsItems[0];
+
+        this.bgApps = QS._backgroundApps.quickSettingsItems[0];
+
+        this.list = [
+            this.system,
+            this.output,
+            this.input,
+            this.brightness,
+            settings.get_boolean('quick-settings-show-wired') ? null : this.wired,
+            settings.get_boolean('quick-settings-show-wifi') ? null : this.wifi,
+            settings.get_boolean('quick-settings-show-modem') ? null : this.modem,
+            settings.get_boolean('quick-settings-show-network-bt') ? null : this.networkBt,
+            settings.get_boolean('quick-settings-show-vpn') ? null : this.vpn,
+            settings.get_boolean('quick-settings-show-bluetooth') ? null : this.bt,
+            settings.get_boolean('quick-settings-show-power') ? null : this.power,
+            this.nightLight,
+            this.darkMode,
+            settings.get_boolean('quick-settings-show-airplane') ? null : this.rfKill,
+            settings.get_boolean('quick-settings-show-rotate') ? null : this.rotate,
+            settings.get_boolean('quick-settings-show-bg-apps') ? null : this.bgApps
+        ];
     }
 
     addToGrid(item, childAbove, colSpan = 2){
@@ -478,15 +498,9 @@ class Toggles{
     }
 
     detach(){
-        [
-            this.system, this.output, this.input, this.brightness,
-            this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
-            /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate
-        ]
-        .forEach(t => {
+        this.list.forEach(t => {
             if(t) this.grid.remove_child(t)
-            if(t.menu){
+            if(t?.menu){
                 this.menus.remove_child(t.menu.actor);
                 t.menu.noDim = t.menu.connect('open-state-changed', () => {
                     QS.menu._setDimmed(false);
@@ -498,13 +512,7 @@ class Toggles{
     reattach(){
         this.addedItems.forEach(i => i.destroy());
         this.addedItems = [];
-        [
-            this.system, this.output, this.input, this.brightness,
-            this.wired, /* this.wifi, */ this.modem, this.networkBt, this.vpn,
-            /* this.bt, */ /* this.power, */ this.nightLight, this.darkMode,
-            this.rfKill, this.rotate
-        ]
-        .reverse().forEach(t => {
+        this.list.reverse().forEach(t => {
             if(t){
                 t.get_parent()?.remove_child(t);
                 this.grid.insert_child_at_index(t, 0);
@@ -532,12 +540,12 @@ class Toggles{
 
 class QuickSettingsTweaks{
     constructor(settings){
-        this.toggles = new Toggles();
         this.settings = settings;
     }
 
     reload(){
-        this.reset();
+        if(this.toggles) this.reset();
+        this.toggles = new Toggles(this.settings);
         
         let adjust = this.settings.get_boolean('quick-settings-adjust-roundness');
         if(adjust) QS.menu.box.add_style_class_name('adjusted');
@@ -551,6 +559,7 @@ class QuickSettingsTweaks{
         this.showMedia = this.settings.get_boolean('quick-settings-show-media');
         this.showNotificiations = this.settings.get_boolean('quick-settings-show-notifications');
         this.showLevels = this.settings.get_boolean('quick-settings-show-system-levels');
+        this.showAppVolumeMixer = this.settings.get_boolean('quick-settings-show-app-volume-mixer');
 
         this.toggles.detach();
         let layout = this.settings.get_int('quick-settings-style');
@@ -568,6 +577,9 @@ class QuickSettingsTweaks{
         this.toggles.grid.add_style_class_name('quick-settings');
         this.toggles.reattach();
         this.toggles.addToGrid(new NightLightSlider(), this.toggles.brightness);
+        if(this.showAppVolumeMixer)
+            this.toggles.addToGrid(new VolumeMixer(this.settings), this.toggles.output);
+        
         if(this.showLevels){
             let levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('quick-container button');
@@ -600,6 +612,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -607,7 +621,7 @@ class QuickSettingsTweaks{
         
         this.normalBox.add_child(new QuickSettingsSystem());
         this.normalBox.add_child(sliders);
-        this.normalBox.add_child(new SmallToggleRow());
+        this.normalBox.add_child(new SmallToggleRow(false));
         this.normalBox.add_child(this.toggles.grid);
 
         if(this.showLevels){
@@ -647,6 +661,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -693,6 +709,8 @@ class QuickSettingsTweaks{
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
+        if(this.showAppVolumeMixer)
+            sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
@@ -756,26 +774,45 @@ class QuickSettingsTweaks{
 }
 
 var Extension = class Extension{
-    constructor(){}
+    constructor(settings){
+        this._settings = settings;
+    }
 
     enable(){
-        this._settings = ExtensionUtils.getSettings();
         QS.menu.box.add_style_class_name('tweaked');
-
         this.tweaks = new QuickSettingsTweaks(this._settings);
-        this._settings.connect('changed::quick-settings-style', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-notifications', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-system-levels', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-show-media', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-media-prefer-one', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-menu-width', () => this.tweaks.reload());
-        this._settings.connect('changed::quick-settings-adjust-roundness', () => this.tweaks.reload());
+
+        this._settings.connectObject(
+            'changed::quick-settings-style',                () => this.tweaks.reload(),
+            'changed::quick-settings-show-notifications',   () => this.tweaks.reload(),
+            'changed::quick-settings-show-system-levels',   () => this.tweaks.reload(),
+            'changed::quick-settings-show-media',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-app-volume-mixer',() => this.tweaks.reload(),
+            'changed::quick-settings-media-prefer-one',     () => this.tweaks.reload(),
+            'changed::quick-settings-menu-width',           () => this.tweaks.reload(),
+            'changed::quick-settings-adjust-roundness',     () => this.tweaks.reload(),
+            'changed::quick-settings-show-wired',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-wifi',            () => this.tweaks.reload(),
+            'changed::quick-settings-show-modem',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-network-bt',      () => this.tweaks.reload(),
+            'changed::quick-settings-show-vpn',             () => this.tweaks.reload(),
+            'changed::quick-settings-show-bluetooth',       () => this.tweaks.reload(),
+            'changed::quick-settings-show-power',           () => this.tweaks.reload(),
+            'changed::quick-settings-show-airplane',        () => this.tweaks.reload(),
+            'changed::quick-settings-show-rotate',          () => this.tweaks.reload(),
+            'changed::quick-settings-show-bg-apps',         () => this.tweaks.reload(),
+            this
+        );
+
         this.tweaks.reload();
+
+        this.binding = Main.layoutManager.connect('monitors-changed', () => this.tweaks.reload());
     }
 
     disable(){
-        this._settings = null;
+        this._settings.disconnectObject(this);
         this.tweaks.reset();
         QS.menu.box.remove_style_class_name('tweaked');
+        Main.layoutManager.disconnect(this.binding);
     }
 }

@@ -1,14 +1,10 @@
-'use strict';
-
 const { Clutter, GObject, GLib, St, Meta, GnomeDesktop } = imports.gi;
-
 const Background = imports.ui.background;
-const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 
 const ClockWidget = GObject.registerClass(
 class ClockWidget extends St.BoxLayout{
-    _init(){
+    _init(settings){
         super._init({
             style_class: 'background-clock',
             vertical: true,
@@ -21,46 +17,49 @@ class ClockWidget extends St.BoxLayout{
         this._clock = new St.Label({ x_expand: true });
         this._date = new St.Label({ x_expand: true });
 
-        this._settings = ExtensionUtils.getSettings();
-        this._settings.connect('changed::background-clock-position', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-x-offset', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-y-offset', this._settingsChanged.bind(this));
+        this._settings = settings;
+        this._settings.connectObject(
+            'changed::background-clock-position', this._settingsChanged.bind(this),
+            'changed::background-clock-x-offset', this._settingsChanged.bind(this),
+            'changed::background-clock-y-offset', this._settingsChanged.bind(this),
 
-        this._settings.connect('changed::background-clock-enable-clock', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-format', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-size', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-custom-font', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-font', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-color', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-shadow-x', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-shadow-y', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-shadow-blur', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-shadow-width', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-clock-shadow-color', this._settingsChanged.bind(this));
+            'changed::background-clock-enable-clock',       this._settingsChanged.bind(this),
+            'changed::background-clock-clock-format',       this._settingsChanged.bind(this),
+            'changed::background-clock-clock-size',         this._settingsChanged.bind(this),
+            'changed::background-clock-clock-custom-font',  this._settingsChanged.bind(this),
+            'changed::background-clock-clock-font',         this._settingsChanged.bind(this),
+            'changed::background-clock-clock-color',        this._settingsChanged.bind(this),
+            'changed::background-clock-clock-shadow-x',     this._settingsChanged.bind(this),
+            'changed::background-clock-clock-shadow-y',     this._settingsChanged.bind(this),
+            'changed::background-clock-clock-shadow-blur',  this._settingsChanged.bind(this),
+            'changed::background-clock-clock-shadow-width', this._settingsChanged.bind(this),
+            'changed::background-clock-clock-shadow-color', this._settingsChanged.bind(this),
 
-        this._settings.connect('changed::background-clock-enable-date', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-format', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-size', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-custom-font', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-font', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-color', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-shadow-x', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-shadow-y', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-shadow-blur', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-shadow-width', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-date-shadow-color', this._settingsChanged.bind(this));
+            'changed::background-clock-enable-date',        this._settingsChanged.bind(this),
+            'changed::background-clock-date-format',        this._settingsChanged.bind(this),
+            'changed::background-clock-date-size',          this._settingsChanged.bind(this),
+            'changed::background-clock-date-custom-font',   this._settingsChanged.bind(this),
+            'changed::background-clock-date-font',          this._settingsChanged.bind(this),
+            'changed::background-clock-date-color',         this._settingsChanged.bind(this),
+            'changed::background-clock-date-shadow-x',      this._settingsChanged.bind(this),
+            'changed::background-clock-date-shadow-y',      this._settingsChanged.bind(this),
+            'changed::background-clock-date-shadow-blur',   this._settingsChanged.bind(this),
+            'changed::background-clock-date-shadow-width',  this._settingsChanged.bind(this),
+            'changed::background-clock-date-shadow-color',  this._settingsChanged.bind(this),
 
-        this._settings.connect('changed::background-clock-bg-color', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-padding', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-border-size', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-border-radius', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-border-color', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-inset', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-x', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-y', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-blur', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-width', this._settingsChanged.bind(this));
-        this._settings.connect('changed::background-clock-bg-shadow-color', this._settingsChanged.bind(this));
+            'changed::background-clock-bg-color',           this._settingsChanged.bind(this),
+            'changed::background-clock-bg-padding',         this._settingsChanged.bind(this),
+            'changed::background-clock-bg-border-size',     this._settingsChanged.bind(this),
+            'changed::background-clock-bg-border-radius',   this._settingsChanged.bind(this),
+            'changed::background-clock-bg-border-color',    this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-inset',    this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-x',        this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-y',        this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-blur',     this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-width',    this._settingsChanged.bind(this),
+            'changed::background-clock-bg-shadow-color',    this._settingsChanged.bind(this),
+            this
+        );
         this._settingsChanged();
 
         this._wallclock = new GnomeDesktop.WallClock({ time_only: true });
@@ -174,21 +173,20 @@ class ClockWidget extends St.BoxLayout{
         this._wallclock.disconnectObject(this);
         this._wallclock.run_dispose();
         this._wallclock = null;
-        this._settings.run_dispose();
-        this._settings = null;
+        this._settings.disconnectObject(this);
     }
 })
 
 const BackgroundClock = GObject.registerClass(
 class BackgroundClock extends St.Widget {
-    _init(backgroundActor) {
+    _init(backgroundActor, settings) {
         super._init({
             layout_manager: new Clutter.BinLayout(),
             x_expand: true,
             y_expand: true,
         });
 
-        this._clockWidget = new ClockWidget();
+        this._clockWidget = new ClockWidget(settings);
         this.add_actor(this._clockWidget);
 
         this._backgroundActor = backgroundActor;
@@ -217,7 +215,8 @@ class BackgroundClock extends St.Widget {
         if (this._laterId)
             return;
 
-        this._laterId = Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
+        const laters = global.compositor.get_laters();
+        this._laterId = laters.add(Meta.LaterType.BEFORE_REDRAW, () => {
             this._updateScale();
 
             this._laterId = 0;
@@ -227,7 +226,7 @@ class BackgroundClock extends St.Widget {
 
     _onDestroy() {
         if (this._laterId)
-            Meta.later_remove(this._laterId);
+            global.compositor.get_laters().remove(this._laterId);
         this._laterId = 0;
 
         this._backgroundActor.layout_manager = null;
@@ -235,16 +234,17 @@ class BackgroundClock extends St.Widget {
 });
 
 var Extension = class Extension {
-    constructor() {
+    constructor(settings) {
+        this._settings = settings ;
         this._bgManagerProto = Background.BackgroundManager.prototype;
         this._createBackgroundOrig = this._bgManagerProto._createBackgroundActor;
     }
 
     enable() {
-        const { _createBackgroundOrig } = this;
+        const { _createBackgroundOrig, _settings } = this;
         this._bgManagerProto._createBackgroundActor = function () {
             const backgroundActor = _createBackgroundOrig.call(this);
-            const logo_ = new BackgroundClock(backgroundActor);
+            new BackgroundClock(backgroundActor, _settings);
 
             return backgroundActor;
         };

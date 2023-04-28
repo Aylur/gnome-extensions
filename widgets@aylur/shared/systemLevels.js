@@ -1,9 +1,8 @@
-'use strict';
-
 const { St, GLib, Shell, Gio, Clutter, GObject, GnomeDesktop, UPowerGlib: UPower } = imports.gi;
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Mainloop = imports.mainloop;
+const { LevelBar } = Me.imports.shared.levelBar;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
@@ -19,72 +18,28 @@ try {
 }
 
 //shouldn't be more than half the widthness of the bar
-const ROUNDNESS = 8;
-const ZERO_VALUE = ROUNDNESS*2;
+const ROUNDNESS = 7;
 
-const LevelBar = GObject.registerClass(
-class LevelBar extends St.Bin{
+const SystemLevelBar = GObject.registerClass(
+class SystemLevelBar extends LevelBar{
     _init(vertical){
         super._init({
-            y_expand: true,
-            x_expand: true,
+            vertical,
+            roundness: ROUNDNESS,
+            style_class: 'calendar',
+            pseudo_class: 'active',
         });
-        this.background = new St.Bin({
-            style_class: 'level-bar calendar',
-            pseudo_class: 'active'
-        });
-        this.fillLevel = new St.Widget({
-            style_class: 'level-fill calendar-today',
-            pseudo_class: 'selected'
-        });
-        this.set_child(this.background);
-        this.background.set_child(this.fillLevel);
 
-        this.value = 0;
-        if(vertical) this.set_vertical();
-        else this.set_horizontal();
+        this._fillLevel.add_style_class_name('calendar-today');
+        this._fillLevel.add_style_pseudo_class('selected');
 
-        this.connect('notify::value', () => this.repaint());
-    }
-
-    repaint(){
-        if(this.value > 1) this.value = 1;
-        if(this.value < 0) this.value = 0;
-        if(this.vertical){
-            let max = this.background.height;
-            this.fillLevel.height = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
+        if(this._vertical){
+            this.x_align = Clutter.ActorAlign.CENTER;
+            this.y_align = Clutter.ActorAlign.FILL;
         }else{
-            let max = this.background.width;
-            this.fillLevel.width = (max-ZERO_VALUE)*this.value + ZERO_VALUE;
+            this.x_align = Clutter.ActorAlign.FILL;
+            this.y_align = Clutter.ActorAlign.CENTER;
         }
-        if(this.value*100 < 1)
-            this.fillLevel.hide();
-        else
-            this.fillLevel.show();
-    }
-
-    set_vertical(){
-        this.background.y_expand = true;
-        this.background.y_align = Clutter.ActorAlign.FILL;
-        this.background.x_expand = true;
-        this.background.x_align = Clutter.ActorAlign.CENTER;
-        this.fillLevel.y_expand = true;
-        this.fillLevel.y_align = Clutter.ActorAlign.END;
-        this.fillLevel.x_expand = true;
-        this.fillLevel.x_align = Clutter.ActorAlign.FILL;
-        this.vertical = true;
-    }
-
-    set_horizontal(){
-        this.background.y_expand = true;
-        this.background.y_align = Clutter.ActorAlign.CENTER;
-        this.background.x_expand = true;
-        this.background.x_align = Clutter.ActorAlign.FILL;
-        this.fillLevel.y_expand = true;
-        this.fillLevel.y_align = Clutter.ActorAlign.FILL;
-        this.fillLevel.x_expand = true;
-        this.fillLevel.x_align = Clutter.ActorAlign.START;
-        this.vertical = false;
     }
 });
 
@@ -93,17 +48,17 @@ class UsageLevel extends St.BoxLayout{
     _init(vertical){
         super._init({
             style_class: 'usage-level',
+            x_expand: true,
+            y_expand: true
         });
         if(vertical) this.vertical = true;
         this.colorSwitchValues = [ 25, 50, 75, ];
-                                   //low green
-                                  //high red
 
         this.icon = new St.Icon({ reactive: true, track_hover: true });
         this.label = new St.Label();
-        this.level = new LevelBar(vertical);
+        this.level = new SystemLevelBar(vertical);
         this.hoverLabel = new St.Label({ style_class: 'dash-label' });
-        this.icon.connect('notify::hover', () => this.toggleHoverLabel());
+        this.icon.connect('notify::hover', () => this._toggleHoverLabel());
 
         this._buildUI();
     }
@@ -111,7 +66,6 @@ class UsageLevel extends St.BoxLayout{
     updateLevel(){
         this.setUsage();
         this.setColorClass();
-        this.level.repaint();
     }
     
     setColorClass(){
@@ -151,7 +105,7 @@ class UsageLevel extends St.BoxLayout{
         }
     }
 
-    toggleHoverLabel() {
+    _toggleHoverLabel() {
         if(this.icon.hover){
             Main.layoutManager.addTopChrome(this.hoverLabel);
             this.hoverLabel.opacity = 0;
@@ -160,7 +114,7 @@ class UsageLevel extends St.BoxLayout{
             const labelWidth = this.hoverLabel.get_width();
             const xOffset = Math.floor((iconWidth - labelWidth) / 2);
             const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
-            const y = stageY - this.hoverLabel.height - this.icon.height;
+            const y = stageY - this.icon.height;
             this.hoverLabel.set_position(x, y);
     
             this.hoverLabel.ease({
@@ -289,6 +243,7 @@ class CpuLevel extends UsageLevel{
             this.lastCPUTotal = currentCPUTotal;
             this.lastCPUUsed = currentCPUUsed;
         } catch (e) {
+            this.hide();
             logError(e);
         }
 
@@ -348,6 +303,7 @@ class RamLevel extends UsageLevel{
                 currentMemoryUsage = memUsed / memTotal;
             }
         }catch (e) {
+            this.hide();
             logError(e);
         }
 
@@ -362,32 +318,29 @@ class TempLevel extends UsageLevel{
         super._init(vertical);
 
         this.icon.icon_name = 'temperature-symbolic';
+        this.icon.fallback_gicon = Gio.Icon.new_for_string(
+            Me.path+'/media/temperature-symbolic.svg'
+        );
         this.hoverLabel.text = _('Temperature');
         this.colorSwitchValues = [ 50, 65, 80 ];
     }
 
     setUsage(){
-        let temperature = 0;
         try {
-            const inputFile = Gio.File.new_for_path("/sys/class/thermal/thermal_zone0/temp");
-            const fileInputStream = inputFile.read(null);
-            const dataInputStream = new Gio.DataInputStream({
-                base_stream: fileInputStream
-            });
+            const [, contents, etag] = 
+                Gio.File.new_for_path('/sys/class/thermal/thermal_zone0/temp')
+                .load_contents(null);
 
-            let [line, length] = dataInputStream.read_line(null);
-            if (line instanceof Uint8Array)
-                line = ByteArray.toString(line).trim();
-            else  line = line.toString().trim();
+            const temperature = Number.parseInt(
+                new TextDecoder('utf-8').decode(contents)
+            ) / 100000;
 
-            temperature = Number.parseInt(line) / 100000;
-            fileInputStream.close(null);
+            this.level.value = temperature;
+            this.label.text = Math.floor(temperature*100).toString() + '\˚';
         }catch (e) {
+            this.hide();
             logError(e);
         }
-
-        this.level.value = temperature;
-        this.label.text = Math.floor(temperature*100).toString() + '\˚';
     }
 });
 
@@ -412,7 +365,6 @@ class StorageLevel extends UsageLevel{
             let max = this.storage.blocks * this.storage.block_size;
             let free = this.storage.bfree * this.storage.block_size;
             let used = max - free;
-            log(used/max)
             this.level.value = used/max;
             this.label.text = Math.floor((used/max)*100).toString() + '%';
         }

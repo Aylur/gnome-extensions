@@ -1,29 +1,27 @@
-'use strict'
-
 const { GObject, St, Clutter } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const SystemActions = imports.misc.systemActions;
 const ModalDialog = imports.ui.modalDialog;
+const PanelMenu = imports.ui.panelMenu;
 
-const Me = ExtensionUtils.getCurrentExtension();
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const PowerButton = GObject.registerClass(
 class PowerButton extends St.Button{
     _init(powerIcon, powerLabel, action, parentDialog){
         super._init({ style_class: action });
-        this.settings = parentDialog.settings;
+        this._settings = parentDialog._settings;
 
         this.action = action;
         this.parentDialog = parentDialog;
 
-        this.radius = this.settings.get_int('power-menu-button-roundness');
-        this.padding = this.settings.get_int('power-menu-icon-padding');
+        this.radius = this._settings.get_int('power-menu-button-roundness');
+        this.padding = this._settings.get_int('power-menu-icon-padding');
 
         this._icon = new St.Icon({
             icon_name: powerIcon,
-            icon_size: this.settings.get_int('power-menu-icon-size'),
+            icon_size: this._settings.get_int('power-menu-icon-size'),
             x_align: Clutter.ActorAlign.CENTER,
         });
         this._label = new St.Label({
@@ -31,7 +29,7 @@ class PowerButton extends St.Button{
             x_align: Clutter.ActorAlign.CENTER,
         });
 
-        switch (this.settings.get_int('power-menu-label-position')) {
+        switch (this._settings.get_int('power-menu-label-position')) {
             case 0: this._inside(); break;
             case 1: this._outside(); break;
             default: this._hidden(); break;
@@ -58,7 +56,7 @@ class PowerButton extends St.Button{
 
         //icon-size + label (assume it's 16px) + padding;
         let size = this._icon.icon_size + 16 +
-            this.settings.get_int('power-menu-icon-padding') * 2;
+            this._settings.get_int('power-menu-icon-padding') * 2;
         this.style = `
             padding: ${this.padding/2}px;
             border-radius: ${this.radius}px;
@@ -107,7 +105,7 @@ const PowerDialog = GObject.registerClass(
 class PowerDialog extends ModalDialog.ModalDialog{
     _init(settings){
         super._init();
-        this.settings = settings;
+        this._settings = settings;
 
         this.dialogLayout._dialog.add_style_class_name('power-menu');
         this.dialogLayout._dialog.style = `
@@ -142,7 +140,7 @@ class PowerDialog extends ModalDialog.ModalDialog{
     }
 
     _buildUI(){
-        switch (this.settings.get_int('power-menu-layout')) {
+        switch (this._settings.get_int('power-menu-layout')) {
             case 0: this.layout2x2(); break;
             default: this.layout1x4(); break;
         }
@@ -172,17 +170,16 @@ class PowerDialog extends ModalDialog.ModalDialog{
 });
 
 const PowerMenu = GObject.registerClass(
-class PowerMenu extends St.Button {
+class PowerMenu extends PanelMenu.Button {
     _init(settings) {
-        super._init({
-            style_class: 'panel-button power-menu-panel-button',
-            child: new St.Icon({
-                icon_name: 'system-shutdown-symbolic',
-                style_class: 'system-status-icon',
-            })
-        });
+        super._init(0, 'Power Menu', true);
+        this._settings = settings;
 
-        this.settings = settings;
+        this.add_style_class_name('power-menu-panel-button');
+        this.add_child(new St.Icon({
+            icon_name: 'system-shutdown-symbolic',
+            style_class: 'system-status-icon',
+        }));
 
         this.connect('button-press-event',
             () => this._showDialog());
@@ -194,31 +191,33 @@ class PowerMenu extends St.Button {
     }
 
     _showDialog(){
-        this.dialog = new PowerDialog(this.settings);
+        this.dialog = new PowerDialog(this._settings);
         this.dialog.open();
     }
 });
 
 var Extension = class Extension {
-    constructor() {
-        this.panelBox = [
-            Main.panel._leftBox,
-            Main.panel._centerBox,
-            Main.panel._rightBox
-        ]
+    constructor(settings) {
+        this._settings = settings;
+        this.pos = [
+            'left',
+            'center',
+            'right'
+        ];
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-        
-        this.settings.connect('changed::power-menu-position', () => this._addToPanel());
+        this._settings.connectObject(
+            'changed::power-menu-position', this._addToPanel.bind(this),
+            this
+        );
         this._addToPanel();
     }
 
     disable() {
         this._panelButton.destroy();
         this._panelButton = null;
-        this.settings = null;
+        this._settings.disconnectObject(this);
     }
 
     _addToPanel(){
@@ -227,9 +226,9 @@ var Extension = class Extension {
             this._panelButton = null;
         }
 
-        this._panelButton = new PowerMenu(this.settings);
-        let pos = this.settings.get_int('power-menu-position');
-        let offset = this.settings.get_int('power-menu-offset');
-        this.panelBox[pos].insert_child_at_index(this._panelButton, offset);
+        this._panelButton = new PowerMenu(this._settings);
+        let pos = this._settings.get_int('power-menu-position');
+        let offset = this._settings.get_int('power-menu-offset');
+        Main.panel.addToStatusArea('Power Menu', this._panelButton, offset, this.pos[pos]);
     }
 }

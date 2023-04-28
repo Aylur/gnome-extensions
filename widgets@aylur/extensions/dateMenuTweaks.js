@@ -1,5 +1,3 @@
-'use strict';
-
 const { St, GObject, Clutter, Pango, Gio, GLib, GnomeDesktop, Shell } = imports.gi; 
 const Main = imports.ui.main;
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -7,7 +5,6 @@ const Me = ExtensionUtils.getCurrentExtension();
 const DateMenu = Main.panel.statusArea.dateMenu;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
-const Mainloop = imports.mainloop;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
@@ -65,9 +62,6 @@ class CustomMenu extends St.BoxLayout{
             vertical: true,
             style_class: 'datemenu-menu-custom-box'
         });
-
-        let maxHeight = Main.layoutManager.primaryMonitor.height - Main.panel.height;
-        this.style = `max-height: ${maxHeight-14}px; `;
 
         let datemenu = new imports.ui.dateMenu.DateMenuButton();
 
@@ -162,7 +156,18 @@ class CustomMenu extends St.BoxLayout{
             this._setGreet();
         }, this);
 
-        this.connect('destroy', () => DateMenu.menu.disconnectObject(this));
+        Main.layoutManager.connectObject('monitors-changed', () => this.tweaks.reload(), this);
+        this.connect('destroy', this._onDestroy.bind(this));
+    }
+
+    _onDestroy(){
+        DateMenu.menu.disconnectObject(this);
+        Main.layoutManager.disconnectObject(this);
+    }
+
+    _updateHeight(){
+        let height = Main.layoutManager.primaryMonitor.height - Main.panel.height;
+        this.style = `max-height: ${height-14}px;`;
     }
 
     stopTimeout(){ if(this.levels) this.levels.stopTimeout() }
@@ -210,148 +215,149 @@ class CustomMenu extends St.BoxLayout{
 });
 
 var Extension = class Extension {
-    constructor() {
-        this.panel = [
+    constructor(settings) {
+        this._settings = settings;
+        this._panelBox = [
             Main.panel._leftBox,
             Main.panel._centerBox,
-            Main.panel._rightBox
-        ]
-        this.dateMenu = DateMenu.get_parent();
-        this.panelBox = DateMenu.get_first_child();
-        this.padding = this.panelBox.get_first_child();
-        this.indicator = DateMenu._indicator;
-        this.dateLabel = DateMenu._clockDisplay;
-        this.panelBoxChildren = this.panelBox.get_children();
+            Main.panel._rightBox,
+        ];
+        this._box = DateMenu.get_first_child();
+        this._padding = this._box.get_first_child();
+        this._indicator = DateMenu._indicator;
+        this._dateLabel = DateMenu._clockDisplay;
+        this._children = this._box.get_children();
 
-        this.menuBox = DateMenu.menu.box.get_first_child().get_first_child();
-        this.calendar = this.menuBox.get_last_child();
-        this.notifications = this.menuBox.get_first_child();
-        this.menuChildren = this.menuBox.get_children();
+        this._menuBox = DateMenu.menu.box.get_first_child().get_first_child();
+        this._calendar = this._menuBox.get_last_child();
+        this._notifications = this._menuBox.get_first_child();
+        this._menuChildren = this._menuBox.get_children();
 
-        this.stockMpris = Main.panel.statusArea.dateMenu._messageList._mediaSection;
-        this.shouldShow = this.stockMpris._shouldShow;
+        this._stockMpris = Main.panel.statusArea.dateMenu._messageList._mediaSection;
+        this._shouldShow = this._stockMpris._shouldShow;
     }
 
     enable() {
-        this.settings = ExtensionUtils.getSettings();
-        this.settings.connect('changed::date-menu-position', () => this.reload());
-        this.settings.connect('changed::date-menu-offset', () => this.reload());
-        this.settings.connect('changed::date-menu-remove-padding', () => this.reload());
-        this.settings.connect('changed::date-menu-indicator-position', () => this.reload());
-        this.settings.connect('changed::date-menu-mirror', () => this.reload());
-        this.settings.connect('changed::date-menu-hide-notifications', () => this.reload());
-        this.settings.connect('changed::date-menu-custom-menu', () => this.reload());
-        this.settings.connect('changed::date-menu-show-events', () => this.reload());
-        this.settings.connect('changed::date-menu-show-user', () => this.reload());
-        this.settings.connect('changed::date-menu-show-clocks', () => this.reload());
-        this.settings.connect('changed::date-menu-show-weather', () => this.reload());
-        this.settings.connect('changed::date-menu-show-media', () => this.reload());
-        this.settings.connect('changed::date-menu-show-system-levels', () => this.reload());
+        DateMenu.menu.box.add_style_class_name('date-menu-tweaked');
+        this._settings.connectObject(
+            'changed::date-menu-position',           this._reload.bind(this),
+            'changed::date-menu-offset',             this._reload.bind(this),
+            'changed::date-menu-remove-padding',     this._reload.bind(this),
+            'changed::date-menu-indicator-position', this._reload.bind(this),
+            'changed::date-menu-mirror',             this._reload.bind(this),
+            'changed::date-menu-hide-notifications', this._reload.bind(this),
+            'changed::date-menu-custom-menu',        this._reload.bind(this),
+            'changed::date-menu-show-events',        this._reload.bind(this),
+            'changed::date-menu-show-user',          this._reload.bind(this),
+            'changed::date-menu-show-clocks',        this._reload.bind(this),
+            'changed::date-menu-show-weather',       this._reload.bind(this),
+            'changed::date-menu-show-media',         this._reload.bind(this),
+            'changed::date-menu-show-system-levels', this._reload.bind(this),
+            'changed::date-menu-date-format', () => {
+                this._dateFormat = this._settings.get_string('date-menu-date-format');
+                this._updateClock() },
+            this
+        );
+        this._dateFormat = this._settings.get_string('date-menu-date-format');
+        this._customMenu = new CustomMenu(this._settings);
 
-        this.settings.connect('changed::date-menu-date-format', () => {
-            this.dateFormat = this.settings.get_string('date-menu-date-format');
-            this.updateClock()
-        });
-        this.dateFormat = this.settings.get_string('date-menu-date-format');
+        this._clock = new St.Label({ style_class: 'clock' });
+        this._clock.clutter_text.y_align = Clutter.ActorAlign.CENTER;
+        this._clock.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+        this._wallclock = new GnomeDesktop.WallClock({ time_only: true });
+        this._wallclock.connect('notify::clock', () =>  this._updateClock());
+        this._updateClock();
 
-        //clock
-        this.clock = new St.Label({ style_class: 'clock' });
-        this.clock.clutter_text.y_align = Clutter.ActorAlign.CENTER;
-        this.clock.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
-
-        this.wallclock = new GnomeDesktop.WallClock({ time_only: true });
-        this.wallclock.connect(
-            'notify::clock',
-            () =>  this.updateClock());
-        
-        this.updateClock();
-        this.reload();
-
-        //mpris
-        this.settings.connect('changed::date-menu-hide-stock-mpris', () => this._mpris());
+        this._settings.connect('changed::date-menu-hide-stock-mpris', () => this._mpris());
         this._mpris();
+
+        this._reload();
+    }
+    
+    disable() {
+        DateMenu.menu.box.remove_style_class_name('date-menu-tweaked');
+        DateMenu.container.get_parent().remove_child(DateMenu.container);
+        Main.panel._centerBox.insert_child_at_index(DateMenu.container, 0);
+
+        this._reset();
+        this._mpris(true);
+
+        this._settings.disconnectObject(this);
+        this._wallclock = null;
+        this._customMenu.destroy();
+        this._customMenu = null;
+        this._clock.destroy();
+        this._clock = null;
+    }
+
+    _updateClock(){
+        this._clock.text = GLib.DateTime.new_now_local().format(this._dateFormat);
     }
 
     _mpris(show = false){
-        if(show || !this.settings.get_boolean('date-menu-hide-stock-mpris')){
-            this.stockMpris._shouldShow = this.shouldShow;
-            this.stockMpris.visible = this.stockMpris._shouldShow();
+        if(show || !this._settings.get_boolean('date-menu-hide-stock-mpris')){
+            this._stockMpris._shouldShow = this._shouldShow;
+            this._stockMpris.visible = this._stockMpris._shouldShow();
         }else{
-            this.stockMpris.visible = false;
-            this.stockMpris._shouldShow = () => false;
+            this._stockMpris.visible = false;
+            this._stockMpris._shouldShow = () => false;
         }
     }
+    
+    _reload(){
+        this._reset();
 
-    disable() {
-        this.reset();
-        this._mpris(true);
-
-        this.dateMenu.get_parent().remove_child(this.dateMenu);
-        this.panel[1].insert_child_at_index(this.dateMenu, 0);
-
-        this.settings = null;
-        this.wallclock = null;
-    }
-
-    updateClock(){
-        this.clock.text = GLib.DateTime.new_now_local().format(this.dateFormat);
-    }
-
-    reload(){
-        this.reset();
-
-        this.dateMenu.get_parent().remove_child(this.dateMenu);
-        this.panel[this.settings.get_int('date-menu-position')]
-            .insert_child_at_index(this.dateMenu, this.settings.get_int('date-menu-offset'));
+        DateMenu.container.get_parent().remove_child(DateMenu.container);
+        let position = this._settings.get_int('date-menu-position');
+        let offset = this._settings.get_int('date-menu-offset');
+        this._panelBox[position].insert_child_at_index(DateMenu.container, offset);
 
         //indicator & padding
-        this.panelBox.remove_all_children();
+        this._box.remove_all_children();
 
-        let pos = this.settings.get_int('date-menu-indicator-position');
-        let padding = this.settings.get_boolean('date-menu-remove-padding');
+        let pos = this._settings.get_int('date-menu-indicator-position');
+        let padding = this._settings.get_boolean('date-menu-remove-padding');
 
         if(pos === 0){
-            this.panelBox.add_child(this.indicator);
-            this.panelBox.add_child(this.clock);
-            if(!padding) this.panelBox.add_child(this.padding);
+            this._box.add_child(this._indicator);
+            this._box.add_child(this._clock);
+            if(!padding) this._box.add_child(this._padding);
         }else if(pos === 1){
-            if(!padding) this.panelBox.add_child(this.padding);
-            this.panelBox.add_child(this.clock);
-            this.panelBox.add_child(this.indicator);
+            if(!padding) this._box.add_child(this._padding);
+            this._box.add_child(this._clock);
+            this._box.add_child(this._indicator);
         }else{
-            this.panelBox.add_child(this.clock);
+            this._box.add_child(this._clock);
         }
 
         //mirror
-        if(this.settings.get_boolean('date-menu-mirror')){
-            this.menuBox.remove_child(this.calendar);
-            this.menuBox.insert_child_at_index(this.calendar, 0);
+        if(this._settings.get_boolean('date-menu-mirror')){
+            this._menuBox.remove_child(this._calendar);
+            this._menuBox.insert_child_at_index(this._calendar, 0);
         }
         
         //custom menu
-        if(this.settings.get_boolean('date-menu-custom-menu')){
-            this.custom = new CustomMenu(this.settings);
-            this.menuBox.replace_child(this.calendar, this.custom);
+        if(this._settings.get_boolean('date-menu-custom-menu')){
+            this._menuBox.replace_child(this._calendar, this._customMenu);
         }
 
         //notifications
-        if(this.settings.get_boolean('date-menu-hide-notifications'))
-            this.menuBox.remove_child(this.notifications);
+        if(this._settings.get_boolean('date-menu-hide-notifications'))
+            this._menuBox.remove_child(this._notifications);
     }
 
-    reset(){
+    _reset(){
         //position reset
-        this.panelBox.remove_all_children();
-        this.panelBoxChildren.forEach(ch => {
-            this.panelBox.add_child(ch);
+        this._box.remove_all_children();
+        this._children.forEach(ch => {
+            this._box.add_child(ch);
         });
 
         //menu reset
-        this.menuBox.remove_child(this.notifications);
-        this.menuBox.insert_child_at_index(this.notifications, 0);
-        if(this.custom){
-            this.menuBox.replace_child(this.custom, this.calendar);
-            this.custom = null;
+        this._menuBox.remove_child(this._notifications);
+        this._menuBox.insert_child_at_index(this._notifications, 0);
+        if(this._customMenu.get_parent()){
+            this._menuBox.replace_child(this._customMenu, this._calendar);
         }
     }
 }
