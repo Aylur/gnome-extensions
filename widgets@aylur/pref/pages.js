@@ -10,6 +10,7 @@ const { wsNamesGroup } = Me.imports.pref.workspaces;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
+const MEDIA_CACHE = GLib.get_user_cache_dir()+'/aylur/media';
 const MEDIA_SUBTITLE = _("Doesn't work with every media player");
 const MEDIA_SUBTITLE2 = _("Doesn't work on every style");
 const MEDIA_SUBTITLE_FADE = _('Fading behind controls buttons and title.')
@@ -338,7 +339,6 @@ class MediaPlayerPage extends SubPage{
         const playerGroup = new Adw.PreferencesGroup({ title: _('Player') });
         this.add(playerGroup);
 
-        this.cachePath = `${Me.path}/media/mpris-cache`;
         this.clearRow = new Adw.ActionRow({ title: _('Cache') });
         let clearBtn = Gtk.Button.new_with_label(_('Clear'));
         clearBtn.valign = Gtk.Align.CENTER;
@@ -362,9 +362,8 @@ class MediaPlayerPage extends SubPage{
     }
 
     _cacheSize(){
-        let path = Me.dir.get_path()+'/media/mpris-cache/';
-        let dir = Gio.File.new_for_path(path);
-        if(!GLib.file_test(path, GLib.FileTest.EXISTS))
+        let dir = Gio.File.new_for_path(MEDIA_CACHE);
+        if(!GLib.file_test(MEDIA_CACHE, GLib.FileTest.EXISTS))
             dir.make_directory(null);
 
         let info = dir.query_info('standard::*', Gio.FileQueryInfoFlags.NONE, null);
@@ -372,8 +371,7 @@ class MediaPlayerPage extends SubPage{
     }
 
     _clearCache(){
-        let path = Me.dir.get_path()+'/media/mpris-cache/';
-        let dir = Gio.File.new_for_path(path);
+        let dir = Gio.File.new_for_path(MEDIA_CACHE);
         dir.trash(null);
         dir.make_directory(null);
         this.clearRow.set_subtitle(_('Cleared!'));

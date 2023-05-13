@@ -5,6 +5,9 @@ const { Slider } = imports.ui.slider;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 
+const CACHE_PATH = GLib.get_user_cache_dir()+'/aylur';
+const MEDIA_CACHE = CACHE_PATH+'/media/';
+
 const PlayerIFace =
 `<node>
     <interface name="org.mpris.MediaPlayer2.Player">
@@ -298,11 +301,12 @@ class PlayerWidget extends St.BoxLayout{
         this._mediaTitle.text = this.player.trackTitle;
 
         //track cover
-        let path = Me.path+'/media/mpris-cache/';
-        if(!GLib.file_test(path, GLib.FileTest.EXISTS))
-            Gio.File.new_for_path(path).make_directory(null);
+        [ CACHE_PATH, MEDIA_CACHE ].forEach(path => {
+            if(!GLib.file_test(path, GLib.FileTest.EXISTS))
+                Gio.File.new_for_path(path).make_directory(null);
+        });
 
-        let fname = path + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/[\*\?\"\<\>\|\#\:\?\']/g, '');
+        let fname = MEDIA_CACHE + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/[\,\*\?\"\<\>\|\#\:\?\/\']/g, '');
         let withCover = `
             border-radius: ${this.roundness}px;
             background-image: url("file://${fname}");

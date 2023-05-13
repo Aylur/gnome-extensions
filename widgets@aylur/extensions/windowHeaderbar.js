@@ -10,7 +10,7 @@ class Window{
         const desc  = this.window.get_description()
         const match = desc && desc.match(/0x[0-9a-f]+/)
       
-        return match && match[0]
+        return match && match[0];
     }
   
     hideHeaderBar() {
@@ -20,7 +20,8 @@ class Window{
             '-f', '_MOTIF_WM_HINTS',
             '32c', 
             '-set', '_MOTIF_WM_HINTS',
-            '0x2, 0x0, 0x2, 0x0, 0x0'
+            // '0x2, 0x0, 0x2, 0x0, 0x0'
+            '2'
         ]);
     }
 
