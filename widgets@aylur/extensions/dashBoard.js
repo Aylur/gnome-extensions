@@ -4,6 +4,7 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Widgets = Me.imports.shared.dashWidgets;
 const ConfigParser = Me.imports.shared.dashConfigParser;
+const { PanelButton } = Me.imports.shared.panelButton;
 
 const DashBoardModal = GObject.registerClass(
 class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
@@ -141,7 +142,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 const DashBoardPanelButton = GObject.registerClass(
 class DashBoardPanelButton extends PanelMenu.Button{
     _init(settings){
-        super._init(0, 'Dash Board', true);
+        super._init(0, _('Dash Board'), true);
         this._settings = settings;
         this.add_style_class_name('dashboard-button');
         let box = new St.BoxLayout();
@@ -226,52 +227,35 @@ class DashBoardPanelButton extends PanelMenu.Button{
 var Extension = class Extension {
     constructor(settings) {
         this._settings = settings;
-        this.pos = [
-            'left',
-            'center',
-            'right'
-        ];
-        this.activities = Main.panel.statusArea.activities.get_parent();
+        this._extension = new PanelButton({
+            settings,
+            indicator: DashBoardPanelButton,
+            name: 'dash-button',
+            signals: [
+                'dash-button-position',
+                'dash-button-offset',
+            ]
+        })
+        this._activities = Main.panel.statusArea.activities.get_parent();
     }
 
     enable() {
+        this._extension.enable();
         //so it comes up in dconf editor
         this._settings.set_strv('dash-links-names', this._settings.get_strv('dash-links-names'));
         this._settings.set_strv('dash-links-urls',  this._settings.get_strv('dash-links-urls'));
-
-        this._settings.connectObject(
-            'changed::dash-button-position', this._reload.bind(this),
-            'changed::dash-button-offset', this._reload.bind(this),
-            'changed::dash-hide-activities', this._activites.bind(this),
-            this
-        );
-        
-        this._activites();
-        this._reload();
+        this._settings.connectObject('changed::dash-hide-activities', this._hideActivities.bind(this), this);
     }
 
     disable() {
-        this._panelButton.destroy();
-        this._panelButton = null;
+        this._extension.disable();
+        this._activities.show();
         this._settings.disconnectObject(this);
-        this.activities.show();
     }
 
-    _activites(){
+    _hideActivities() {
         this._settings.get_boolean('dash-hide-activities') ?
-            this.activities.hide():
-            this.activities.show();
-    }
-
-    _reload(){
-        if(this._panelButton){
-            this._panelButton.destroy();
-            this._panelButton = null;
-        }
-
-        this._panelButton = new DashBoardPanelButton(this._settings);
-        let pos = this._settings.get_int('dash-button-position');
-        let offset = this._settings.get_int('dash-button-offset');
-        Main.panel.addToStatusArea('Dash Board', this._panelButton, offset, this.pos[pos]);
+            this._activities.hide():
+            this._activities.show();
     }
 }

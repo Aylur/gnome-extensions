@@ -3,6 +3,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const { LevelBar } = Me.imports.shared.levelBar
+const { PanelButton } = Me.imports.shared.panelButton;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -189,43 +190,27 @@ class BatteryBar extends PanelMenu.Button{
     }
 });
 
-var Extension = class Extension{
+var Extension = class Extension {
     constructor(settings) {
-        this._settings = settings;
-        this.pos = [
-            'left',
-            'center',
-            'right'
-        ];
-        this.stockIndicator = Main.panel.statusArea.quickSettings._system;
+        this._extension = new PanelButton({
+            settings,
+            name: 'battery-bar',
+            indicator: BatteryBar,
+            signals: [
+                'battery-bar-position',
+                'battery-bar-offset',
+            ]
+        })
+        this._stockIndicator = Main.panel.statusArea.quickSettings._system;
     }
 
-    enable(){
-        this._settings.connectObject(
-            'changed::battery-bar-position',     this._addToPanel.bind(this),
-            'changed::battery-bar-offset',       this._addToPanel.bind(this),
-            this                
-        );
-        this._addToPanel();
-        this.stockIndicator.hide();
+    enable() { 
+        this._extension.enable();
+        this._stockIndicator.hide();
     }
 
-    disable(){
-        this._settings.disconnectObject(this);
-        this._panelButton.destroy();
-        this._panelButton = null;
-        this.stockIndicator.show();
-    }
-    
-    _addToPanel(){
-        if(this._panelButton){
-            this._panelButton.destroy();
-            this._panelButton = null;
-        }
-
-        this._panelButton = new BatteryBar(this._settings);
-        let pos = this._settings.get_int('battery-bar-position');
-        let offset = this._settings.get_int('battery-bar-offset');
-        Main.panel.addToStatusArea('Battery Bar', this._panelButton, offset, this.pos[pos]);
+    disable() { 
+        this._extension.disable();
+        this._stockIndicator.show();
     }
 }

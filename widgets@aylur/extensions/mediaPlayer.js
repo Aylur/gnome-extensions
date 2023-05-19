@@ -4,6 +4,7 @@ const Me = ExtensionUtils.getCurrentExtension()
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Media = Me.imports.shared.media;
+const { PanelButton } = Me.imports.shared.panelButton;
 
 const MediaBox = GObject.registerClass(
 class MediaBox extends Media.MediaBox{
@@ -208,70 +209,73 @@ class MediaControls extends PanelMenu.Button{
 
 var Extension = class Extension {
     constructor(settings) {
-        this._settings = settings;
-        this.pos = [
-            'left',
-            'center',
-            'right'
+        this._signals = [
+            'media-player-offset',
+            'media-player-position',
+            'media-player-controls-position',
+            'media-player-controls-offset',
+            'media-player-enable-controls',
+            'media-player-max-width',
+            'media-player-enable-track',
+            'media-player-show-player-icon',
+            'media-player-colored-player-icon',
+            'media-player-player-icon-position',
+            'media-player-prefer',
         ];
+        this._settings = settings;
+        this._buttons = { media: null, controls: null };
+    }
+
+    _media() {
+        return new PanelButton({
+            settings: this._settings,
+            indicator: MediaButton,
+            name: 'media-player',
+            signals: []
+        });
+    }
+
+    _controls() {
+        return new PanelButton({
+            settings: this._settings,
+            indicator: MediaControls,
+            name: 'media-player-controls',
+            signals: []
+        });
     }
 
     enable() {
-        this._settings.connectObject(
-            'changed::media-player-offset', () => this._reload(),
-            'changed::media-player-position', () => this._reload(),
-            'changed::media-player-controls-position', () => this._reload(),
-            'changed::media-player-controls-offset', () => this._reload(),
-            'changed::media-player-enable-controls', () => this._reload(),
-            'changed::media-player-max-width', () => this._reload(),
-            'changed::media-player-enable-track', () => this._reload(),
-            'changed::media-player-show-player-icon', () => this._reload(),
-            'changed::media-player-colored-player-icon', () => this._reload(),
-            'changed::media-player-player-icon-position', () => this._reload(),
-            'changed::media-player-prefer', () => this._reload(),
-            this
+        let arr = [];
+        this._signals.forEach(s =>
+            arr.push(`changed::${s}`, this._reload.bind(this))
         );
+        this._settings.connectObject(...arr, this);
         this._reload();
-
     }
 
     disable() {
         this._settings.disconnectObject(this);
-
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
-        }
-        if(this.controls){
-            this.controls.destroy();
-            this.controls = null;
-        }
     }
 
     _reload(){
-        if(this.panelButton){
-            this.panelButton.destroy();
-            this.panelButton = null;
-        }
-        if(this.controls){
-            this.controls.destroy();
-            this.controls = null;
+        if(this._buttons.media) {
+            this._buttons.media.disable();
+            this._buttons.media = null;
         }
 
-        let pos, offset
-
-        pos = this._settings.get_int('media-player-position');
-        offset = this._settings.get_int('media-player-offset');
-        if(this._settings.get_boolean('media-player-enable-track')){
-            this.panelButton = new MediaButton(this._settings);
-            Main.panel.addToStatusArea('Media Player', this.panelButton, offset, this.pos[pos]);
+        if(this._buttons.controls) {
+            this._buttons.controls.disable();
+            this._buttons.controls = null;
         }
 
-        pos = this._settings.get_int('media-player-controls-position');
-        offset = this._settings.get_int('media-player-controls-offset');
-        if(this._settings.get_boolean('media-player-enable-controls')){
-            this.controls = new MediaControls(this._settings.get_string('media-player-prefer'));
-            Main.panel.addToStatusArea('Media Controls', this.controls, offset, this.pos[pos]);
+        if(this._settings.get_boolean('media-player-enable-track')) {
+            this._buttons.media = this._media();
+            this._buttons.media.enable();
+        }
+
+        if(this._settings.get_boolean('media-player-enable-controls')) {
+            this._buttons.controls = this._controls();
+            this._buttons.controls.enable();
         }
     }
 }

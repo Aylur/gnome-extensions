@@ -256,7 +256,3 @@ var Extension = class Extension {
         Main.layoutManager._updateBackgrounds();
     }
 }
-
-function init() {
-    return new Extension();
-}
