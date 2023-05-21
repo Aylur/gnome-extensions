@@ -254,10 +254,11 @@ var Extension = class Extension {
     }
 
     disable() {
+        this._remove();
         this._settings.disconnectObject(this);
     }
 
-    _reload(){
+    _remove() {
         if(this._buttons.media) {
             this._buttons.media.disable();
             this._buttons.media = null;
@@ -267,6 +268,10 @@ var Extension = class Extension {
             this._buttons.controls.disable();
             this._buttons.controls = null;
         }
+    }
+
+    _reload() {
+        this._remove();
 
         if(this._settings.get_boolean('media-player-enable-track')) {
             this._buttons.media = this._media();
