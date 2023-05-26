@@ -132,7 +132,7 @@ class MediaButton extends PanelMenu.Button{
 
 const MediaControls = GObject.registerClass(
 class MediaControls extends PanelMenu.Button{
-    _init(preferred){
+    _init(settings){
         super._init(0, 'Media Controls', true);
         this.style_class = 'panel-media-controls';
         this.visible = false;
@@ -147,6 +147,7 @@ class MediaControls extends PanelMenu.Button{
         box.add_child(this.playBtn);
         box.add_child(this.nextBtn);
 
+        let preferred = settings.get_string('media-player-prefer');
         this.media = new Media.Media({}, preferred);
         this.media.connect('updated', () => this._sync());
 
