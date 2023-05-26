@@ -4,6 +4,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const DateMenu = Main.panel.statusArea.dateMenu;
 const Media = Me.imports.shared.media;
+const { Avatar } = Me.imports.shared.userWidget;
 const SystemLevels = Me.imports.shared.systemLevels;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
@@ -79,13 +80,10 @@ class CustomMenu extends St.BoxLayout{
         let userBtn = new St.Button({
             x_align: Clutter.ActorAlign.CENTER,
             style_class: 'events-button',
-            child: new St.Widget({
-                y_expand: true,
-                x_expand: true,
-                style: 'background-image: url("/var/lib/AccountsService/icons/'+ GLib.get_user_name() +'"); background-size: cover;',
-            })
+            child: Avatar({ fallbackSize: 82 })
         });
-        userBtn.connect('clicked', () => Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate());
+        userBtn.connect('clicked', () => Shell.AppSystem.get_default()
+            .lookup_app('gnome-user-accounts-panel.desktop').activate());
 
         let userName = new St.Label({
             x_align: Clutter.ActorAlign.CENTER,

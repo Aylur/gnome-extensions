@@ -1,11 +1,12 @@
 'use strict';
 
-const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell } = imports.gi;
+const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, AccountsService } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const Dash = imports.ui.dash;
+const { Avatar } = Me.imports.shared.userWidget;
 const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
@@ -140,12 +141,9 @@ class UserWidget extends DashWidget{
             x_expand: true,
             y_expand: true,
             style_class: 'user-icon-button button',
-            child: new St.Widget({
-                style: `
-                    background-image: url("/var/lib/AccountsService/icons/${GLib.get_user_name()}");
-                    background-size: cover;
-                    border-radius: ${this._settings.get_int(`dash-user-icon-roundness`)}px;
-                `,
+            child: Avatar({
+                radius: this._settings.get_int(`dash-user-icon-roundness`),
+                fallbackSize: this._settings.get_int(`dash-user-icon-width`)*0.7,
             }),
             style: `
                 border-radius: ${this._settings.get_int(`dash-user-icon-roundness`)}px;

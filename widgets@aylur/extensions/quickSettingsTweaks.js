@@ -8,6 +8,7 @@ const Media = Me.imports.shared.media;
 const { NotificationList } = Me.imports.shared.notificationList;
 const SystemLevels = Me.imports.shared.systemLevels;
 const { VolumeMixer } = Me.imports.shared.volumeMixer;
+const { Avatar } = Me.imports.shared.userWidget;
 
 const { loadInterfaceXML } = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -27,13 +28,10 @@ class QuickSettingsSystem extends St.BoxLayout{
             () =>  Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate()
         );
         userBtn.style_class = 'icon-button user-btn';
-        userBtn.set_child(new St.Widget({
-            y_expand: true,
-            style_class: 'user-icon icon-button',
-            style: `
-                background-image: url("/var/lib/AccountsService/icons/${GLib.get_user_name()}");
-                background-size: cover;`,
-        }));
+        userBtn.set_child(Avatar({ 
+            styleClass: 'user-icon icon-button',
+            fallbackSize: 42,
+        }))
 
         let greetBox = new St.BoxLayout({
             vertical: true,
