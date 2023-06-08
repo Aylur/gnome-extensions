@@ -253,7 +253,8 @@ class PlayerWidget extends St.BoxLayout {
         this._volumeIcon = new St.Icon({icon_name: 'audio-volume-high-symbolic'});
         this._volumeSlider = new Slider(0);
         this._volumeSlider.connect('notify::value', () => {
-            this.player.setVolume(this._volumeSlider.value);
+            if (this._volumeSlider._dragging)
+                this.player.setVolume(this._volumeSlider.value);
         });
 
         // ui containers
@@ -430,7 +431,8 @@ class PlayerWidget extends St.BoxLayout {
             this.volumeBox.hide();
         } else {
             this.volumeBox.show();
-            this._volumeSlider.value = this.player.volume;
+            if (!this._volumeSlider._dragging)
+                this._volumeSlider.value = this.player.volume;
             if (this.player.volume === 0)
                 this._volumeIcon.icon_name = 'audio-volume-muted-symbolic';
             if (this.player.volume >= 0 && this.player.volume < 0.33)
