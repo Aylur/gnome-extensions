@@ -71,7 +71,7 @@ class AboutPage extends Adw.PreferencesPage {
         const donateRow = new Adw.ActionRow();
         donateGroup.add(donateRow);
 
-        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(`${Me.path}'/media/prefs/kofi.png`, -1, 50, true);
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(`${Me.path}/media/prefs/kofi.png`, -1, 50, true);
         let donateImage = Gtk.Picture.new_for_pixbuf(pixbuf);
         donateRow.add_prefix(new Gtk.LinkButton({
             child: donateImage,

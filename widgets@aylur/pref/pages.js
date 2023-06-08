@@ -277,7 +277,7 @@ class DateMenuTweakPage extends SubPage {
         this.add(buttonGroup);
         buttonGroup.add(new PositionRow(_('Position'), settings, 'date-menu-position', 'date-menu-offset'));
         buttonGroup.add(new SwitchRow(_('Remove Padding'), settings, 'date-menu-remove-padding'));
-        buttonGroup.add(new DropDownRow(_('Indicator Position'), settings, 'date-menu-indicator-position', [_('Left'), _('Right'), 'Hide']));
+        buttonGroup.add(new DropDownRow(_('Indicator Position'), settings, 'date-menu-indicator-position', [_('Left'), _('Right'), _('Hide')]));
         buttonGroup.add(new EntryRow(_('Format'), settings, 'date-menu-date-format'));
         const textBox = new Gtk.Box();
         textBox.append(new Gtk.Label({

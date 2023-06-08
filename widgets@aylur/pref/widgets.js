@@ -116,7 +116,7 @@ class PositionRow extends Adw.ActionRow {
     _init(title, settings, position, offset, subtitle = '') {
         super._init({title, subtitle});
 
-        const glist = Gtk.DropDown.new_from_strings(['Left', 'Center', 'Right']);
+        const glist = Gtk.DropDown.new_from_strings([_('Left'), _('Center'), _('Right')]);
         glist.valign = Gtk.Align.CENTER;
         settings.bind(
             position,
