@@ -80,30 +80,14 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog {
         }
 
         this._widgetList = {
-            apps: () =>     {
-                return new Widgets.AppsWidget(this._settings, this);
-            },
-            clock: () =>    {
-                return new Widgets.ClockWidget(this._settings, this);
-            },
-            levels: () =>   {
-                return new Widgets.LevelsWidget(this._settings, this);
-            },
-            links: () =>    {
-                return new Widgets.LinksWidget(this._settings, this);
-            },
-            media: () =>    {
-                return new Widgets.MediaWidget(this._settings, this);
-            },
-            settings: () => {
-                return new Widgets.SettingsWidget(this._settings, this);
-            },
-            system: () =>   {
-                return new Widgets.SystemWidget(this._settings, this);
-            },
-            user: () =>     {
-                return new Widgets.UserWidget(this._settings, this);
-            },
+            apps: () =>     { return new Widgets.AppsWidget(this._settings, this); },
+            clock: () =>    { return new Widgets.ClockWidget(this._settings, this); },
+            levels: () =>   { return new Widgets.LevelsWidget(this._settings, this); },
+            links: () =>    { return new Widgets.LinksWidget(this._settings, this); },
+            media: () =>    { return new Widgets.MediaWidget(this._settings, this); },
+            settings: () => { return new Widgets.SettingsWidget(this._settings, this); },
+            system: () =>   { return new Widgets.SystemWidget(this._settings, this); },
+            user: () =>     { return new Widgets.UserWidget(this._settings, this); },
         };
 
         const layout = JSON.parse(this._settings.get_string('dash-layout-json'));
