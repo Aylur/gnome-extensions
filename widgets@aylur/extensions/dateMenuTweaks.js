@@ -253,7 +253,6 @@ var Extension = class Extension {
             this
         );
         this._dateFormat = this._settings.get_string('date-menu-date-format');
-        this._customMenu = new CustomMenu(this._settings);
 
         this._clock = new St.Label({style_class: 'clock'});
         this._clock.clutter_text.y_align = Clutter.ActorAlign.CENTER;
@@ -300,6 +299,13 @@ var Extension = class Extension {
 
     _reload() {
         this._reset();
+
+        if (this._customMenu) {
+            this._customMenu.destroy();
+            this._customMenu = null;
+        }
+
+        this._customMenu = new CustomMenu(this._settings);
 
         DateMenu.container.get_parent().remove_child(DateMenu.container);
         const position = this._settings.get_int('date-menu-position');
@@ -352,7 +358,7 @@ var Extension = class Extension {
         // menu reset
         this._menuBox.remove_child(this._notifications);
         this._menuBox.insert_child_at_index(this._notifications, 0);
-        if (this._customMenu.get_parent())
+        if (this._customMenu && this._customMenu.get_parent())
             this._menuBox.replace_child(this._customMenu, this._calendar);
     }
 };
