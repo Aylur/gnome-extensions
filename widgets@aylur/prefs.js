@@ -1,10 +1,10 @@
-'use strict';
+/* exported init fillPreferencesWindow */
 
-const { Adw, Gtk, Gio, GObject, GdkPixbuf } = imports.gi;
+const {Adw, Gtk, Gio, GObject, GdkPixbuf} = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Pages = Me.imports.pref.pages;
-const { SwitchRow } = Me.imports.pref.widgets;
+const {SwitchRow} = Me.imports.pref.widgets;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
@@ -13,9 +13,9 @@ function init() {
 }
 
 const ToggleRow = GObject.registerClass(
-class ToggleRow extends Adw.ActionRow{
-    _init(subpage, settingName, subtitle = ''){
-        super._init({ title: subpage.title, subtitle: subtitle });
+class ToggleRow extends Adw.ActionRow {
+    constructor(subpage, settingName, subtitle = '') {
+        super({title: subpage.title, subtitle});
 
         const gswitch = new Gtk.Switch({
             active: subpage.settings.get_boolean(settingName),
@@ -33,8 +33,9 @@ class ToggleRow extends Adw.ActionRow{
         this.activatable_widget = icon;
 
         this.activatable = gswitch.active;
-        gswitch.connect('notify::active',
-            () => this.activatable = gswitch.active);
+        gswitch.connect('notify::active', () => {
+            this.activatable = gswitch.active;
+        });
 
         this.connect('activated', () => {
             const window = this.get_root();
@@ -44,20 +45,20 @@ class ToggleRow extends Adw.ActionRow{
 });
 
 const AboutPage = GObject.registerClass(
-class AboutPage extends Adw.PreferencesPage{
-    _init(){
-        super._init({
+class AboutPage extends Adw.PreferencesPage {
+    constructor() {
+        super({
             title: _('About'),
-            icon_name: 'info-symbolic'
+            icon_name: 'info-symbolic',
         });
 
         const versionGroup = new Adw.PreferencesGroup();
-        let versionRow = new Adw.ActionRow({ title: _('Verison:') });
-        versionRow.add_suffix(new Gtk.Label({ valign: Gtk.Align.CENTER, label: `${Me.metadata.version}`}));
+        const versionRow = new Adw.ActionRow({title: _('Verison:')});
+        versionRow.add_suffix(new Gtk.Label({valign: Gtk.Align.CENTER, label: `${Me.metadata.version}`}));
         versionGroup.add(versionRow);
         this.add(versionGroup);
 
-        const credits = new Adw.PreferencesGroup({ title: _('Took code or inspiration from these projects') });
+        const credits = new Adw.PreferencesGroup({title: _('Took code or inspiration from these projects')});
         this.add(credits);
         credits.add(this._addCredit(_('ArcMenu'), _('by andrew.zaech'), 'https://extensions.gnome.org/extension/3628/arcmenu'));
         credits.add(this._addCredit(_('Workspace Indicator'), _('by fmullner'), 'https://extensions.gnome.org/extension/21/workspace-indicator'));
@@ -66,22 +67,22 @@ class AboutPage extends Adw.PreferencesPage{
         credits.add(this._addCredit(_('GNOME source code'), '', 'https://gitlab.gnome.org/GNOME/gnome-shell/-/tree/main/js/ui'));
         credits.add(this._addCredit(_('Unite'), _('by hardpixel'), 'https://extensions.gnome.org/extension/1287/unite/'));
 
-        const donateGroup = new Adw.PreferencesGroup({ title: _('If you would like to support my work') });
-        let donateRow = new Adw.ActionRow();
+        const donateGroup = new Adw.PreferencesGroup({title: _('If you would like to support my work')});
+        const donateRow = new Adw.ActionRow();
         donateGroup.add(donateRow);
 
-        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(Me.path + '/media/prefs/kofi.png', -1, 50, true);
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(`${Me.path}'/media/prefs/kofi.png`, -1, 50, true);
         let donateImage = Gtk.Picture.new_for_pixbuf(pixbuf);
         donateRow.add_prefix(new Gtk.LinkButton({
             child: donateImage,
             uri: 'https://ko-fi.com/aylur',
         }));
 
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(Me.path + '/media/prefs/gnome-logo.png', -1, 50, true);
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(`${Me.path}/media/prefs/gnome-logo.png`, -1, 50, true);
         donateImage = Gtk.Picture.new_for_pixbuf(pixbuf);
         donateRow.add_suffix(new Gtk.Label({
             label: _('Also consider donating to'),
-            valign: Gtk.Align.CENTER
+            valign: Gtk.Align.CENTER,
         }));
         donateRow.add_suffix(new Gtk.LinkButton({
             child: donateImage,
@@ -91,17 +92,17 @@ class AboutPage extends Adw.PreferencesPage{
         this.add(donateGroup);
     }
 
-    _addCredit(name, by, link){
-        let row = new Adw.ActionRow({ title: by });
+    _addCredit(name, by, link) {
+        const row = new Adw.ActionRow({title: by});
         row.add_prefix(Gtk.LinkButton.new_with_label(link, name));
         return row;
     }
 });
 
 const MainPage = GObject.registerClass(
-class MainPage extends Adw.PreferencesPage{
-    _init(){
-        super._init({
+class MainPage extends Adw.PreferencesPage {
+    constructor() {
+        super({
             title: _('Extensions'),
             icon_name: 'application-x-addon-symbolic',
         });

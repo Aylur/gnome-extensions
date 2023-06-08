@@ -1,10 +1,12 @@
-const { Clutter, GObject, GLib, St, Meta, GnomeDesktop } = imports.gi;
+/* exported Extension */
+
+const {Clutter, GObject, GLib, St, Meta, GnomeDesktop} = imports.gi;
 const Background = imports.ui.background;
 const Main = imports.ui.main;
 
 const ClockWidget = GObject.registerClass(
-class ClockWidget extends St.BoxLayout{
-    _init(settings){
+class ClockWidget extends St.BoxLayout {
+    _init(settings) {
         super._init({
             style_class: 'background-clock',
             vertical: true,
@@ -14,8 +16,8 @@ class ClockWidget extends St.BoxLayout{
 
         this.scaling = 1;
 
-        this._clock = new St.Label({ x_expand: true });
-        this._date = new St.Label({ x_expand: true });
+        this._clock = new St.Label({x_expand: true});
+        this._date = new St.Label({x_expand: true});
 
         this._settings = settings;
         this._settings.connectObject(
@@ -62,49 +64,49 @@ class ClockWidget extends St.BoxLayout{
         );
         this._settingsChanged();
 
-        this._wallclock = new GnomeDesktop.WallClock({ time_only: true });
+        this._wallclock = new GnomeDesktop.WallClock({time_only: true});
         this._wallclock.connectObject(
             'notify::clock',
             () => this._updateClock(), this);
-        
+
         this.connect('destroy', this._onDestroy.bind(this));
     }
 
-    scale(s){
+    scale(s) {
         this.scaling = s;
         this._updateClock();
         this._updateStyle();
     }
 
-    _settingsChanged(){
+    _settingsChanged() {
         this.remove_all_children();
-        if(this._settings.get_boolean('background-clock-enable-clock'))
+        if (this._settings.get_boolean('background-clock-enable-clock'))
             this.add_child(this._clock);
 
-        if(this._settings.get_boolean('background-clock-enable-date'))
+        if (this._settings.get_boolean('background-clock-enable-date'))
             this.add_child(this._date);
 
-        let y = {
+        const y = {
             top: Clutter.ActorAlign.START,
             middle: Clutter.ActorAlign.CENTER,
-            bottom: Clutter.ActorAlign.END
-        }
-        let x = {
+            bottom: Clutter.ActorAlign.END,
+        };
+        const x = {
             left: Clutter.ActorAlign.START,
             center: Clutter.ActorAlign.CENTER,
-            right: Clutter.ActorAlign.END
-        }
+            right: Clutter.ActorAlign.END,
+        };
         switch (this._settings.get_int('background-clock-position')) {
-            case 0: this.y_align = y['top'];    this.x_align = x['left'];   break;
-            case 1: this.y_align = y['top'];    this.x_align = x['center']; break;
-            case 2: this.y_align = y['top'];    this.x_align = x['right'];  break;
-            case 3: this.y_align = y['middle']; this.x_align = x['left'];   break;
-            case 4: this.y_align = y['middle']; this.x_align = x['center']; break;
-            case 5: this.y_align = y['middle']; this.x_align = x['right'];  break;
-            case 6: this.y_align = y['bottom']; this.x_align = x['left'];   break;
-            case 7: this.y_align = y['bottom']; this.x_align = x['center']; break;
-            case 8: this.y_align = y['bottom']; this.x_align = x['right'];  break;
-            default: this.y_align = y['bottom']; this.x_align = x['right'];  break;
+        case 0: this.y_align = y['top'];    this.x_align = x['left'];   break;
+        case 1: this.y_align = y['top'];    this.x_align = x['center']; break;
+        case 2: this.y_align = y['top'];    this.x_align = x['right'];  break;
+        case 3: this.y_align = y['middle']; this.x_align = x['left'];   break;
+        case 4: this.y_align = y['middle']; this.x_align = x['center']; break;
+        case 5: this.y_align = y['middle']; this.x_align = x['right'];  break;
+        case 6: this.y_align = y['bottom']; this.x_align = x['left'];   break;
+        case 7: this.y_align = y['bottom']; this.x_align = x['center']; break;
+        case 8: this.y_align = y['bottom']; this.x_align = x['right'];  break;
+        default: this.y_align = y['bottom']; this.x_align = x['right'];  break;
         }
         this._clock.x_align = this.x_align;
         this._date.x_align = this.x_align;
@@ -116,7 +118,7 @@ class ClockWidget extends St.BoxLayout{
         this._updateStyle();
     }
 
-    _updateStyle(){
+    _updateStyle() {
         this.style = `
             background-color: ${this._settings.get_string('background-clock-bg-color')};
             border: ${this._settings.get_int('background-clock-bg-border-size') * this.scaling}px
@@ -145,7 +147,7 @@ class ClockWidget extends St.BoxLayout{
                         ${this._settings.get_int('background-clock-clock-shadow-width') * this.scaling}px
                         ${this._settings.get_string('background-clock-clock-shadow-color')};
         `;
-        if(this._settings.get_boolean('background-clock-clock-custom-font'))
+        if (this._settings.get_boolean('background-clock-clock-custom-font'))
             this._clock.style += `font-family: ${this._settings.get_string('background-clock-clock-font')};`;
 
         this._date.style = `
@@ -157,13 +159,13 @@ class ClockWidget extends St.BoxLayout{
                         ${this._settings.get_int('background-clock-date-shadow-width') * this.scaling}px
                         ${this._settings.get_string('background-clock-date-shadow-color')};
         `;
-        if(this._settings.get_boolean('background-clock-date-custom-font'))
+        if (this._settings.get_boolean('background-clock-date-custom-font'))
             this._date.style += `font-family: ${this._settings.get_string('background-clock-date-font')};`;
     }
 
-    _updateClock(){
-        let clock = GLib.DateTime.new_now_local().format(this._clockFormat);
-        let date = GLib.DateTime.new_now_local().format(this._dateFormat);
+    _updateClock() {
+        const clock = GLib.DateTime.new_now_local().format(this._clockFormat);
+        const date = GLib.DateTime.new_now_local().format(this._dateFormat);
 
         this._clock.set_text(clock);
         this._date.set_text(date);
@@ -175,7 +177,7 @@ class ClockWidget extends St.BoxLayout{
         this._wallclock = null;
         this._settings.disconnectObject(this);
     }
-})
+});
 
 const BackgroundClock = GObject.registerClass(
 class BackgroundClock extends St.Widget {
@@ -202,9 +204,9 @@ class BackgroundClock extends St.Widget {
         if (!this.has_allocation())
             return;
 
-        let { width } = Main.layoutManager.getWorkAreaForMonitor(this._monitorIndex);        
-        let maxWidth = this.allocation.get_width();
-        let scale = maxWidth / width;
+        const {width} = Main.layoutManager.getWorkAreaForMonitor(this._monitorIndex);
+        const maxWidth = this.allocation.get_width();
+        const scale = maxWidth / width;
 
         this._clockWidget.scale(scale);
     }
@@ -235,13 +237,13 @@ class BackgroundClock extends St.Widget {
 
 var Extension = class Extension {
     constructor(settings) {
-        this._settings = settings ;
+        this._settings = settings;
         this._bgManagerProto = Background.BackgroundManager.prototype;
         this._createBackgroundOrig = this._bgManagerProto._createBackgroundActor;
     }
 
     enable() {
-        const { _createBackgroundOrig, _settings } = this;
+        const {_createBackgroundOrig, _settings} = this;
         this._bgManagerProto._createBackgroundActor = function () {
             const backgroundActor = _createBackgroundOrig.call(this);
             new BackgroundClock(backgroundActor, _settings);
@@ -255,4 +257,4 @@ var Extension = class Extension {
         this._bgManagerProto._createBackgroundActor = this._createBackgroundOrig;
         Main.layoutManager._updateBackgrounds();
     }
-}
+};

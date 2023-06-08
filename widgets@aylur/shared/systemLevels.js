@@ -1,10 +1,12 @@
-const { St, GLib, Shell, Gio, Clutter, GObject, GnomeDesktop, UPowerGlib: UPower } = imports.gi;
-const Main = imports.ui.main;
-const Me = imports.misc.extensionUtils.getCurrentExtension()
-const Mainloop = imports.mainloop;
-const { LevelBar } = Me.imports.shared.levelBar;
+/* exported LevelsBox */
 
-const { loadInterfaceXML } = imports.misc.fileUtils;
+const {St, Gio, Clutter, GObject, UPowerGlib: UPower} = imports.gi;
+const Main = imports.ui.main;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Mainloop = imports.mainloop;
+const {LevelBar} = Me.imports.shared.levelBar;
+
+const {loadInterfaceXML} = imports.misc.fileUtils;
 const ByteArray = imports.byteArray;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
@@ -17,12 +19,12 @@ try {
     hasGTop = false;
 }
 
-//shouldn't be more than half the widthness of the bar
+// shouldn't be more than half the widthness of the bar
 const ROUNDNESS = 7;
 
 const SystemLevelBar = GObject.registerClass(
-class SystemLevelBar extends LevelBar{
-    _init(vertical){
+class SystemLevelBar extends LevelBar {
+    _init(vertical) {
         super._init({
             vertical,
             roundness: ROUNDNESS,
@@ -33,10 +35,10 @@ class SystemLevelBar extends LevelBar{
         this._fillLevel.add_style_class_name('calendar-today');
         this._fillLevel.add_style_pseudo_class('selected');
 
-        if(this._vertical){
+        if (this._vertical) {
             this.x_align = Clutter.ActorAlign.CENTER;
             this.y_align = Clutter.ActorAlign.FILL;
-        }else{
+        } else {
             this.x_align = Clutter.ActorAlign.FILL;
             this.y_align = Clutter.ActorAlign.CENTER;
         }
@@ -44,51 +46,59 @@ class SystemLevelBar extends LevelBar{
 });
 
 const UsageLevel = GObject.registerClass(
-class UsageLevel extends St.BoxLayout{
-    _init(vertical){
+class UsageLevel extends St.BoxLayout {
+    _init(vertical) {
         super._init({
             style_class: 'usage-level',
             x_expand: true,
-            y_expand: true
+            y_expand: true,
         });
-        if(vertical) this.vertical = true;
-        this.colorSwitchValues = [ 25, 50, 75, ];
+        if (vertical)
+            this.vertical = true;
+        this.colorSwitchValues = [25, 50, 75];
 
-        this.icon = new St.Icon({ reactive: true, track_hover: true });
+        this.icon = new St.Icon({reactive: true, track_hover: true});
         this.label = new St.Label();
         this.level = new SystemLevelBar(vertical);
-        this.hoverLabel = new St.Label({ style_class: 'dash-label' });
+        this.hoverLabel = new St.Label({style_class: 'dash-label'});
         this.icon.connect('notify::hover', () => this._toggleHoverLabel());
 
         this._buildUI();
     }
 
-    updateLevel(){
+    updateLevel() {
         this.setUsage();
         this.setColorClass();
     }
-    
-    setColorClass(){
-        let value = this.level.value*100;
+
+    setColorClass() {
+        const value = this.level.value * 100;
         this.remove_style_pseudo_class('red');
         this.remove_style_pseudo_class('orange');
         this.remove_style_pseudo_class('yellow');
         this.remove_style_pseudo_class('green');
-        if(this.colorSwitchValues[0] < this.colorSwitchValues[2] ){
-            if(value >= this.colorSwitchValues[2]) this.add_style_pseudo_class('red');
-            else if(value < this.colorSwitchValues[2] && value >= this.colorSwitchValues[1]) this.add_style_pseudo_class('orange');
-            else if(value < this.colorSwitchValues[1] && value >= this.colorSwitchValues[0]) this.add_style_pseudo_class('yellow');
-            else if(value < this.colorSwitchValues[0]) this.add_style_pseudo_class('green');
-        }else{
-            if(value >= this.colorSwitchValues[2]) this.add_style_pseudo_class('green');
-            else if(value < this.colorSwitchValues[2] && value >= this.colorSwitchValues[1]) this.add_style_pseudo_class('yellow');
-            else if(value < this.colorSwitchValues[1] && value >= this.colorSwitchValues[0]) this.add_style_pseudo_class('orange');
-            else if(value < this.colorSwitchValues[0]) this.add_style_pseudo_class('red');
+        if (this.colorSwitchValues[0] < this.colorSwitchValues[2]) {
+            if (value >= this.colorSwitchValues[2])
+                this.add_style_pseudo_class('red');
+            else if (value < this.colorSwitchValues[2] && value >= this.colorSwitchValues[1])
+                this.add_style_pseudo_class('orange');
+            else if (value < this.colorSwitchValues[1] && value >= this.colorSwitchValues[0])
+                this.add_style_pseudo_class('yellow');
+            else if (value < this.colorSwitchValues[0])
+                this.add_style_pseudo_class('green');
+        } else if (value >= this.colorSwitchValues[2]) {
+            this.add_style_pseudo_class('green');
+        } else if (value < this.colorSwitchValues[2] && value >= this.colorSwitchValues[1]) {
+            this.add_style_pseudo_class('yellow');
+        } else if (value < this.colorSwitchValues[1] && value >= this.colorSwitchValues[0]) {
+            this.add_style_pseudo_class('orange');
+        } else if (value < this.colorSwitchValues[0]) {
+            this.add_style_pseudo_class('red');
         }
     }
-    
-    _buildUI(){
-        if(this.vertical){
+
+    _buildUI() {
+        if (this.vertical) {
             this.add_child(this.label);
             this.add_child(this.level);
             this.add_child(this.icon);
@@ -96,7 +106,7 @@ class UsageLevel extends St.BoxLayout{
             this.label.style = 'text-align: center';
             this.x_align = Clutter.ActorAlign.CENTER;
             this.x_expand = true;
-        }else{
+        } else {
             this.add_child(this.icon);
             this.add_child(this.level);
             this.add_child(this.label);
@@ -106,23 +116,23 @@ class UsageLevel extends St.BoxLayout{
     }
 
     _toggleHoverLabel() {
-        if(this.icon.hover){
+        if (this.icon.hover) {
             Main.layoutManager.addTopChrome(this.hoverLabel);
             this.hoverLabel.opacity = 0;
-            let [stageX, stageY] = this.icon.get_transformed_position();
+            const [stageX, stageY] = this.icon.get_transformed_position();
             const iconWidth = this.icon.allocation.get_width();
             const labelWidth = this.hoverLabel.get_width();
             const xOffset = Math.floor((iconWidth - labelWidth) / 2);
             const x = Math.clamp(stageX + xOffset, 0, global.stage.width - labelWidth);
             const y = stageY - this.icon.height;
             this.hoverLabel.set_position(x, y);
-    
+
             this.hoverLabel.ease({
                 opacity: 255,
                 duration: 300,
                 mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             });
-        }else{
+        } else {
             Main.layoutManager.removeChrome(this.hoverLabel);
         }
     }
@@ -132,57 +142,57 @@ const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device')
 const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(DisplayDeviceInterface);
 
 var PowerLevel = GObject.registerClass(
-class PowerLevel extends UsageLevel{
-    _init(vertical){
+class PowerLevel extends UsageLevel {
+    _init(vertical) {
         super._init(vertical);
 
         this.icon.icon_name = 'battery-symbolic';
         this.hoverLabel.text = 'Battery';
-        this.colorSwitchValues = [ 75, 50, 25 ];
+        this.colorSwitchValues = [75, 50, 25];
 
         this._proxy = new PowerManagerProxy(Gio.DBus.system,
             'org.freedesktop.UPower',
             '/org/freedesktop/UPower/devices/DisplayDevice',
-            (proxy, error) => {
-                if (error) {
+            (_proxy, error) => {
+                if (error)
                     log(error.message);
-                }
-        });
+            });
 
-        this.connect('destroy', () => this._proxy = null);
+        this.connect('destroy', () => {
+            this._proxy = null;
+        });
     }
 
-    setUsage(){
-        if(this._proxy.IsPresent  && !this.disabled){
+    setUsage() {
+        if (this._proxy.IsPresent  && !this.disabled) {
             this.show();
             // The icons
-            let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
+            const chargingState = this._proxy.State === UPower.DeviceState.CHARGING
                 ? '-charging' : '';
-            let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
+            const fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
             const charged =
                 this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
                 (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
-            
+
             this.icon.icon_name = charged
                 ? 'battery-level-100-charged-symbolic'
                 : `battery-level-${fillLevel}${chargingState}-symbolic`;
-    
+
             this.icon.fallback_icon_name = this._proxy.IconName;
-            this.label.text = this._proxy.Percentage.toString() + '%';
-            this.level.value = this._proxy.Percentage/100;
-            
-            if(fillLevel > 99){
+            this.label.text = `${this._proxy.Percentage.toString()}%`;
+            this.level.value = this._proxy.Percentage / 100;
+
+            if (fillLevel > 99)
                 this.label.text = 'F';
-            }
-        }else{
+        } else {
             this.hide();
         }
     }
 });
 
 var CpuLevel = GObject.registerClass(
-class CpuLevel extends UsageLevel{
-    _init(vertical){
+class CpuLevel extends UsageLevel {
+    _init(vertical) {
         super._init(vertical);
 
         this.icon.icon_name = 'org.gnome.SystemMonitor-symbolic';
@@ -192,37 +202,37 @@ class CpuLevel extends UsageLevel{
         this.lastCPUUsed = 0;
     }
 
-    setUsage(){
-        //https://github.com/eeeeeio/gnome-shell-extension-nano-system-monitor/blob/master/src/extension.js
+    setUsage() {
+        // https://github.com/eeeeeio/gnome-shell-extension-nano-system-monitor/blob/master/src/extension.js
         let currentCPUUsage = 0;
-      
+
         try {
-            const inputFile = Gio.File.new_for_path("/proc/stat");
+            const inputFile = Gio.File.new_for_path('/proc/stat');
             const fileInputStream = inputFile.read(null);
             const dataInputStream = new Gio.DataInputStream({
-                base_stream: fileInputStream
+                base_stream: fileInputStream,
             });
-      
+
             let currentCPUUsed = 0;
             let currentCPUTotal = 0;
             let line = null;
-            let length = 0;
-      
-            while (([line, length] = dataInputStream.read_line(null)) && line != null) {
-                if (line instanceof Uint8Array) {
+            let _length = 0;
+
+            while (([line, _length] = dataInputStream.read_line(null)) && line !== null) {
+                if (line instanceof Uint8Array)
                     line = ByteArray.toString(line).trim();
-                } else {
+                else
                     line = line.toString().trim();
-                }
-                
+
+
                 const fields = line.split(/\W+/);
-                
-                if (fields.length < 2) {
+
+                if (fields.length < 2)
                     continue;
-                }
-            
+
+
                 const itemName = fields[0];
-                if (itemName == "cpu" && fields.length >= 5) {
+                if (itemName === 'cpu' && fields.length >= 5) {
                     const user = Number.parseInt(fields[1]);
                     const system = Number.parseInt(fields[3]);
                     const idle = Number.parseInt(fields[4]);
@@ -231,15 +241,15 @@ class CpuLevel extends UsageLevel{
                     break;
                 }
             }
-      
+
             fileInputStream.close(null);
-      
+
             // Avoid divide by zero
             if (currentCPUTotal - this.lastCPUTotal !== 0) {
                 currentCPUUsage =
                     (currentCPUUsed - this.lastCPUUsed) / (currentCPUTotal - this.lastCPUTotal);
             }
-      
+
             this.lastCPUTotal = currentCPUTotal;
             this.lastCPUUsed = currentCPUUsed;
         } catch (e) {
@@ -248,86 +258,85 @@ class CpuLevel extends UsageLevel{
         }
 
         this.level.value = currentCPUUsage;
-        this.label.text = Math.floor(currentCPUUsage*100).toString() + '%';
+        this.label.text = `${Math.floor(currentCPUUsage * 100).toString()}%`;
     }
 });
 
 var RamLevel = GObject.registerClass(
-class RamLevel extends UsageLevel{
-    _init(vertical){
+class RamLevel extends UsageLevel {
+    _init(vertical) {
         super._init(vertical);
 
         this.icon.icon_name = 'drive-harddisk-solidstate-symbolic';
         this.hoverLabel.text = _('RAM');
     }
 
-    setUsage(){
+    setUsage() {
         let currentMemoryUsage = 0;
         try {
-            const inputFile = Gio.File.new_for_path("/proc/meminfo");
+            const inputFile = Gio.File.new_for_path('/proc/meminfo');
             const fileInputStream = inputFile.read(null);
             const dataInputStream = new Gio.DataInputStream({
-                base_stream: fileInputStream
+                base_stream: fileInputStream,
             });
-    
+
             let memTotal = -1;
             let memAvailable = -1;
             let line = null;
-            let length = 0;
-            
-            while (([line, length] = dataInputStream.read_line(null)) && line != null) {
-                if (line instanceof Uint8Array) {
+            let _length = 0;
+
+            while (([line, _length] = dataInputStream.read_line(null)) && line !== null) {
+                if (line instanceof Uint8Array)
                     line = ByteArray.toString(line).trim();
-                } else {
+                else
                     line = line.toString().trim();
-                }
+
                 const fields = line.split(/\W+/);
-                if (fields.length < 2) {
+                if (fields.length < 2)
                     break;
-                }
+
                 const itemName = fields[0];
                 const itemValue = Number.parseInt(fields[1]);
-                if (itemName == "MemTotal") {
+                if (itemName === 'MemTotal')
                     memTotal = itemValue;
-                }
-                if (itemName == "MemAvailable") {
+
+                if (itemName === 'MemAvailable')
                     memAvailable = itemValue;
-                }
-                if (memTotal !== -1 && memAvailable !== -1) {
+
+                if (memTotal !== -1 && memAvailable !== -1)
                     break;
-                }
             }
             fileInputStream.close(null);
             if (memTotal !== -1 && memAvailable !== -1) {
                 const memUsed = memTotal - memAvailable;
                 currentMemoryUsage = memUsed / memTotal;
             }
-        }catch (e) {
+        } catch (e) {
             this.hide();
             logError(e);
         }
 
         this.level.value = currentMemoryUsage;
-        this.label.text = Math.floor(currentMemoryUsage*100).toString() + '%';
+        this.label.text = `${Math.floor(currentMemoryUsage * 100).toString()}%`;
     }
 });
 
 var TempLevel = GObject.registerClass(
-class TempLevel extends UsageLevel{
-    _init(vertical){
+class TempLevel extends UsageLevel {
+    _init(vertical) {
         super._init(vertical);
 
         this.icon.icon_name = 'temperature-symbolic';
         this.icon.fallback_gicon = Gio.Icon.new_for_string(
-            Me.path+'/media/temperature-symbolic.svg'
+            `${Me.path}/media/temperature-symbolic.svg`
         );
         this.hoverLabel.text = _('Temperature');
-        this.colorSwitchValues = [ 50, 65, 80 ];
+        this.colorSwitchValues = [50, 65, 80];
     }
 
-    setUsage(){
+    setUsage() {
         try {
-            const [, contents, etag] = 
+            const [, contents, _etag] =
                 Gio.File.new_for_path('/sys/class/thermal/thermal_zone0/temp')
                 .load_contents(null);
 
@@ -336,8 +345,8 @@ class TempLevel extends UsageLevel{
             ) / 100000;
 
             this.level.value = temperature;
-            this.label.text = Math.floor(temperature*100).toString() + '\˚';
-        }catch (e) {
+            this.label.text = `${Math.floor(temperature * 100).toString()}\˚`;
+        } catch (e) {
             this.hide();
             logError(e);
         }
@@ -345,38 +354,40 @@ class TempLevel extends UsageLevel{
 });
 
 var StorageLevel = GObject.registerClass(
-class StorageLevel extends UsageLevel{
-    _init(vertical){
+class StorageLevel extends UsageLevel {
+    _init(vertical) {
         super._init(vertical);
 
         this.icon.icon_name = 'drive-harddisk-symbolic';
         this.hoverLabel.text = _('Disk');
-        this.colorSwitchValues = [ 40, 60, 80 ];
+        this.colorSwitchValues = [40, 60, 80];
 
-        if(hasGTop)
+        if (hasGTop)
             this.storage = new GTop.glibtop_fsusage();
-        
-        this.connect('destroy', () => { if(this.storage) this.storage = null});
+
+        this.connect('destroy', () => {
+            if (this.storage)
+                this.storage = null;
+        });
     }
-    
-    setUsage(){
-        if(hasGTop){
+
+    setUsage() {
+        if (hasGTop) {
             GTop.glibtop_get_fsusage(this.storage, '/');
-            let max = this.storage.blocks * this.storage.block_size;
-            let free = this.storage.bfree * this.storage.block_size;
-            let used = max - free;
-            this.level.value = used/max;
-            this.label.text = Math.floor((used/max)*100).toString() + '%';
-        }
-        else{
+            const max = this.storage.blocks * this.storage.block_size;
+            const free = this.storage.bfree * this.storage.block_size;
+            const used = max - free;
+            this.level.value = used / max;
+            this.label.text = `${Math.floor((used / max) * 100).toString()}%`;
+        } else {
             this.hide();
         }
     }
 });
 
 var LevelsBox = GObject.registerClass(
-class LevelsBox extends St.BoxLayout{
-    _init(settings, settingName, vertical = false){
+class LevelsBox extends St.BoxLayout {
+    _init(settings, settingName, vertical = false) {
         super._init({
             x_expand: true,
             y_expand: true,
@@ -398,9 +409,9 @@ class LevelsBox extends St.BoxLayout{
         this._connections = [];
         this._connect('battery');
         this._connect('storage');
-        this._connect('cpu');    
-        this._connect('ram');    
-        this._connect('temp');   
+        this._connect('cpu');
+        this._connect('ram');
+        this._connect('temp');
 
         this.levels.forEach(s => {
             this.add_child(s);
@@ -410,41 +421,41 @@ class LevelsBox extends St.BoxLayout{
         this.connect('destroy', this._onDestroy.bind(this));
     }
 
-    _onDestroy(){
-        this._connections.forEach(c => 
+    _onDestroy() {
+        this._connections.forEach(c =>
             this.settings.disconnect(c)
         );
         this.stopTimeout();
     }
 
-    _connect(name){
+    _connect(name) {
         this._connections.push(
             this.settings.connect(`changed::${this.settingName}-${name}`,
                 () => this._sync()
             )
-        )
+        );
     }
 
-    _sync(){
-        this.settings.get_boolean(`${this.settingName}-battery`)? this.levels[0].disabled = false : this.levels[0].disabled = true;
-        this.settings.get_boolean(`${this.settingName}-storage`)? this.levels[1].show() : this.levels[1].hide();
+    _sync() {
+        this.settings.get_boolean(`${this.settingName}-battery`) ? this.levels[0].disabled = false : this.levels[0].disabled = true;
+        this.settings.get_boolean(`${this.settingName}-storage`) ? this.levels[1].show() : this.levels[1].hide();
         this.settings.get_boolean(`${this.settingName}-cpu`)    ? this.levels[2].show() : this.levels[2].hide();
         this.settings.get_boolean(`${this.settingName}-ram`)    ? this.levels[3].show() : this.levels[3].hide();
         this.settings.get_boolean(`${this.settingName}-temp`)   ? this.levels[4].show() : this.levels[4].hide();
     }
 
-    startTimeout(){
+    startTimeout() {
         this.timeout = Mainloop.timeout_add_seconds(1.0, this.updateLevels.bind(this));
     }
 
-    stopTimeout(){
-        if(this.timeout){
+    stopTimeout() {
+        if (this.timeout) {
             Mainloop.source_remove(this.timeout);
             this.timeout = null;
         }
     }
 
-    updateLevels(){
+    updateLevels() {
         this.levels.forEach(l => {
             l.updateLevel();
         });

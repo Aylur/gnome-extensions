@@ -1,4 +1,5 @@
-//https://gitlab.gnome.org/GNOME/gnome-shell-extensions/-/tree/main/extensions/workspace-indicator
+// https://gitlab.gnome.org/GNOME/gnome-shell-extensions/-/tree/main/extensions/workspace-indicator
+/* exported wsNamesGroup */
 const {Adw, Gio, GLib, GObject, Gtk, Pango} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -117,9 +118,9 @@ var wsNamesGroup = class WorkspaceSettingsWidget extends Adw.PreferencesGroup {
         this.install_action('workspaces.add', null,
             self => self._workspaces.append());
         this.install_action('workspaces.remove', 's',
-            (self, name, param) => self._workspaces.remove(param.unpack()));
+            (self, _name, param) => self._workspaces.remove(param.unpack()));
         this.install_action('workspaces.rename', '(ss)',
-            (self, name, param) => self._workspaces.rename(...param.deepUnpack()));
+            (self, _name, param) => self._workspaces.rename(...param.deepUnpack()));
     }
 
     constructor() {
@@ -138,7 +139,7 @@ var wsNamesGroup = class WorkspaceSettingsWidget extends Adw.PreferencesGroup {
             selection_mode: Gtk.SelectionMode.NONE,
             css_classes: ['boxed-list'],
         });
-        this._list.connect('row-activated', (l, row) => row.edit());
+        this._list.connect('row-activated', (_l, row) => row.edit());
         this.add(this._list);
 
         this._list.bind_model(listModel, item => {
@@ -147,7 +148,7 @@ var wsNamesGroup = class WorkspaceSettingsWidget extends Adw.PreferencesGroup {
                 : new WorkspaceRow(item.string);
         });
     }
-}
+};
 
 class WorkspaceRow extends Adw.PreferencesRow {
     static {
@@ -185,7 +186,7 @@ class WorkspaceRow extends Adw.PreferencesRow {
         this.bind_property_full('name',
             button, 'action-target',
             GObject.BindingFlags.SYNC_CREATE,
-            (bind, target) => [true, new GLib.Variant('s', target)],
+            (_bind, target) => [true, new GLib.Variant('s', target)],
             null);
 
         this._entry = new Gtk.Entry({

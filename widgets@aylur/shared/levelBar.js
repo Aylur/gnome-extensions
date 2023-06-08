@@ -1,8 +1,10 @@
-const { Clutter, St, GObject, GLib } = imports.gi;
+/* exported LevelBar */
+
+const {Clutter, St, GObject, GLib} = imports.gi;
 
 var LevelBar = GObject.registerClass(
-class LevelBar extends St.BoxLayout{
-    _init(props = {}){
+class LevelBar extends St.BoxLayout {
+    _init(props = {}) {
         super._init({
             style_class: `level-bar ${props.style_class}`,
             pseudo_class: `${props.pseudo_class}`,
@@ -26,86 +28,90 @@ class LevelBar extends St.BoxLayout{
         this.connect('destroy', this._onDestroy.bind(this));
     }
 
-    _onDestroy(){
-        if (this._timeoutId){
+    _onDestroy() {
+        if (this._timeoutId) {
             GLib.source_remove(this._timeoutId);
             this._timeoutId = 0;
         }
     }
 
-    set roundness(radii){
+    set roundness(radii) {
         this._roundness = radii;
         this.style = `border-radius: ${radii}px;`;
         this._fillLevel.style  = `border-radius: ${radii}px;`;
     }
 
-    get value(){ return this._value }
+    get value() {
+        return this._value;
+    }
 
-    set value(value){
+    set value(value) {
         this._value = value;
         this._repaint();
     }
 
-    set vertical(vertical){
+    set vertical(vertical) {
         this._vertical = vertical;
-        if(vertical){
+        if (vertical) {
             this._fillLevel.x_align = Clutter.ActorAlign.FILL;
             this._fillLevel.y_align = Clutter.ActorAlign.END;
-        }
-        else{
+        } else {
             this._fillLevel.x_align = Clutter.ActorAlign.START;
             this._fillLevel.y_align = Clutter.ActorAlign.FILL;
         }
     }
 
-    animate(value){
+    animate(value) {
         this._value = value;
         this._repaint(true);
     }
 
-    _repaint(animate = false){
-        if (this._timeoutId){
+    _repaint(animate = false) {
+        if (this._timeoutId) {
             GLib.source_remove(this._timeoutId);
             this._timeoutId = 0;
         }
-        if(!this.has_allocation()){
+        if (!this.has_allocation()) {
             this._timeoutId = GLib.timeout_add(
                 GLib.PRIORITY_DEFAULT, this._timeoutDelay, () => this._repaint(animate));
             return;
         }
 
-        if(this._value > 1) this._value = 1;
-        if(this._value < 0) this._value = 0;
+        if (this._value > 1)
+            this._value = 1;
+        if (this._value < 0)
+            this._value = 0;
 
-        if(this._vertical){
-            let max = this.height;
-            let zero = Math.min(this._roundness*2, this.width);
+        if (this._vertical) {
+            const max = this.height;
+            let zero = Math.min(this._roundness * 2, this.width);
             zero = Math.max(zero, this.zero);
-            let value = Math.floor( (max-zero)*this._value + zero );
-            if(animate)
+            const value = Math.floor((max - zero) * this._value + zero);
+            if (animate) {
                 this._fillLevel.ease({
                     height: value,
                     duration: 150,
-                    mode: Clutter.AnimationMode.EASE_OUT_QUAD
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
                 });
-            else
+            } else {
                 this._fillLevel.height = value;
-        }
-        else{
-            let max = this.width;
-            let zero = Math.min(this._roundness*2, this.height);
+            }
+        } else {
+            const max = this.width;
+            let zero = Math.min(this._roundness * 2, this.height);
             zero = Math.max(zero, this.zero);
-            let value = Math.floor( (max-zero)*this._value + zero );
-            if(animate)
+            const value = Math.floor((max - zero) * this._value + zero);
+            if (animate) {
                 this._fillLevel.ease({
                     width: value,
                     duration: 150,
-                    mode: Clutter.AnimationMode.EASE_OUT_QUAD
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
                 });
-            else
+            } else {
                 this._fillLevel.width = value;
+            }
         }
-        
+
         return GLib.SOURCE_REMOVE;
     }
 });

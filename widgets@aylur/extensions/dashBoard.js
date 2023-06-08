@@ -1,30 +1,34 @@
-const { GObject, St, Gio, Clutter, Meta, Shell } = imports.gi;
+/* exported Extension */
+
+const {GObject, St, Gio, Clutter, Meta, Shell} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Widgets = Me.imports.shared.dashWidgets;
 const ConfigParser = Me.imports.shared.dashConfigParser;
-const { PanelButton } = Me.imports.shared.panelButton;
+const {PanelButton} = Me.imports.shared.panelButton;
+
+const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
 
 const DashBoardModal = GObject.registerClass(
-class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
-    _init(settings){
+class DashBoardModal extends imports.ui.modalDialog.ModalDialog {
+    _init(settings) {
         super._init({
             destroyOnClose: false,
             shellReactive: true,
         });
         this._settings = settings;
-        
-        let closeBtn = this.addButton({
+
+        const closeBtn = this.addButton({
             action: () => this.close(),
             label: 'x',
             key: Clutter.KEY_Escape,
         });
         closeBtn.hide();
-        this.connect('button-press-event', () => this.close() );
+        this.connect('button-press-event', () => this.close());
 
         this.dialogLayout._dialog.add_style_class_name('dashboard');
-        
+
         this._settings.connectObject(
             'changed::dash-board-x-align',  () => this._syncStyle(),
             'changed::dash-board-y-align',  () => this._syncStyle(),
@@ -37,7 +41,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         );
         this.connectObject(
             'opened', () => {
-                if(this.levelsBox)
+                if (this.levelsBox)
                     this.levelsBox.updateLevels();
             },
             'destroy', () => {
@@ -49,53 +53,70 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
         this._buildUI();
     }
 
-    _syncStyle(){
+    _syncStyle() {
         this.dialogLayout._dialog.x_align = this._parseAlign(this._settings.get_int('dash-board-x-align'));
         this.dialogLayout._dialog.y_align = this._parseAlign(this._settings.get_int('dash-board-y-align'));
         this.dialogLayout._dialog.x_expand = true;
         this.dialogLayout._dialog.y_expand = true;
-        let x_offset = this._settings.get_int('dash-board-x-offset');
-        let y_offset = this._settings.get_int('dash-board-y-offset');
+        const x_offset = this._settings.get_int('dash-board-x-offset');
+        const y_offset = this._settings.get_int('dash-board-y-offset');
 
         this.dialogLayout.style = `
-            padding-top: ${y_offset < 0 ? y_offset*(-1) : 0}px;
+            padding-top: ${y_offset < 0 ? y_offset * -1 : 0}px;
             padding-bottom: ${y_offset > 0 ? y_offset : 0}px;
-            padding-right: ${x_offset < 0 ? x_offset*(-1) : 0}px;
+            padding-right: ${x_offset < 0 ? x_offset * -1 : 0}px;
             padding-left: ${x_offset > 0 ? x_offset : 0}px;
         `;
 
-        this._settings.get_boolean('dash-board-darken') ?
-            this.style = 'background-color: rgba(0,0,0,0.6);':
-            this.style = 'background-color: transparent';
+        this._settings.get_boolean('dash-board-darken')
+            ? this.style = 'background-color: rgba(0,0,0,0.6);'
+            : this.style = 'background-color: transparent';
     }
 
-    _buildUI(){
-        if(this._mainBox){
+    _buildUI() {
+        if (this._mainBox) {
             this._mainBox.destroy();
             this._mainBox = null;
         }
 
         this._widgetList = {
-            apps: () =>     { return new Widgets.AppsWidget(    this._settings, this); },
-            clock: () =>    { return new Widgets.ClockWidget(   this._settings, this); },
-            levels: () =>   { return new Widgets.LevelsWidget(  this._settings, this); },
-            links: () =>    { return new Widgets.LinksWidget(   this._settings, this); },
-            media: () =>    { return new Widgets.MediaWidget(   this._settings, this); },
-            settings: () => { return new Widgets.SettingsWidget(this._settings, this); },
-            system: () =>   { return new Widgets.SystemWidget(  this._settings, this); },
-            user: () =>     { return new Widgets.UserWidget(    this._settings, this); },
-        }
+            apps: () =>     {
+                return new Widgets.AppsWidget(this._settings, this);
+            },
+            clock: () =>    {
+                return new Widgets.ClockWidget(this._settings, this);
+            },
+            levels: () =>   {
+                return new Widgets.LevelsWidget(this._settings, this);
+            },
+            links: () =>    {
+                return new Widgets.LinksWidget(this._settings, this);
+            },
+            media: () =>    {
+                return new Widgets.MediaWidget(this._settings, this);
+            },
+            settings: () => {
+                return new Widgets.SettingsWidget(this._settings, this);
+            },
+            system: () =>   {
+                return new Widgets.SystemWidget(this._settings, this);
+            },
+            user: () =>     {
+                return new Widgets.UserWidget(this._settings, this);
+            },
+        };
 
-        let layout = JSON.parse(this._settings.get_string('dash-layout-json'));
+        const layout = JSON.parse(this._settings.get_string('dash-layout-json'));
         this._mainBox = this._parseJson(layout);
-        this.contentLayout.add_child( this._mainBox );
+        this.contentLayout.add_child(this._mainBox);
 
         this._syncStyle();
     }
 
-    _parseJson(obj){
-        if(typeof obj === 'string' && this._widgetList[obj]) return this._widgetList[obj]();
-        let box = new St.BoxLayout({
+    _parseJson(obj) {
+        if (typeof obj === 'string' && this._widgetList[obj])
+            return this._widgetList[obj]();
+        const box = new St.BoxLayout({
             style_class: 'container',
             vertical: obj.vertical || false,
             y_expand: obj.y_expand || false,
@@ -105,31 +126,31 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
                 ${obj.height ? `widht: ${obj.height}px;` : ''}
             `,
             y_align: this._parseAlign(obj.y_align),
-            x_align: this._parseAlign(obj.x_align)
+            x_align: this._parseAlign(obj.x_align),
         });
         obj.children?.forEach(ch => box.add_child(this._parseJson(ch)));
         return box;
     }
 
-    _parseAlign(align){
+    _parseAlign(align) {
         switch (align) {
-            case 'START': return Clutter.ActorAlign.START;
-            case 'CENTER': return Clutter.ActorAlign.CENTER;
-            case 'END': return Clutter.ActorAlign.END;
-            case 1: return Clutter.ActorAlign.START;
-            case 2: return Clutter.ActorAlign.CENTER;
-            case 3: return Clutter.ActorAlign.END;
-            default: return Clutter.ActorAlign.FILL;
+        case 'START': return Clutter.ActorAlign.START;
+        case 'CENTER': return Clutter.ActorAlign.CENTER;
+        case 'END': return Clutter.ActorAlign.END;
+        case 1: return Clutter.ActorAlign.START;
+        case 2: return Clutter.ActorAlign.CENTER;
+        case 3: return Clutter.ActorAlign.END;
+        default: return Clutter.ActorAlign.FILL;
         }
     }
 
-    _readConfig(){
+    _readConfig() {
         try {
-            let file = Gio.File.new_for_path(`${Me.path}/config/dashboard.json`);
-            let [, contents, etag] = file.load_contents(null);
-            contents instanceof Uint8Array ?
-                contents = imports.byteArray.toString(contents) :
-                contents = contents.toString();
+            const file = Gio.File.new_for_path(`${Me.path}/config/dashboard.json`);
+            let [, contents, _etag] = file.load_contents(null);
+            contents instanceof Uint8Array
+                ? contents = imports.byteArray.toString(contents)
+                : contents = contents.toString();
 
             ConfigParser.parseJson(JSON.parse(contents), this._settings);
         } catch (error) {
@@ -140,16 +161,16 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog{
 });
 
 const DashBoardPanelButton = GObject.registerClass(
-class DashBoardPanelButton extends PanelMenu.Button{
-    _init(settings){
+class DashBoardPanelButton extends PanelMenu.Button {
+    _init(settings) {
         super._init(0, _('Dash Board'), true);
         this._settings = settings;
         this.add_style_class_name('dashboard-button');
-        let box = new St.BoxLayout();
+        const box = new St.BoxLayout();
         this.add_child(box);
 
-        this._buttonIcon = new St.Icon({ style_class: 'system-status-icon' });
-        this._buttonLabel = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
+        this._buttonIcon = new St.Icon({style_class: 'system-status-icon'});
+        this._buttonLabel = new St.Label({y_align: Clutter.ActorAlign.CENTER});
         box.add_child(this._buttonIcon);
         box.add_child(this._buttonLabel);
 
@@ -162,8 +183,8 @@ class DashBoardPanelButton extends PanelMenu.Button{
             this
         );
 
-        this.connect('destroy', () => this._onDestroy() );
-        this.connect('button-press-event', () => this._toggleDash() );
+        this.connect('destroy', () => this._onDestroy());
+        this.connect('button-press-event', () => this._toggleDash());
         this._sync();
 
         Main.wm.addKeybinding('dash-shortcut', this._settings,
@@ -172,29 +193,30 @@ class DashBoardPanelButton extends PanelMenu.Button{
             () => this._toggleDash());
     }
 
-    _onDestroy(){
+    _onDestroy() {
         this._settings.disconnectObject(this);
         Main.wm.removeKeybinding('dash-shortcut');
-        if(this._dash) this._dash.destroy();
+        if (this._dash)
+            this._dash.destroy();
     }
 
-    _openDash(){
+    _openDash() {
         this._opened = true;
         this._dash.open();
         this.add_style_pseudo_class('active');
     }
 
-    _closeDash(){
+    _closeDash() {
         this._opened = false;
         this._dash.close();
         this.remove_style_pseudo_class('active');
     }
 
-    _toggleDash(){
-        this._opened ? this._closeDash() : this._openDash()
+    _toggleDash() {
+        this._opened ? this._closeDash() : this._openDash();
     }
 
-    _sync(){
+    _sync() {
         this.visible = this._settings.get_boolean('dash-button-enable');
         this._buttonIcon.visible = this._settings.get_boolean('dash-button-show-icon');
         this._buttonIcon.gicon = Gio.icon_new_for_string(
@@ -202,7 +224,7 @@ class DashBoardPanelButton extends PanelMenu.Button{
         );
         this._buttonLabel.text = this._settings.get_string('dash-button-label');
 
-        if(this._dash){
+        if (this._dash) {
             this._dash.destroy();
             this._dash = null;
         }
@@ -234,14 +256,14 @@ var Extension = class Extension {
             signals: [
                 'dash-button-position',
                 'dash-button-offset',
-            ]
-        })
+            ],
+        });
         this._activities = Main.panel.statusArea.activities.get_parent();
     }
 
     enable() {
         this._extension.enable();
-        //so it comes up in dconf editor
+        // so it comes up in dconf editor
         this._settings.set_strv('dash-links-names', this._settings.get_strv('dash-links-names'));
         this._settings.set_strv('dash-links-urls',  this._settings.get_strv('dash-links-urls'));
         this._settings.connectObject('changed::dash-hide-activities', this._hideActivities.bind(this), this);
@@ -254,8 +276,8 @@ var Extension = class Extension {
     }
 
     _hideActivities() {
-        this._settings.get_boolean('dash-hide-activities') ?
-            this._activities.hide():
-            this._activities.show();
+        this._settings.get_boolean('dash-hide-activities')
+            ? this._activities.hide()
+            : this._activities.show();
     }
-}
+};

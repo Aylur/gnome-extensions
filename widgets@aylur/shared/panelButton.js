@@ -1,7 +1,9 @@
+/* exported PanelButton */
+
 const Main = imports.ui.main;
 
 var PanelButton = class PanelButton {
-    constructor({ settings, indicator, signals, name }) {
+    constructor({settings, indicator, signals, name}) {
         this._settings = settings;
         this._indicator = indicator;
         this._signals = signals;
@@ -9,13 +11,13 @@ var PanelButton = class PanelButton {
         this._pos = [
             'left',
             'center',
-            'right'
+            'right',
         ];
     }
 
     enable() {
-        let arr = [];
-        this._signals.forEach(s => 
+        const arr = [];
+        this._signals.forEach(s =>
             arr.push(`changed::${s}`, this._reload.bind(this))
         );
         this._settings.connectObject(...arr, this);
@@ -23,20 +25,20 @@ var PanelButton = class PanelButton {
     }
 
     disable() {
-    	this._panelButton.destroy();
+        this._panelButton.destroy();
         this._panelButton = null;
         this._settings.disconnectObject(this);
     }
 
-    _reload(){
-        if (this._panelButton){
+    _reload() {
+        if (this._panelButton) {
             this._panelButton.destroy();
             this._panelButton = null;
         }
-        
+
         this._panelButton = new this._indicator(this._settings);
-        let pos    = this._settings.get_int(`${this._name}-position`);
-        let offset = this._settings.get_int(`${this._name}-offset`);
+        const pos    = this._settings.get_int(`${this._name}-position`);
+        const offset = this._settings.get_int(`${this._name}-offset`);
         Main.panel.addToStatusArea(this._name, this._panelButton, offset, this._pos[pos]);
     }
-}
+};

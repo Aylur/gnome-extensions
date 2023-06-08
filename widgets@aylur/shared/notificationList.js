@@ -1,6 +1,6 @@
-'use strict';
+/* exported NotificationList */
 
-const { GObject, St, Clutter, Gio } = imports.gi;
+const {GObject, St, Clutter, Gio} = imports.gi;
 const Main = imports.ui.main;
 const Calendar = imports.ui.calendar;
 const MessageList = imports.ui.messageList;
@@ -24,7 +24,7 @@ class NotificationSection extends MessageList.MessageListSection {
         });
     }
 
-    _destroy(){
+    _destroy() {
         Main.sessionMode.disconnectObject(this);
         Main.messageTray.disconnectObject(this);
     }
@@ -34,16 +34,16 @@ class NotificationSection extends MessageList.MessageListSection {
                !Main.sessionMode.isGreeter;
     }
 
-    _sourceAdded(tray, source) {
+    _sourceAdded(_tray, source) {
         source.connectObject('notification-added',
             this._onNotificationAdded.bind(this), this);
     }
 
-    _onNotificationAdded(source, notification) {
-        let message = new Calendar.NotificationMessage(notification);
+    _onNotificationAdded(_source, notification) {
+        const message = new Calendar.NotificationMessage(notification);
         message.setSecondaryActor(new Calendar.TimeLabel(notification.datetime));
 
-        let isUrgent = notification.urgency == MessageTray.Urgency.CRITICAL;
+        const isUrgent = notification.urgency === MessageTray.Urgency.CRITICAL;
 
         notification.connectObject(
             'destroy', () => {
@@ -55,19 +55,19 @@ class NotificationSection extends MessageList.MessageListSection {
                 this.moveMessage(message, isUrgent ? 0 : this._nUrgent, this.mapped);
             }, this);
 
-        if (isUrgent) {
+        if (isUrgent)
             this._nUrgent++;
-        } else if (this.mapped) {
+        else if (this.mapped)
             notification.acknowledged = true;
-        }
 
-        let index = isUrgent ? 0 : this._nUrgent;
+
+        const index = isUrgent ? 0 : this._nUrgent;
         this.addMessageAtIndex(message, index, this.mapped);
     }
 
     vfunc_map() {
         this._messages.forEach(message => {
-            if (message.notification.urgency != MessageTray.Urgency.CRITICAL)
+            if (message.notification.urgency !== MessageTray.Urgency.CRITICAL)
                 message.notification.acknowledged = true;
         });
         super.vfunc_map();
@@ -93,7 +93,7 @@ class DoNotDisturbSwitch extends PopupMenu.Switch {
         });
     }
 });
-    
+
 var NotificationList = GObject.registerClass(
 class NotificationList extends St.BoxLayout {
     _init(dnd) {
@@ -101,7 +101,7 @@ class NotificationList extends St.BoxLayout {
             x_expand: true,
             y_expand: true,
             vertical: true,
-            style_class: 'notification-list'
+            style_class: 'notification-list',
         });
 
         this._placeholder = new Calendar.Placeholder();
@@ -109,13 +109,13 @@ class NotificationList extends St.BoxLayout {
         this._placeholder.add_style_class_name('notifications-placeholder');
         this.add_child(this._placeholder);
 
-        let box = new St.BoxLayout({
+        const box = new St.BoxLayout({
             vertical: true,
             x_expand: true,
         });
         this.add_child(box);
 
-        let hbox = new St.BoxLayout({ style_class: 'message-list-controls' });
+        const hbox = new St.BoxLayout({style_class: 'message-list-controls'});
         box.add_child(hbox);
         this._controls = hbox;
 
@@ -129,13 +129,13 @@ class NotificationList extends St.BoxLayout {
         box.add_actor(this._scrollView);
 
         this.dnd = dnd;
-        if(dnd){
+        if (dnd) {
             const dndLabel = new St.Label({
                 text: _('Do Not Disturb'),
                 y_align: Clutter.ActorAlign.CENTER,
             });
             hbox.add_child(dndLabel);
-    
+
             this._dndSwitch = new DoNotDisturbSwitch();
             this._dndButton = new St.Button({
                 style_class: 'dnd-button',
@@ -149,11 +149,10 @@ class NotificationList extends St.BoxLayout {
                 this._dndButton, 'checked',
                 GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE);
             hbox.add_child(this._dndButton);
-        }
-        else{
+        } else {
             hbox.add_child(new St.Label({
                 text: _('Notifications'),
-                y_align: Clutter.ActorAlign.CENTER
+                y_align: Clutter.ActorAlign.CENTER,
             }));
         }
 
@@ -178,7 +177,7 @@ class NotificationList extends St.BoxLayout {
             x_expand: true,
             y_expand: true,
             y_align: Clutter.ActorAlign.START,
-            style_class: 'messages'
+            style_class: 'messages',
         });
         this._sectionList.connectObject(
             'actor-added', this._sync.bind(this),
@@ -189,12 +188,12 @@ class NotificationList extends St.BoxLayout {
         this._notificationSection = new NotificationSection();
         this._addSection(this._notificationSection);
 
-        Main.sessionMode.connectObject('updated', this._sync.bind(this),this);
+        Main.sessionMode.connectObject('updated', this._sync.bind(this), this);
         this.connect('destroy', () => Main.sessionMode.disconnectObject(this));
 
         Main.panel.statusArea.dateMenu._messageList._notificationSection._messages
         .forEach(n => {
-            let notification = new Calendar.NotificationMessage(n.notification);
+            const notification = new Calendar.NotificationMessage(n.notification);
             this._notificationSection.addMessage(notification);
         });
     }
@@ -212,18 +211,17 @@ class NotificationList extends St.BoxLayout {
     }
 
     _sync() {
-        let sections = this._sectionList.get_children();
-        let visible = sections.some(s => s.allowed);
+        const sections = this._sectionList.get_children();
+        const visible = sections.some(s => s.allowed);
         this.visible = visible;
         if (!visible)
             return;
 
-        let empty = sections.every(s => s.empty || !s.visible);
+        const empty = sections.every(s => s.empty || !s.visible);
         this._placeholder.visible = empty;
         this._controls.visible = !empty || this.dnd;
 
-        let canClear = sections.some(s => s.canClear && s.visible);
+        const canClear = sections.some(s => s.canClear && s.visible);
         this._clearButton.reactive = canClear;
     }
 });
-    

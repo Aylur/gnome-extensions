@@ -1,16 +1,18 @@
-const { GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, UPowerGlib: UPower } = imports.gi;
+/* exported Extension */
+
+const {GObject, St, Clutter, GLib, Gio, GnomeDesktop, Shell, UPowerGlib: UPower} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const QS = Main.panel.statusArea.quickSettings;
-const { QuickSlider, QuickToggle } = imports.ui.quickSettings;
+const {QuickSlider} = imports.ui.quickSettings;
 const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
-const { NotificationList } = Me.imports.shared.notificationList;
+const {NotificationList} = Me.imports.shared.notificationList;
 const SystemLevels = Me.imports.shared.systemLevels;
-const { VolumeMixer } = Me.imports.shared.volumeMixer;
-const { Avatar } = Me.imports.shared.userWidget;
+const {VolumeMixer} = Me.imports.shared.volumeMixer;
+const {Avatar} = Me.imports.shared.userWidget;
 
-const { loadInterfaceXML } = imports.misc.fileUtils;
+const {loadInterfaceXML} = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
 const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(DisplayDeviceInterface);
 
@@ -20,60 +22,64 @@ const NIGHT_LIGHT_MAX = 4700;
 const NIGHT_LIGHT_MIN = 1400;
 
 const QuickSettingsSystem = GObject.registerClass(
-class QuickSettingsSystem extends St.BoxLayout{
-    _init(){
-        super._init({ style_class: 'container' });
+class QuickSettingsSystem extends St.BoxLayout {
+    _init() {
+        super._init({style_class: 'container'});
 
-        let userBtn = this._addBtn('', 
+        const userBtn = this._addBtn('',
             () =>  Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate()
         );
         userBtn.style_class = 'icon-button user-btn';
-        userBtn.set_child(Avatar({ 
+        userBtn.set_child(Avatar({
             styleClass: 'user-icon icon-button',
             fallbackSize: 42,
-        }))
+        }));
 
-        let greetBox = new St.BoxLayout({
+        const greetBox = new St.BoxLayout({
             vertical: true,
-            y_align: Clutter.ActorAlign.CENTER
+            y_align: Clutter.ActorAlign.CENTER,
         });
-        greetBox.add_child(new St.Label({ text: GLib.get_user_name() }));
-        greetBox.add_child(new St.Label({ text: this._greet() }));
+        greetBox.add_child(new St.Label({text: GLib.get_user_name()}));
+        greetBox.add_child(new St.Label({text: this._greet()}));
 
         this.add_child(userBtn);
         this.add_child(greetBox);
-        this.add_child(new St.Widget({ x_expand: true }));
+        this.add_child(new St.Widget({x_expand: true}));
         this.add_child(this._addBtn('org.gnome.Settings-symbolic',
             () => Shell.AppSystem.get_default().lookup_app('org.gnome.Settings.desktop').activate()));
 
-        this.add_child(this._addBtn('system-lock-screen-symbolic', 
+        this.add_child(this._addBtn('system-lock-screen-symbolic',
             () => SystemActions.getDefault().activateAction('lock-screen')));
 
         this.add_child(this._addBtn('system-shutdown-symbolic',
             () => SystemActions.getDefault().activateAction('power-off')));
     }
 
-    _greet(){
-        let time = new Date();
-        let hour = time.getHours();
+    _greet() {
+        const time = new Date();
+        const hour = time.getHours();
 
         let greet = _('Good Evening!');
-        if(hour > 6){ greet = _('Good Morning!'); }
-        if(hour > 12){greet = _('Good Afternoon!');}
-        if(hour > 18){greet = _('Good Evening!');}
+        if (hour > 6)
+            greet = _('Good Morning!');
+
+        if (hour > 12)
+            greet = _('Good Afternoon!');
+        if (hour > 18)
+            greet = _('Good Evening!');
 
         return greet;
     }
 
-    _addBtn(iconName, callback){
-        let btn = new St.Button({
+    _addBtn(iconName, callback) {
+        const btn = new St.Button({
             y_align: Clutter.ActorAlign.CENTER,
             style_class: 'icon-button',
             child: new St.Icon({
                 icon_name: iconName,
             }),
 
-        })
+        });
         btn.connect('clicked', () => {
             callback();
             Main.overview.hide();
@@ -84,13 +90,13 @@ class QuickSettingsSystem extends St.BoxLayout{
 });
 
 const PowerButton = GObject.registerClass(
-class PowerButton extends St.Button{
+class PowerButton extends St.Button {
     _init(button) {
-        super._init({ style_class: button ? 'quick-toggle button small-toggle' : 'power-btn' });
-        
-        let box = new St.BoxLayout({ style_class: 'container' });
-        this._icon = new St.Icon({ style_class: 'quick-toggle-icon' });
-        this._label = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
+        super._init({style_class: button ? 'quick-toggle button small-toggle' : 'power-btn'});
+
+        const box = new St.BoxLayout({style_class: 'container'});
+        this._icon = new St.Icon({style_class: 'quick-toggle-icon'});
+        this._label = new St.Label({y_align: Clutter.ActorAlign.CENTER});
         box.add_child(this._icon);
         box.add_child(this._label);
         this.set_child(box);
@@ -99,7 +105,7 @@ class PowerButton extends St.Button{
             Gio.DBus.system,
             'org.freedesktop.UPower',
             '/org/freedesktop/UPower/devices/DisplayDevice',
-            (proxy, error) => {
+            (_proxy, error) => {
                 if (error)
                     console.error(error.message);
                 else
@@ -114,7 +120,9 @@ class PowerButton extends St.Button{
             Main.panel.closeQuickSettings();
         });
 
-        this.connect('destroy', () => this._proxy = null);
+        this.connect('destroy', () => {
+            this._proxy = null;
+        });
     }
 
     _sync() {
@@ -122,9 +130,9 @@ class PowerButton extends St.Button{
         if (!this.visible)
             return;
 
-        let chargingState = this._proxy.State === UPower.DeviceState.CHARGING
+        const chargingState = this._proxy.State === UPower.DeviceState.CHARGING
             ? '-charging' : '';
-        let fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
+        const fillLevel = 10 * Math.floor(this._proxy.Percentage / 10);
         const charged =
             this._proxy.State === UPower.DeviceState.FULLY_CHARGED ||
             (this._proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
@@ -138,14 +146,14 @@ class PowerButton extends St.Button{
 });
 
 const SystemActionsBox = GObject.registerClass(
-class SystemActionsBox extends St.BoxLayout{
-    _init(){
-        super._init({ style_class: 'container system-actions' });
+class SystemActionsBox extends St.BoxLayout {
+    _init() {
+        super._init({style_class: 'container system-actions'});
 
         this._addBtn('org.gnome.Settings-symbolic',
             () => Shell.AppSystem.get_default().lookup_app('org.gnome.Settings.desktop').activate());
 
-        this._addBtn('system-lock-screen-symbolic', 
+        this._addBtn('system-lock-screen-symbolic',
             () => SystemActions.getDefault().activateAction('lock-screen'));
 
         this._addBtn('system-log-out-symbolic',
@@ -155,13 +163,13 @@ class SystemActionsBox extends St.BoxLayout{
             () => SystemActions.getDefault().activateAction('power-off'));
     }
 
-    _addBtn(iconName, callback){
-        let btn = new St.Button({
+    _addBtn(iconName, callback) {
+        const btn = new St.Button({
             style_class: 'icon-button button quick-toggle',
             x_expand: true,
             child: new St.Icon({
-                icon_name: iconName
-            })
+                icon_name: iconName,
+            }),
         });
         btn.connect('clicked', () => {
             callback();
@@ -173,12 +181,12 @@ class SystemActionsBox extends St.BoxLayout{
 });
 
 const Footer = GObject.registerClass(
-class Footer extends St.BoxLayout{
-    _init(){
-        super._init({ style_class: 'footer' });
+class Footer extends St.BoxLayout {
+    _init() {
+        super._init({style_class: 'footer'});
 
         this.clock = new St.Label();
-        this.wallClock = new GnomeDesktop.WallClock({ time_only: true });
+        this.wallClock = new GnomeDesktop.WallClock({time_only: true});
         this.wallClock.connectObject(
             'notify::clock',
             () => this._update(),
@@ -187,7 +195,7 @@ class Footer extends St.BoxLayout{
         this._update();
 
         this.add_child(new PowerButton());
-        this.add_child(new St.Widget({ x_expand: true }));
+        this.add_child(new St.Widget({x_expand: true}));
         this.add_child(this.clock);
 
         this.connect('destroy', () => {
@@ -196,7 +204,7 @@ class Footer extends St.BoxLayout{
         });
     }
 
-    _update(){
+    _update() {
         this.clock.text = GLib.DateTime.new_now_local()
             .format('%A | %Y. %m. %d. | %H:%M');
     }
@@ -205,8 +213,8 @@ class Footer extends St.BoxLayout{
 const NightLightSlider = GObject.registerClass(
 class NightLightSlider extends QuickSlider {
     _init() {
-        super._init({ iconName: 'night-light-symbolic' });        
-        this._settings = new Gio.Settings({ schema_id: 'org.gnome.settings-daemon.plugins.color' });
+        super._init({iconName: 'night-light-symbolic'});
+        this._settings = new Gio.Settings({schema_id: 'org.gnome.settings-daemon.plugins.color'});
         this._settings.connect('changed::night-light-enabled', () => this._sync());
         this._settings.connect('changed::night-light-temperature', () => this._settingsChanged());
 
@@ -215,37 +223,37 @@ class NightLightSlider extends QuickSlider {
         this.connect('destroy', () => this._settings.run_dispose());
     }
 
-    _sliderChanged(){
+    _sliderChanged() {
         let value = (1 - this.slider.value) * (NIGHT_LIGHT_MAX - NIGHT_LIGHT_MIN);
         value += NIGHT_LIGHT_MIN;
         this._settings.set_uint('night-light-temperature', value);
     }
 
-    _settingsChanged(){
+    _settingsChanged() {
         let value = this._settings.get_uint('night-light-temperature');
         value -= NIGHT_LIGHT_MIN;
-        value /= (NIGHT_LIGHT_MAX - NIGHT_LIGHT_MIN);
-        this.slider.value = (1 - value);
+        value /= NIGHT_LIGHT_MAX - NIGHT_LIGHT_MIN;
+        this.slider.value = 1 - value;
     }
-    
+
     _sync() {
-        this._settings.get_boolean('night-light-enabled')?
-            this.show() : this.hide();
+        this._settings.get_boolean('night-light-enabled')
+            ? this.show() : this.hide();
     }
 });
 
 const SmallToggle = GObject.registerClass(
-class SmallToggle extends St.Button{
-    _init(schema, setting){
+class SmallToggle extends St.Button {
+    _init(schema, setting) {
         super._init({
             style_class: 'button quick-toggle small-toggle',
-            x_expand: true
+            x_expand: true,
         });
-        this._icon = new St.Icon({ style_class: 'quick-toggle-icon' });
+        this._icon = new St.Icon({style_class: 'quick-toggle-icon'});
         this.set_child(this._icon);
-        this._settings = new Gio.Settings({ schema_id: schema });
+        this._settings = new Gio.Settings({schema_id: schema});
         this._settings.connect(`changed::${setting}`, () => this.sync());
-        
+
         this.connectObject(
             'destroy', () => this._settings.run_dispose(),
             'clicked', () => this.toggle(setting),
@@ -253,41 +261,41 @@ class SmallToggle extends St.Button{
     }
 
     toggle(setting) {
-        let enabled = this._settings.get_boolean(`${setting}`);
+        const enabled = this._settings.get_boolean(`${setting}`);
         this._settings.set_boolean(`${setting}`, !enabled);
         this.sync();
     }
 
-    sync(){}
+    sync() {}
 });
 
 const NightLightToggle = GObject.registerClass(
-class NightLightToggle extends SmallToggle{
-    _init(){
+class NightLightToggle extends SmallToggle {
+    _init() {
         super._init('org.gnome.settings-daemon.plugins.color', 'night-light-enabled');
         this._icon.icon_name = 'night-light-symbolic';
         this.sync();
     }
 
-    sync(){
-        let enabled = this._settings.get_boolean('night-light-enabled');
-        enabled ? this.checked = true : this.checked = false; 
+    sync() {
+        const enabled = this._settings.get_boolean('night-light-enabled');
+        enabled ? this.checked = true : this.checked = false;
     }
 });
 
 const DoNotDisturbToggle = GObject.registerClass(
-class DoNotDisturbToggle extends SmallToggle{
-    _init(){
+class DoNotDisturbToggle extends SmallToggle {
+    _init() {
         super._init('org.gnome.desktop.notifications', 'show-banners');
         this.sync();
     }
 
-    sync(){
-        let enabled = this._settings.get_boolean('show-banners');
-        if(enabled){
+    sync() {
+        const enabled = this._settings.get_boolean('show-banners');
+        if (enabled) {
             this._icon.icon_name = 'org.gnome.Settings-notifications-symbolic';
             this.checked = false;
-        }else{
+        } else {
             this._icon.icon_name = 'notifications-disabled-symbolic';
             this.checked = true;
         }
@@ -295,30 +303,31 @@ class DoNotDisturbToggle extends SmallToggle{
 });
 
 const DarkModeToggle = GObject.registerClass(
-class DarkModeToggle extends SmallToggle{
-    _init(){
+class DarkModeToggle extends SmallToggle {
+    _init() {
         super._init('org.gnome.desktop.interface', 'color-scheme');
         this._icon.icon_name = 'dark-mode-symbolic';
         this.sync();
     }
 
-    toggle(){
+    toggle() {
         Main.layoutManager.screenTransition.run();
         this._settings.set_string('color-scheme',
             this.checked ? 'default' : 'prefer-dark');
     }
 
-    sync(){
+    sync() {
         const colorScheme = this._settings.get_string('color-scheme');
         this.checked = colorScheme === 'prefer-dark';
     }
 });
 
 const SmallToggleRow = GObject.registerClass(
-class SmallToggleRow extends St.BoxLayout{
-    _init(powerButton = true){
-        super._init({ style_class: 'container' });
-        if(powerButton) this.add_child(new PowerButton(true));
+class SmallToggleRow extends St.BoxLayout {
+    _init(powerButton = true) {
+        super._init({style_class: 'container'});
+        if (powerButton)
+            this.add_child(new PowerButton(true));
         this.add_child(new NightLightToggle());
         this.add_child(new DoNotDisturbToggle());
         this.add_child(new DarkModeToggle());
@@ -326,65 +335,69 @@ class SmallToggleRow extends St.BoxLayout{
 });
 
 const LevelsBox = GObject.registerClass(
-class LevelsBox extends SystemLevels.LevelsBox{
-    _init(settings){
+class LevelsBox extends SystemLevels.LevelsBox {
+    _init(settings) {
         super._init(settings, 'quick-settings-levels-show');
         this.y_expand = false;
         this.add_style_class_name('quick-settings-levels');
 
-        let bind = QS.menu.connect('open-state-changed', (self, open) => {
-            if(open) this.startTimeout();
-            else this.stopTimeout();
+        const bind = QS.menu.connect('open-state-changed', (_self, open) => {
+            if (open)
+                this.startTimeout();
+            else
+                this.stopTimeout();
         });
 
         this.updateLevels();
         this.connect('destroy', () => QS.menu.disconnect(bind));
     }
 });
-    
+
 const MediaBox = GObject.registerClass(
-class MediaBox extends Media.MediaBox{
-    _init(settings){
+class MediaBox extends Media.MediaBox {
+    _init(settings) {
         super._init(settings, 'quick-settings-media');
         this.add_style_class_name('button media');
         this.y_expand = false;
     }
 
-    _buildPlayerUI(){
-        this.style = ``;
+    _buildPlayerUI() {
+        this.style = '';
         super._buildPlayerUI();
         switch (this.layout) {
-            case 1: this._stock(); break;
-            case 2: this._full(); break;
-            default: this._normal(); break;
+        case 1: this._stock(); break;
+        case 2: this._full(); break;
+        default: this._normal(); break;
         }
     }
 
-    _full(){
+    _full() {
         super._full();
-        if(!this.showVolume)
+        if (!this.showVolume) {
             this.style = `
                 border-radius: ${this.coverRadius}px;
                 padding: 0;    
             `;
+        }
     }
 
-    _stock(){
-        let p = this.player;
+    _stock() {
+        const p = this.player;
         p.vertical = false;
-        let vbox = new St.BoxLayout({
+        const vbox = new St.BoxLayout({
             vertical: true,
             style_class: 'media-container',
             x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER
+            y_align: Clutter.ActorAlign.CENTER,
         });
-        let hbox = new St.BoxLayout();
+        const hbox = new St.BoxLayout();
         hbox.add_child(p.titleBox);
-        hbox.add_child(new St.Widget({ x_expand: true }));
+        hbox.add_child(new St.Widget({x_expand: true}));
         hbox.add_child(p.controlsBox);
 
         vbox.add_child(hbox);
-        if(this.showVolume) vbox.add_child(p.volumeBox);
+        if (this.showVolume)
+            vbox.add_child(p.volumeBox);
 
         p.add_child(p.mediaCover);
         p.add_child(vbox);
@@ -392,26 +405,26 @@ class MediaBox extends Media.MediaBox{
         p.controlsBox.y_align = Clutter.ActorAlign.CENTER;
     }
 
-    _normal(){
+    _normal() {
         super._normal(false);
         this.player.get_last_child().x_align = Clutter.ActorAlign.FILL;
     }
 });
 
 const MultiMediaBox = GObject.registerClass(
-class MultiMediaBox extends MediaBox{
-    _init(settings){
+class MultiMediaBox extends MediaBox {
+    _init(settings) {
         super._init(settings);
         this.remove_style_class_name('button media');
         this.child = new St.BoxLayout({
             vertical: true,
-            style_class: 'container'
+            style_class: 'container',
         });
     }
 
-    _full(){
+    _full() {
         super._full();
-        if(!this.showVolume){
+        if (!this.showVolume) {
             this.player.style = `
                 border-radius: ${this.coverRadius}px;
                 padding: 0;
@@ -421,13 +434,14 @@ class MultiMediaBox extends MediaBox{
         }
     }
 
-    _sync(){
+    _sync() {
         this.coverRadius = this.settings.get_int(`${this.settingName}-cover-roundness`);
         this.fade = this.settings.get_boolean(`${this.settingName}-fade`);
-        let secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
-        let mprisList = this.getPlayers();
-        if(mprisList.length === 0) this._onNoPlayer();
-        else{
+        const secondary = this.settings.get_boolean(`${this.settingName}-show-loop-shuffle`);
+        const mprisList = this.getPlayers();
+        if (mprisList.length === 0) {
+            this._onNoPlayer();
+        } else {
             this.show();
             this.child.remove_all_children();
             mprisList.forEach(p => {
@@ -441,13 +455,13 @@ class MultiMediaBox extends MediaBox{
     }
 });
 
-class Toggles{
-    constructor(settings){
+class Toggles {
+    constructor(settings) {
         this.menus = QS.menu._overlay;
         this.grid = QS.menu._grid;
         this.addedItems = [];
 
-        //toggles in order
+        // toggles in order
         this.system = QS._system.quickSettingsItems[0];
         this.output = QS._volume.quickSettingsItems[0];
         this.input = QS._volume.quickSettingsItems[1];
@@ -483,22 +497,24 @@ class Toggles{
             this.darkMode,
             settings.get_boolean('quick-settings-show-airplane') ? null : this.rfKill,
             settings.get_boolean('quick-settings-show-rotate') ? null : this.rotate,
-            settings.get_boolean('quick-settings-show-bg-apps') ? null : this.bgApps
+            settings.get_boolean('quick-settings-show-bg-apps') ? null : this.bgApps,
         ];
     }
 
-    addToGrid(item, childAbove, colSpan = 2){
+    addToGrid(item, childAbove, colSpan = 2) {
         this.grid.add_child(item);
         this.grid.layout_manager.child_set_property(
             this.grid, item, 'column-span', colSpan);
-        if(childAbove) this.grid.set_child_above_sibling(item, childAbove);
+        if (childAbove)
+            this.grid.set_child_above_sibling(item, childAbove);
         this.addedItems.push(item);
     }
 
-    detach(){
+    detach() {
         this.list.forEach(t => {
-            if(t) this.grid.remove_child(t)
-            if(t?.menu){
+            if (t)
+                this.grid.remove_child(t);
+            if (t?.menu) {
                 this.menus.remove_child(t.menu.actor);
                 t.menu.noDim = t.menu.connect('open-state-changed', () => {
                     QS.menu._setDimmed(false);
@@ -507,128 +523,132 @@ class Toggles{
         });
     }
 
-    reattach(){
+    reattach() {
         this.addedItems.forEach(i => i.destroy());
         this.addedItems = [];
         this.list.reverse().forEach(t => {
-            if(t){
+            if (t) {
                 t.get_parent()?.remove_child(t);
                 this.grid.insert_child_at_index(t, 0);
                 t._sync?.();
-                if(t.menu){
+                if (t.menu) {
                     t.menu.actor.get_parent()?.remove_child(t.menu.actor);
                     this.menus.insert_child_at_index(t.menu.actor, 0);
                     t.menu.close();
-                    if(t.menu.noDim){
+                    if (t.menu.noDim) {
                         t.menu.disconnect(t.menu.noDim);
                         t.menu.noDim = null;
-                    } 
+                    }
                 }
             }
         });
     }
 
-    detachGrid(){ this.grid.get_parent()?.remove_child(this.grid) }
+    detachGrid() {
+        this.grid.get_parent()?.remove_child(this.grid);
+    }
 
-    reattachGrid(){
+    reattachGrid() {
         this.detachGrid();
         QS.menu.box.add_child(this.grid);
     }
 }
 
-class QuickSettingsTweaks{
-    constructor(settings){
+class QuickSettingsTweaks {
+    constructor(settings) {
         this.settings = settings;
     }
 
-    reload(){
-        if(this.toggles) this.reset();
+    reload() {
+        if (this.toggles)
+            this.reset();
         this.toggles = new Toggles(this.settings);
-        
-        let adjust = this.settings.get_boolean('quick-settings-adjust-roundness');
-        if(adjust) QS.menu.box.add_style_class_name('adjusted');
 
-        let height = Main.layoutManager.primaryMonitor.height - Main.panel.height;
+        const adjust = this.settings.get_boolean('quick-settings-adjust-roundness');
+        if (adjust)
+            QS.menu.box.add_style_class_name('adjusted');
+
+        const height = Main.layoutManager.primaryMonitor.height - Main.panel.height;
         QS.menu.box.style = `
             width: ${this.settings.get_int('quick-settings-menu-width')}px;
-            max-height: ${height-14}px;
+            max-height: ${height - 14}px;
         `;
-        
+
         this.showMedia = this.settings.get_boolean('quick-settings-show-media');
         this.showNotificiations = this.settings.get_boolean('quick-settings-show-notifications');
         this.showLevels = this.settings.get_boolean('quick-settings-show-system-levels');
         this.showAppVolumeMixer = this.settings.get_boolean('quick-settings-show-app-volume-mixer');
 
         this.toggles.detach();
-        let layout = this.settings.get_int('quick-settings-style');
+        const layout = this.settings.get_int('quick-settings-style');
         switch (layout) {
-            case 1: this._normal(); break;
-            case 2: this._compact(); break;
-            case 3: this._separated(); break;
-            default: this._stock(); break;
+        case 1: this._normal(); break;
+        case 2: this._compact(); break;
+        case 3: this._separated(); break;
+        default: this._stock(); break;
         }
         this.toggles.brightness._sync();
     }
 
-    _stock(){
+    _stock() {
         this.toggles.grid.add_style_class_name('popup-menu-content');
         this.toggles.grid.add_style_class_name('quick-settings');
         this.toggles.reattach();
         this.toggles.addToGrid(new NightLightSlider(), this.toggles.brightness);
-        if(this.showAppVolumeMixer)
+        if (this.showAppVolumeMixer)
             this.toggles.addToGrid(new VolumeMixer(this.settings), this.toggles.output);
-        
-        if(this.showLevels){
-            let levelsBox = new LevelsBox(this.settings);
+
+        if (this.showLevels) {
+            const levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('quick-container button');
-            this.toggles.addToGrid( levelsBox );
+            this.toggles.addToGrid(levelsBox);
         }
-        if(this.showMedia){
-            let multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
+        if (this.showMedia) {
+            const multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
             this.toggles.addToGrid(
                 multi ? new MultiMediaBox(this.settings) : new MediaBox(this.settings)
             );
         }
-        if(this.showNotificiations){
+        if (this.showNotificiations) {
             this.notificationList = new NotificationList();
             this.notificationList.add_style_class_name('popup-menu-content');
             QS.menu.box.add_child(this.notificationList);
         }
     }
 
-    _normal(){
+    _normal() {
         this.toggles.detachGrid();
 
         this.normalBox = new St.BoxLayout({
             vertical: true,
-            style_class: 'popup-menu-content quick-settings container'
+            style_class: 'popup-menu-content quick-settings container',
         });
-        let sliders = new St.BoxLayout({
+        const sliders = new St.BoxLayout({
             vertical: true,
             reactive: true,
-            style_class: 'quick-container button'
+            style_class: 'quick-container button',
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
-        if(this.showAppVolumeMixer)
+        if (this.showAppVolumeMixer)
             sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
         sliders.add_child(new NightLightSlider());
-        
+
         this.normalBox.add_child(new QuickSettingsSystem());
         this.normalBox.add_child(sliders);
         this.normalBox.add_child(new SmallToggleRow(false));
         this.normalBox.add_child(this.toggles.grid);
 
-        if(this.showLevels){
-            let levelsBox = new LevelsBox(this.settings);
+        if (this.showLevels) {
+            const levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('quick-container button');
-            this.normalBox.add_child( levelsBox );
+            this.normalBox.add_child(levelsBox);
         }
-        if(this.showMedia){
-            let multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
+        if (this.showMedia) {
+            const multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
             this.normalBox.add_child(
                 multi ? new MultiMediaBox(this.settings) : new MediaBox(this.settings)
             );
@@ -638,28 +658,28 @@ class QuickSettingsTweaks{
 
         QS.menu.box.add_child(this.normalBox);
 
-        if(this.showNotificiations){
+        if (this.showNotificiations) {
             this.notificationList = new NotificationList();
             this.notificationList.add_style_class_name('popup-menu-content');
             QS.menu.box.add_child(this.notificationList);
         }
     }
 
-    _compact(){
+    _compact() {
         this.toggles.detachGrid();
-        
+
         this.compactBox = new St.BoxLayout({
             vertical: true,
-            style_class: 'popup-menu-content quick-settings container'
+            style_class: 'popup-menu-content quick-settings container',
         });
-        let sliders = new St.BoxLayout({
+        const sliders = new St.BoxLayout({
             vertical: true,
             reactive: true,
-            style_class: 'quick-container button'
+            style_class: 'quick-container button',
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
-        if(this.showAppVolumeMixer)
+        if (this.showAppVolumeMixer)
             sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
@@ -671,13 +691,13 @@ class QuickSettingsTweaks{
         this.compactBox.add_child(new SmallToggleRow());
         this.compactBox.add_child(sliders);
 
-        if(this.showLevels){
-            let levelsBox = new LevelsBox(this.settings);
+        if (this.showLevels) {
+            const levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('quick-container button');
-            this.compactBox.add_child( levelsBox );
+            this.compactBox.add_child(levelsBox);
         }
-        if(this.showMedia){
-            let multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
+        if (this.showMedia) {
+            const multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
             this.compactBox.add_child(
                 multi ? new MultiMediaBox(this.settings) : new MediaBox(this.settings)
             );
@@ -685,38 +705,38 @@ class QuickSettingsTweaks{
 
         QS.menu.box.add_child(this.compactBox);
 
-        if(this.showNotificiations){
+        if (this.showNotificiations) {
             this.notificationList = new NotificationList();
             this.notificationList.add_style_class_name('popup-menu-content');
             QS.menu.box.add_child(this.notificationList);
         }
     }
 
-    _separated(){
+    _separated() {
         this.toggles.detachGrid();
 
         this.separatedBox = new St.BoxLayout({
             vertical: true,
-            style_class: 'container'
+            style_class: 'container',
         });
 
-        let sliders = new St.BoxLayout({
+        const sliders = new St.BoxLayout({
             vertical: true,
             reactive: true,
-            style_class: 'popup-menu-content quick-settings'
+            style_class: 'popup-menu-content quick-settings',
         });
         sliders.add_child(this.toggles.output);
         sliders.add_child(this.toggles.output.menu.actor);
-        if(this.showAppVolumeMixer)
+        if (this.showAppVolumeMixer)
             sliders.add_child(new VolumeMixer(this.settings));
         sliders.add_child(this.toggles.input);
         sliders.add_child(this.toggles.input.menu.actor);
         sliders.add_child(this.toggles.brightness);
         sliders.add_child(new NightLightSlider());
 
-        let sysActions = new SystemActionsBox();
+        const sysActions = new SystemActionsBox();
         sysActions.add_style_class_name('popup-menu-content quick-settings');
-        
+
         this.toggles.addToGrid(new SmallToggleRow());
         this.toggles.grid.add_style_class_name('popup-menu-content quick-settings');
 
@@ -724,20 +744,20 @@ class QuickSettingsTweaks{
         this.separatedBox.add_child(this.toggles.grid);
         this.separatedBox.add_child(sliders);
 
-        if(this.showLevels){
-            let levelsBox = new LevelsBox(this.settings);
+        if (this.showLevels) {
+            const levelsBox = new LevelsBox(this.settings);
             levelsBox.add_style_class_name('popup-menu-content quick-settings');
-            this.separatedBox.add_child( levelsBox );
+            this.separatedBox.add_child(levelsBox);
         }
-        if(this.showMedia){
-            let multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
-            let media = multi ? new MultiMediaBox(this.settings) : new MediaBox(this.settings);
+        if (this.showMedia) {
+            const multi = !this.settings.get_boolean('quick-settings-media-prefer-one');
+            const media = multi ? new MultiMediaBox(this.settings) : new MediaBox(this.settings);
             media.add_style_class_name('popup-menu-content quick-settings');
-            this.separatedBox.add_child( media );
+            this.separatedBox.add_child(media);
         }
 
-        if(this.showNotificiations){
-            let notificationList = new NotificationList();
+        if (this.showNotificiations) {
+            const notificationList = new NotificationList();
             notificationList.add_style_class_name('popup-menu-content');
             this.separatedBox.add_child(notificationList);
         }
@@ -745,38 +765,38 @@ class QuickSettingsTweaks{
         QS.menu.box.add_child(this.separatedBox);
     }
 
-    reset(){
+    reset() {
         this.toggles.reattach();
         this.toggles.reattachGrid();
         QS.menu.box.style = '';
         QS.menu.box.remove_style_class_name('adjusted');
         this.toggles.grid.remove_style_class_name('popup-menu-content');
         this.toggles.grid.remove_style_class_name('quick-settings');
-        if(this.notificationList){
+        if (this.notificationList) {
             this.notificationList.destroy();
             this.notificationList = null;
         }
-        if(this.normalBox){
+        if (this.normalBox) {
             this.normalBox.destroy();
             this.normalBox = null;
         }
-        if(this.compactBox){
+        if (this.compactBox) {
             this.compactBox.destroy();
             this.compactBox = null;
         }
-        if(this.separatedBox){
+        if (this.separatedBox) {
             this.separatedBox.destroy();
             this.separatedBox = null;
         }
     }
 }
 
-var Extension = class Extension{
-    constructor(settings){
+var Extension = class Extension {
+    constructor(settings) {
         this._settings = settings;
     }
 
-    enable(){
+    enable() {
         QS.menu.box.add_style_class_name('tweaked');
         this.tweaks = new QuickSettingsTweaks(this._settings);
 
@@ -785,7 +805,7 @@ var Extension = class Extension{
             'changed::quick-settings-show-notifications',   () => this.tweaks.reload(),
             'changed::quick-settings-show-system-levels',   () => this.tweaks.reload(),
             'changed::quick-settings-show-media',           () => this.tweaks.reload(),
-            'changed::quick-settings-show-app-volume-mixer',() => this.tweaks.reload(),
+            'changed::quick-settings-show-app-volume-mixer', () => this.tweaks.reload(),
             'changed::quick-settings-media-prefer-one',     () => this.tweaks.reload(),
             'changed::quick-settings-menu-width',           () => this.tweaks.reload(),
             'changed::quick-settings-adjust-roundness',     () => this.tweaks.reload(),
@@ -807,10 +827,10 @@ var Extension = class Extension{
         this.binding = Main.layoutManager.connect('monitors-changed', () => this.tweaks.reload());
     }
 
-    disable(){
+    disable() {
         this._settings.disconnectObject(this);
         this.tweaks.reset();
         QS.menu.box.remove_style_class_name('tweaked');
         Main.layoutManager.disconnect(this.binding);
     }
-}
+};

@@ -12,7 +12,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
  */
+/* exported init */
 'use strict';
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -30,43 +32,46 @@ const Extensions = {
     dynamicPanel: 'dynamic-panel',
     windowHeaderbar: 'window-headerbar',
     quickSettingsTweaks: 'quick-settings-tweaks',
-    stylishOSD: 'stylish-osd'
-}
+    stylishOSD: 'stylish-osd',
+};
 
 class Extension {
-    constructor() {}
     enable() {
         const settings = ExtensionUtils.getSettings();
 
-        for (const extension in Extensions) { if (Object.hasOwnProperty.call(Extensions, extension)) {
-            const settings_key = Extensions[extension];
-            
-            this[extension] = new Me.imports.extensions[extension].Extension(settings);
-            if(settings.get_boolean(settings_key))
-                this._toggleExtension(this[extension]);
-            
-            settings.connect(`changed::${settings_key}`, () => {
-                this._toggleExtension(this[extension]);
-            });
-        }}
+        for (const extension in Extensions) {
+            if (Object.hasOwnProperty.call(Extensions, extension)) {
+                const settings_key = Extensions[extension];
+
+                this[extension] = new Me.imports.extensions[extension].Extension(settings);
+                if (settings.get_boolean(settings_key))
+                    this._toggleExtension(this[extension]);
+
+                settings.connect(`changed::${settings_key}`, () => {
+                    this._toggleExtension(this[extension]);
+                });
+            }
+        }
     }
 
     disable() {
-        for (const extension in Extensions) { if (Object.hasOwnProperty.call(Extensions, extension)) {
-            if(this[extension].enabled){
-                this[extension].disable();
-                this[extension].enabled = false;
-            }
+        for (const extension in Extensions) {
+            if (Object.hasOwnProperty.call(Extensions, extension)) {
+                if (this[extension].enabled) {
+                    this[extension].disable();
+                    this[extension].enabled = false;
+                }
 
-            this[extension] = null;
-        }}
+                this[extension] = null;
+            }
+        }
     }
 
-    _toggleExtension(extension){
-        if(!extension.enabled){
+    _toggleExtension(extension) {
+        if (!extension.enabled) {
             extension.enable();
             extension.enabled = true;
-        }else{
+        } else {
             extension.disable();
             extension.enabled = false;
         }
