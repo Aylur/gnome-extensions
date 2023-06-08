@@ -7,7 +7,7 @@ const Main = imports.ui.main;
 const Util = imports.misc.util;
 const AppFavorites = imports.ui.appFavorites;
 const Dash = imports.ui.dash;
-const {Avatar} = Me.imports.shared.userWidget;
+const {Avatar, Greetings, UserName} = Me.imports.shared.userWidget;
 const SystemActions = imports.misc.systemActions;
 const Media = Me.imports.shared.media;
 const SystemLevels = Me.imports.shared.systemLevels;
@@ -124,6 +124,7 @@ class UserWidget extends DashWidget {
         this._connect('icon-width');
         this._connect('icon-height');
         this._connect('vertical');
+        this._connect('real-name');
         this._sync();
     }
 
@@ -165,34 +166,17 @@ class UserWidget extends DashWidget {
             x_expand: true,
             y_expand: true,
         });
-        textBox.add_child(new St.Label({
-            text: GLib.get_user_name(),
+        textBox.add_child(new UserName(this._settings, 'dash', {
             y_align: Clutter.ActorAlign.END,
             x_align: this.vertical ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
         }));
-        textBox.add_child(new St.Label({
-            text: this._greet(),
+        textBox.add_child(new Greetings({
             y_align: Clutter.ActorAlign.START,
             x_align: this.vertical ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
         }));
 
         this.add_child(userBtn);
         this.add_child(textBox);
-    }
-
-    _greet() {
-        const time = new Date();
-        const hour = time.getHours();
-
-        let greet = _('Good Evening!');
-        if (hour > 6)
-            greet = _('Good Morning!');
-        if (hour > 12)
-            greet = _('Good Afternoon!');
-        if (hour > 18)
-            greet = _('Good Evening!');
-
-        return greet;
     }
 });
 

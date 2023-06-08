@@ -158,6 +158,7 @@ class DashBoardPage extends SubPage {
         user.add_row(new SpinButtonRow(_('Icon Width'), settings, 'dash-user-icon-width', 10, 500, 2));
         user.add_row(new SpinButtonRow(_('Icon Height'), settings, 'dash-user-icon-height', 10, 500, 2));
         user.add_row(new SwitchRow(_('Vertical'), settings, 'dash-user-vertical'));
+        user.add_row(new SwitchRow(_('Show Real Name'), settings, 'dash-user-real-name'));
 
         const levels = this._makeExpander(_('System Levels'), 'levels', settings);
         levels.add_row(new SwitchRow(_('Vertical'), settings, 'dash-levels-vertical'));
@@ -243,7 +244,9 @@ class DateMenuTweakPage extends SubPage {
         this.add(customMenuGroup);
 
         const expander = new ExpanderRow(_('Enable Custom Menu'), settings, 'date-menu-custom-menu');
-        expander.add_row(new SwitchRow(_('Show User Icon'), settings, 'date-menu-show-user'));
+        const userExpander = new ExpanderRow(_('Show User Icon'), settings, 'date-menu-show-user');
+        userExpander.add_row(new SwitchRow(_('Show Real Name'), settings, 'date-menu-user-real-name'));
+        expander.add_row(userExpander);
         expander.add_row(new SwitchRow(_('Show Events'), settings, 'date-menu-show-events'));
         expander.add_row(new SwitchRow(_('Show Clocks'), settings, 'date-menu-show-clocks'));
         expander.add_row(new SwitchRow(_('Show Weather'), settings, 'date-menu-show-weather'));
@@ -313,7 +316,7 @@ class DateMenuTweakPage extends SubPage {
 var DynamicPanelPage = GObject.registerClass(
 class DynamicPanelPage extends SubPage {
     _init(settings) {
-        super._init(_('Dynaimc Panel'), settings);
+        super._init(_('Dynamic Panel'), settings);
 
         const group = new Adw.PreferencesGroup();
         this.add(group);
@@ -591,6 +594,7 @@ class QuickSettingsTweaksPage extends SubPage {
         group.add(new SpinButtonRow(_('Menu Width'), settings, 'quick-settings-menu-width', 250, 500, 5));
         group.add(new DropDownRow(_('Style'), settings, 'quick-settings-style', [_('Stock'), _('Normal'), _('Compact'), _('Separated')]));
         group.add(new SwitchRow(_('Adjust Roundness'), settings, 'quick-settings-adjust-roundness'));
+        group.add(new SwitchRow(_('Show Real Name'), settings, 'quick-settings-user-real-name', _('On Normal Style')));
         group.add(new SwitchRow(_('Show Notifications'), settings, 'quick-settings-show-notifications'));
 
         const levelsExpander = new ExpanderRow(_('Show System Levels'), settings, 'quick-settings-show-system-levels');

@@ -10,7 +10,7 @@ const Media = Me.imports.shared.media;
 const {NotificationList} = Me.imports.shared.notificationList;
 const SystemLevels = Me.imports.shared.systemLevels;
 const {VolumeMixer} = Me.imports.shared.volumeMixer;
-const {Avatar} = Me.imports.shared.userWidget;
+const {Avatar, UserName, Greetings} = Me.imports.shared.userWidget;
 
 const {loadInterfaceXML} = imports.misc.fileUtils;
 const DisplayDeviceInterface = loadInterfaceXML('org.freedesktop.UPower.Device');
@@ -23,12 +23,12 @@ const NIGHT_LIGHT_MIN = 1400;
 
 const QuickSettingsSystem = GObject.registerClass(
 class QuickSettingsSystem extends St.BoxLayout {
-    _init() {
+    _init(settings) {
         super._init({style_class: 'container'});
 
-        const userBtn = this._addBtn('',
-            () =>  Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate()
-        );
+        const userBtn = this._addBtn('', () => {
+            Shell.AppSystem.get_default().lookup_app('gnome-user-accounts-panel.desktop').activate();
+        });
         userBtn.style_class = 'icon-button user-btn';
         userBtn.set_child(Avatar({
             styleClass: 'user-icon icon-button',
@@ -39,8 +39,8 @@ class QuickSettingsSystem extends St.BoxLayout {
             vertical: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
-        greetBox.add_child(new St.Label({text: GLib.get_user_name()}));
-        greetBox.add_child(new St.Label({text: this._greet()}));
+        greetBox.add_child(new UserName(settings, 'quick-settings'));
+        greetBox.add_child(new Greetings());
 
         this.add_child(userBtn);
         this.add_child(greetBox);
@@ -53,22 +53,6 @@ class QuickSettingsSystem extends St.BoxLayout {
 
         this.add_child(this._addBtn('system-shutdown-symbolic',
             () => SystemActions.getDefault().activateAction('power-off')));
-    }
-
-    _greet() {
-        const time = new Date();
-        const hour = time.getHours();
-
-        let greet = _('Good Evening!');
-        if (hour > 6)
-            greet = _('Good Morning!');
-
-        if (hour > 12)
-            greet = _('Good Afternoon!');
-        if (hour > 18)
-            greet = _('Good Evening!');
-
-        return greet;
     }
 
     _addBtn(iconName, callback) {
@@ -637,7 +621,7 @@ class QuickSettingsTweaks {
         sliders.add_child(this.toggles.brightness);
         sliders.add_child(new NightLightSlider());
 
-        this.normalBox.add_child(new QuickSettingsSystem());
+        this.normalBox.add_child(new QuickSettingsSystem(this.settings));
         this.normalBox.add_child(sliders);
         this.normalBox.add_child(new SmallToggleRow(false));
         this.normalBox.add_child(this.toggles.grid);
@@ -819,6 +803,7 @@ var Extension = class Extension {
             'changed::quick-settings-show-airplane',        () => this.tweaks.reload(),
             'changed::quick-settings-show-rotate',          () => this.tweaks.reload(),
             'changed::quick-settings-show-bg-apps',         () => this.tweaks.reload(),
+            'changed::quick-settings-user-real-name',       () => this.tweaks.reload(),
             this
         );
 

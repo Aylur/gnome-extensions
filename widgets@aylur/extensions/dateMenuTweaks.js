@@ -6,7 +6,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const DateMenu = Main.panel.statusArea.dateMenu;
 const Media = Me.imports.shared.media;
-const {Avatar} = Me.imports.shared.userWidget;
+const {Avatar, Greetings, UserName} = Me.imports.shared.userWidget;
 const SystemLevels = Me.imports.shared.systemLevels;
 
 const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
@@ -89,24 +89,19 @@ class CustomMenu extends St.BoxLayout {
         userBtn.connect('clicked', () => Shell.AppSystem.get_default()
             .lookup_app('gnome-user-accounts-panel.desktop').activate());
 
-        const userName = new St.Label({
-            x_align: Clutter.ActorAlign.CENTER,
-            text: GLib.get_user_name(),
-            style_class: 'datemenu-user-name',
-        });
-
-        this.greet = new St.Label({
-            x_align: Clutter.ActorAlign.CENTER,
-            style_class: 'datemenu-greet',
-        });
-
         const userBox = new St.BoxLayout({
             vertical: true,
             style_class: 'datemenu-user',
         });
         userBox.add_child(userBtn);
-        userBox.add_child(userName);
-        userBox.add_child(this.greet);
+        userBox.add_child(new UserName(settings, 'date-menu', {
+            x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'datemenu-user-name',
+        }));
+        userBox.add_child(new Greetings({
+            x_align: Clutter.ActorAlign.CENTER,
+            style_class: 'datemenu-greet',
+        }));
 
         // calendar
         const calendarBox = new St.Bin({
@@ -156,7 +151,6 @@ class CustomMenu extends St.BoxLayout {
             const now = new Date();
             calendar.setDate(now);
             eventsItem.setDate(now);
-            this._setGreet();
         }, this);
 
         Main.layoutManager.connectObject('monitors-changed', () => this.tweaks.reload(), this);
@@ -181,22 +175,6 @@ class CustomMenu extends St.BoxLayout {
     startTimeout() {
         if (this.levels)
             this.levels.startTimeout();
-    }
-
-    _setGreet() {
-        const time = new Date();
-        const hour = time.getHours();
-
-        let greet = _('Good Evening!');
-        if (hour > 6)
-            greet = _('Good Morning!');
-
-        if (hour > 12)
-            greet = _('Good Afternoon!');
-        if (hour > 18)
-            greet = _('Good Evening!');
-
-        this.greet.text = greet;
     }
 
     _buildPlayerUI() {
@@ -267,6 +245,7 @@ var Extension = class Extension {
             'changed::date-menu-show-weather',       this._reload.bind(this),
             'changed::date-menu-show-media',         this._reload.bind(this),
             'changed::date-menu-show-system-levels', this._reload.bind(this),
+            'changed::date-menu-user-real-name',     this._reload.bind(this),
             'changed::date-menu-date-format', () => {
                 this._dateFormat = this._settings.get_string('date-menu-date-format');
                 this._updateClock();

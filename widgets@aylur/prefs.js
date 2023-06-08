@@ -53,7 +53,7 @@ class AboutPage extends Adw.PreferencesPage {
         });
 
         const versionGroup = new Adw.PreferencesGroup();
-        const versionRow = new Adw.ActionRow({title: _('Verison:')});
+        const versionRow = new Adw.ActionRow({title: _('Version:')});
         versionRow.add_suffix(new Gtk.Label({valign: Gtk.Align.CENTER, label: `${Me.metadata.version}`}));
         versionGroup.add(versionRow);
         this.add(versionGroup);

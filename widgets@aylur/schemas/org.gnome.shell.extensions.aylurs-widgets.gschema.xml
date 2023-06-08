@@ -190,6 +190,7 @@
     <key name="dash-user-icon-roundness" type="i">           <default>13</default></key>
     <key name="dash-user-icon-width" type="i">               <default>100</default></key>
     <key name="dash-user-icon-height" type="i">              <default>100</default></key>
+    <key name="dash-user-real-name" type="b">                <default>false</default></key>
 
     <!-- date-menu-tweak -->
     <key name="date-menu-hide-stock-mpris" type="b">         <default>false</default></key>
@@ -207,6 +208,7 @@
     <key name="date-menu-show-media" type="b">               <default>true</default></key>
     <key name="date-menu-show-system-levels" type="b">       <default>true</default></key>
     <key name="date-menu-show-user" type="b">                <default>true</default></key>
+    <key name="date-menu-user-real-name" type="b">           <default>false</default></key>
     <key name="date-menu-levels-show-battery" type="b">      <default>true</default></key>
     <key name="date-menu-levels-show-storage" type="b">      <default>true</default></key>
     <key name="date-menu-levels-show-cpu" type="b">          <default>true</default></key>
@@ -330,6 +332,7 @@
     <key name="quick-settings-show-airplane" type="b">                    <default>false</default></key>
     <key name="quick-settings-show-rotate" type="b">                      <default>true</default></key>
     <key name="quick-settings-show-bg-apps" type="b">                     <default>true</default></key>
+    <key name="quick-settings-user-real-name" type="b">                   <default>false</default></key>
     
   </schema>
 </schemalist>
