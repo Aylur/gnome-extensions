@@ -374,7 +374,7 @@ class MediaPlayerPage extends SubPage {
     _cacheSize() {
         const dir = Gio.File.new_for_path(MEDIA_CACHE);
         if (!GLib.file_test(MEDIA_CACHE, GLib.FileTest.EXISTS))
-            dir.make_directory(null);
+            dir.make_directory_with_parents(null);
 
         const info = dir.query_info('standard::*', Gio.FileQueryInfoFlags.NONE, null);
         this.clearRow.set_subtitle(`${info.get_size()} bytes`);
@@ -383,7 +383,7 @@ class MediaPlayerPage extends SubPage {
     _clearCache() {
         const dir = Gio.File.new_for_path(MEDIA_CACHE);
         dir.trash(null);
-        dir.make_directory(null);
+        dir.make_directory_with_parents(null);
         this.clearRow.set_subtitle(_('Cleared!'));
     }
 });

@@ -320,7 +320,7 @@ class PlayerWidget extends St.BoxLayout {
         // track cover
         [CACHE_PATH, MEDIA_CACHE].forEach(path => {
             if (!GLib.file_test(path, GLib.FileTest.EXISTS))
-                Gio.File.new_for_path(path).make_directory(null);
+                Gio.File.new_for_path(path).make_directory_with_parents(null);
         });
 
         const fname = MEDIA_CACHE + `${this._mediaArtist.text}_${this._mediaTitle.text}`.replace(/[\,\*\?\"\<\>\|\#\:\?\/\']/g, '');
