@@ -8,5 +8,8 @@
   ],
   "url": "https://github.com/Aylur/gnome-extensions",
   "uuid": "widgets@aylur",
+  "donations": {
+    "kofi": "aylur"
+  },
   "version": 24
 }
