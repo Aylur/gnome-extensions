@@ -94,7 +94,7 @@ class BatteryBarPage extends SubPage {
 var DashBoardPage = GObject.registerClass(
 class DashBoardPage extends SubPage {
     _init(settings) {
-        super._init(_('Dash Board'), settings);
+        super._init(_('Dashboard'), settings);
 
         const buttonGroup = new Adw.PreferencesGroup({title: _('Panel Button')});
         this.add(buttonGroup);
@@ -442,7 +442,7 @@ class WorkspaceIndicatorPage extends SubPage {
 
         group.add(new PositionRow(_('Position'), settings, 'workspace-indicator-position', 'workspace-indicator-offset'));
         group.add(new SwitchRow(_('Show Names'), settings, 'workspace-indicator-show-names'));
-        group.add(new DropDownRow(_('Style'), settings, 'workspace-indicator-style', [_('Joined'), _('Seperated')]));
+        group.add(new DropDownRow(_('Style'), settings, 'workspace-indicator-style', [_('Joined'), _('Separated')]));
         group.add(new SpinButtonRow(_('Spacing'), settings, 'workspace-indicator-spacing', 0, 100, 1));
         group.add(new EntryRow(_('Active Name'), settings, 'workspace-indicator-active-name', _('Empty to disable')));
 

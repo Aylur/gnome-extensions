@@ -1,7 +1,7 @@
 # GNOME extensions
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Battery Bar, Dash Board, DateMenu Mod, Media Player, Power Menu, Workspace Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
+Battery Bar, Dashboard, DateMenu Mod, Media Player, Power Menu, Workspace Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
 
 <img src="https://github.com/Aylur/gnome-extensions/blob/main/data/screenshot.png">
 
