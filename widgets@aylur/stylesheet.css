@@ -20,7 +20,7 @@
 /* battery-bar */
 .battery-bar StIcon{ padding-top: 0; padding-bottom: 0; }
 
-/* Dash Board */
+/* Dashboard */
 #panel .dashboard-button StIcon{ padding-top: 0; padding-bottom: 0; }
 .dashboard > *:first-child{ margin: 0; }
 .dashboard { padding: 18px; }
