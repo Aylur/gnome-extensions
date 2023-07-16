@@ -139,7 +139,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog {
             ConfigParser.parseJson(JSON.parse(contents), this._settings);
         } catch (error) {
             log(error);
-            Main.notify('There was an error while parsing Dash Board config', 'Check your config and make sure it is formatted correctly!');
+            Main.notify('There was an error while parsing Dashboard config', 'Check your config and make sure it is formatted correctly!');
         }
     }
 });
@@ -147,7 +147,7 @@ class DashBoardModal extends imports.ui.modalDialog.ModalDialog {
 const DashBoardPanelButton = GObject.registerClass(
 class DashBoardPanelButton extends PanelMenu.Button {
     _init(settings) {
-        super._init(0, _('Dash Board'), true);
+        super._init(0, _('Dashboard'), true);
         this._settings = settings;
         this.add_style_class_name('dashboard-button');
         const box = new St.BoxLayout();
