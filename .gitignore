@@ -1,0 +1,5 @@
+dist/
+result
+node_modules/
+gnofi@aylur.shell-extension.zip
+.env

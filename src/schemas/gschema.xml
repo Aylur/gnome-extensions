@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemalist>
+  <schema id="@id@" path="@path@">
+    <key name="window-hotkey" type="as">
+      <default><![CDATA[ [] ]]></default>
+    </key>
+
+    <key name="window-margin-top" type="u">
+      <default>200</default>
+    </key>
+
+    <key name="window-width" type="u">
+      <default>500</default>
+    </key>
+
+    <key name="close-overview" type="b">
+      <default>false</default>
+      <description>Also close Overview when closing the picker window</description>
+    </key>
+
+    <key name="replace-overview-search" type="b">
+      <default>true</default>
+      <description>
+        Hides the search entry in overview and opens the picker window instead when attempting to search
+      </description>
+    </key>
+
+    <key name="open-at-startup" type="b">
+      <default>false</default>
+      <description>Open the picker window on login</description>
+    </key>
+
+    <key name="focusable-entry" type="b">
+      <default>false</default>
+      <description>Whether the search entry can be focused via keyboard navigation</description>
+    </key>
+
+    <key name="visible-command" type="b">
+      <default>false</default>
+      <description>Whether the current command is visible</description>
+    </key>
+
+    <key name="command-leader" type="s">
+      <default>':'</default>
+      <description>The command leader that switches to command mode</description>
+    </key>
+
+    <key name="panel-button" type="(buiss)">
+      <default>(true,0,0,'open-menu-symbolic','')</default>
+      <description>Panel button settings: visibility, position, icon, label.</description>
+    </key>
+
+    <key name="save-logs-in-memory" type="b">
+      <default>false</default>
+      <description>
+        Saves logs in memory so that its persistent between prefence dialog openings.
+        Also helps debugging tremendously, since start up error logs are visible this way.
+      </description>
+    </key>
+
+    <key name="show-hidden-options" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="commands" type="a{sa{sv}}">
+      <default>{}</default>
+      <description>List of pickers assigned as commands</description>
+    </key>
+
+    <key name="search-pickers" type="aa{sv}">
+      <default>[]</default>
+      <description>List of pickers assigned to the default search</description>
+    </key>
+
+    <key name="preferences-page" type="s">
+      <default>'about'</default>
+    </key>
+
+    <key name="initial-notification" type="b">
+      <default>true</default>
+    </key>
+  </schema>
+</schemalist>

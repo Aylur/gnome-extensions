@@ -1,0 +1,12 @@
+{
+  "name": "~dbus",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./GnofiLogger": "./GnofiLogger.ts",
+    "./SearchProvider": "./SearchProvider.ts",
+    "./GnomeExtensions": "./GnomeExtensions.ts",
+    "./GnofiExtension": "./GnofiExtension.ts",
+    "./Notifications": "./Notifications.ts"
+  }
+}

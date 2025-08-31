@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="250" y1="50" x2="250" y2="450" id="gradient-0" gradientTransform="matrix(-0.700337, -0.499669, 1.094979, -0.752019, 173.484741, 533.975347)">
+      <stop offset="0" style="stop-color: rgb(53, 132, 228);"/>
+      <stop offset="1" style="stop-color: rgb(51, 209, 122);"/>
+    </linearGradient>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, 0, 43.75)">
+    <g transform="matrix(1.25, 0, 0, 1.25, -62.5, -62.5)">
+      <path style="fill: url(&quot;#gradient-0&quot;); fill-rule: nonzero; paint-order: fill;" d="M 50 100 H 450 V 358.4 A 21.6 21.6 0 0 1 428.4 380 H 71.6 A 21.6 21.6 0 0 1 50 358.4 V 100 Z" bx:shape="rect 50 100 400 280 0 0 21.6 21.6 1@42ff0c8c"/>
+      <path style="" d="M 71.6 50 H 428.4 A 21.6 21.6 0 0 1 450 71.6 V 100 H 50 V 71.6 A 21.6 21.6 0 0 1 71.6 50 Z" bx:shape="rect 50 50 400 50 21.6 21.6 0 0 1@b77bc30a"/>
+    </g>
+    <g transform="matrix(2.268519, 0, 0, 2.268519, -128.756393, -116.759254)">
+      <rect style="fill: rgba(50, 50, 50, 0);" x="59.513" y="54.5" width="27" height="20.967" rx="10.5" ry="10.5"/>
+      <g transform="matrix(1, 0, 0, 1, 6, 0)">
+        <rect style="fill: rgb(255, 255, 255);" x="60" y="60" width="14" height="2" rx="2" ry="2"/>
+        <rect style="fill: rgb(255, 255, 255);" x="60" y="64" width="14" height="2" rx="2" ry="2"/>
+        <rect style="fill: rgb(255, 255, 255);" x="60" y="68" width="14" height="2" rx="2" ry="2"/>
+      </g>
+    </g>
+    <g transform="matrix(2.078712, 0, 0, 2.083334, -438.577545, -103.333359)">
+      <ellipse style="fill: rgb(255, 255, 255);" cx="436" cy="64" rx="6" ry="6"/>
+      <ellipse style="fill: rgb(255, 255, 255);" cx="420" cy="64" rx="6" ry="6"/>
+      <ellipse style="fill: rgb(255, 255, 255);" cx="404" cy="64" rx="6" ry="6"/>
+    </g>
+    <g transform="matrix(2.5, 0, 0, 2.5, -128.75, -131.25)">
+      <ellipse style="fill: rgb(131, 131, 131);" cx="83.75" cy="65" rx="1.75" ry="1.75"/>
+      <rect style="fill: rgb(255, 255, 255);" x="87" y="62" width="18" height="6" rx="3" ry="3"/>
+      <ellipse style="fill: rgb(131, 131, 131);" cx="108.25" cy="65" rx="1.75" ry="1.75"/>
+      <ellipse style="fill: rgb(131, 131, 131);" cx="112.75" cy="65" rx="1.75" ry="1.75"/>
+    </g>
+    <g transform="matrix(1.25, 0, 0, 1.25, -64.527931, -12.5)">
+      <path style="stroke-linejoin: round; stroke-linecap: square; paint-order: stroke; stroke: rgb(76, 76, 76); fill: rgb(50, 50, 50);" d="M 142 140 H 378 A 2 2 0 0 1 380 142 V 277.2 A 10 10 0 0 1 370 287.2 H 150 A 10 10 0 0 1 140 277.2 V 142 A 2 2 0 0 1 142 140 Z" bx:shape="rect 140 140 240 147.2 2 2 10 10 1@4c25560b"/>
+      <path style="stroke-linejoin: round; stroke-linecap: square; paint-order: stroke; stroke: rgb(76, 76, 76); fill: rgb(50, 50, 50);" d="M 150 90 H 370 A 10 10 0 0 1 380 100 V 138 A 2 2 0 0 1 378 140 H 142 A 2 2 0 0 1 140 138 V 100 A 10 10 0 0 1 150 90 Z" bx:shape="rect 140 90 240 50 10 10 2 2 1@210fa4bf"/>
+      <path d="M 163.508 96.299 C 154.446 96.299 147.042 103.707 147.042 112.775 C 147.042 121.843 154.446 129.239 163.508 129.239 C 167.134 129.239 170.486 128.063 173.206 126.061 L 180.672 133.527 C 183.094 135.903 186.658 132.259 184.232 129.885 L 176.81 122.457 C 178.798 119.735 179.978 116.391 179.978 112.775 C 179.978 103.707 172.574 96.299 163.508 96.299 Z M 163.508 101.369 C 169.832 101.369 174.91 106.447 174.91 112.775 C 174.91 119.103 169.832 124.171 163.508 124.171 C 157.186 124.171 152.108 119.103 152.108 112.775 C 152.108 106.447 157.186 101.369 163.508 101.369 Z M 163.508 101.369" style="fill: rgb(255, 255, 255);"/>
+    </g>
+  </g>
+</svg>

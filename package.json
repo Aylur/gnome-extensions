@@ -1,0 +1,46 @@
+{
+  "type": "module",
+  "homepage": "https://github.com/aylur/gnofi-gnome-extension",
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@girs/adw-1": "latest",
+    "@girs/girepository-2.0": "latest",
+    "@girs/gjs": "latest",
+    "@girs/gnome-shell": "latest",
+    "@types/mdast": "^4.0.4",
+    "esbuild": "latest",
+    "eslint": "latest",
+    "mdast-util-from-markdown": "^2.0.2",
+    "typescript": "latest",
+    "typescript-eslint": "latest",
+    "unist-util-visit": "^5.0.0"
+  },
+  "dependencies": {
+    "gnim": "^1.6.5",
+    "gnim-hooks": "^0.1.0",
+    "gnofi": "^1.0.0",
+    "~dbus": "link:src/dbus",
+    "~schemas": "link:src/schemas"
+  },
+  "scripts": {
+    "dev": "./make.nu dev",
+    "build": "./make.nu build",
+    "pack": "./make.nu pack",
+    "gettext": "./make.nu gettext",
+    "lint": "eslint"
+  },
+  "prettier": {
+    "semi": false,
+    "printWidth": 90,
+    "quoteProps": "consistent",
+    "proseWrap": "always",
+    "overrides": [
+      {
+        "files": "**.md",
+        "options": {
+          "printWidth": 80
+        }
+      }
+    ]
+  }
+}

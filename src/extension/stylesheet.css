@@ -1,0 +1,47 @@
+.gnofi-picker-content {
+  .gnofi-entry-box {
+    .gnofi-picker-icon {
+      transition-duration: 200ms;
+      margin-right: 0.4em;
+      margin-left: 10px;
+
+      &:focus {
+        color: -st-accent-color;
+      }
+    }
+
+    .gnofi-picker-entry {
+      transition-duration: 200ms;
+      box-shadow: none;
+      background-color: transparent;
+      border-radius: 0;
+      margin: 0;
+      padding: 10px 0;
+
+      selection-background-color: st-transparentize(-st-accent-color, 0.7);
+    }
+  }
+
+  .gnofi-controls-box {
+    margin: 3px;
+  }
+
+  .gnofi-no-match-label {
+    font-weight: bold;
+    text-size: 1.1em;
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+
+  .gnofi-help-box {
+    .gnofi-picker-button {
+      &:first-child {
+        margin-top: 2px;
+      }
+
+      StIcon {
+        color: -st-accent-color;
+      }
+    }
+  }
+}

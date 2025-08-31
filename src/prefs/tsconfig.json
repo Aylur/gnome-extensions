@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsxImportSource": "gnim/gtk4",
+    "paths": {
+      "#/*": ["./src/*"],
+      "#data": ["./data/index.ts"]
+    }
+  }
+}
