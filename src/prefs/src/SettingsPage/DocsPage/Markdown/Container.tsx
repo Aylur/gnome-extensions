@@ -15,12 +15,10 @@ export default function Container(props: { children: Node | Node[]; type: string
     case "[!NOTE]":
       icon = "info-outline-symbolic"
       title = _("Note")
-      color = "var(--view-bg-color)"
       break
     case "[!INFO]":
       icon = "info-outline-symbolic"
       title = _("Info")
-      color = "var(--view-bg-color)"
       break
     case "[!TIP]":
       icon = "dialog-information-symbolic"
@@ -50,9 +48,13 @@ export default function Container(props: { children: Node | Node[]; type: string
     title = rest.join(" ")
   }
 
-  const style = useStyle({
-    "background-color": color,
-  })
+  const style = useStyle(
+    color
+      ? {
+          "background-color": color,
+        }
+      : {},
+  )
 
   return (
     <Adw.Bin cssClasses={[style, "card"]}>
