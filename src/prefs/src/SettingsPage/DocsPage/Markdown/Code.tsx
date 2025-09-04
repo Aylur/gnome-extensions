@@ -87,7 +87,7 @@ export default function Code(props: {
       <Gtk.Button
         $type="overlay"
         $={(self) => (btn = self)}
-        css="margin:.3em;"
+        css="margin:.5em;"
         opacity={hovered((h) => (h ? 1 : 0))}
         halign={Gtk.Align.END}
         valign={Gtk.Align.START}
