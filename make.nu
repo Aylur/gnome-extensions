@@ -65,7 +65,6 @@ def "main build" [--devel] {
     cp metadata.json dist
     cp -r src/prefs/data/* dist/data
     rm dist/data/index.ts
-    rm dist/data/gpl3.txt
 }
 
 def "main install" [

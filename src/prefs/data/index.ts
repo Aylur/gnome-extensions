@@ -18,7 +18,7 @@ export const gnofiIcon = fileIcon("gnofi.svg")
 export const gnofiLogoPath = `${dataPath}/gnofi.svg`
 
 // @ts-expect-error why does the env.d.ts declaration not work?
-import gpl3 from "./gpl3.txt"
+import gpl3 from "../../../LICENSE.txt"
 export { gpl3 }
 
 export function loadIcons() {

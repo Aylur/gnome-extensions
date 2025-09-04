@@ -1,6 +1,7 @@
 {
   "type": "module",
   "homepage": "https://github.com/aylur/gnofi-gnome-extension",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@eslint/js": "latest",
     "@girs/adw-1": "latest",
