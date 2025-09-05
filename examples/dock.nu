@@ -28,16 +28,24 @@ def Dock [] {
   }
 }
 
+mut init = false
+
 while true {
+
   match (head -n 1 | from json -s) {
     [action $payload] => (do {
       systemd-run --user gtk-launch $payload
       [close]
     })
-    _ => ([batch [
-      [settings $settings]
-      [result (Dock)]
-    ]])
+    _ => (if (not $init) {
+      $init = true
+      [batch [
+        [settings $settings]
+        [result (Dock)]
+      ]]
+    } else {
+      [ignore]
+    })
   }
   | to json -r
   | print

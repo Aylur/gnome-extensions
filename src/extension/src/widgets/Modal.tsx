@@ -114,7 +114,10 @@ export default class Modal extends St.Widget {
       <This this={layoutManager.modalDialogGroup}>
         <This this={this as Modal} onKeyPressEvent={onKeyPressEvent}>
           <Clutter.BinLayout />
-          <Clutter.BindConstraint source={global.stage} coordinate={Clutter.BindCoordinate.ALL} />
+          <Clutter.BindConstraint
+            source={global.stage}
+            coordinate={Clutter.BindCoordinate.ALL}
+          />
           <MonitorConstraint $={(m) => (this.monitorConstraint = m)} />
           <St.Widget
             xExpand

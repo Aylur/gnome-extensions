@@ -43,8 +43,8 @@ function renderNode(
     refId = props.$
   }
 
-  if ((Ctor === St.Button && !("canFocus" in props)) || !("can_focus" in props)) {
-    props.canFocus = true
+  if (Ctor === St.Button) {
+    props.canFocus = props.canFocus ?? props.can_focus ?? props["can-focus"] ?? true
   }
 
   for (const [key, value] of Object.entries(props)) {

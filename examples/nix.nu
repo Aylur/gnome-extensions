@@ -64,7 +64,7 @@ def result []: list<record> -> list {
 
 def initial-result [] {
   [Box {
-    css:"margin-top:6px;margin-bottom:2px",
+    css:"margin-top:6px;margin-bottom:2px"
     xAlign:center
     xExpand:true
   }
