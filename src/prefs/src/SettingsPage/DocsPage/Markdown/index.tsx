@@ -52,7 +52,7 @@ export default function Markdown(props: {
               if (text.type === "text") {
                 return (
                   <Container type={text.value}>
-                    <Gtk.Box orientation={Gtk.Orientation.VERTICAL}>
+                    <Gtk.Box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
                       {children.map((content) => (
                         <Markdown
                           spacing={8}

@@ -17,7 +17,8 @@ There are two types of plugins:
    - Maintain internal state throughout their lifetime
    - Send commands asynchronously, without waiting for a request
 
-_Requests_ and _Commands_ are represented as arrays with two elements:
+[Requests](./#requests) and [Commands](./#commands) are represented as arrays
+with two elements:
 
 1. A **string** that specifies the action
 2. A **payload** that contains the associated data
@@ -70,18 +71,18 @@ rendered into.
 - **homogeneous:** `boolean` Whether the rows and columns are homogeneously
   sized. It is `true` by default.
 
-Example:
-
-```json
-[
-  "settings",
-  {
-    "description": "My awesome Picker",
-    "hint": "Start typing...",
-    "margin": [2, 0, 0, 0]
-  }
-]
-```
+> [!NOTE] Example
+>
+> ```json
+> [
+>   "settings",
+>   {
+>     "description": "My awesome Picker",
+>     "hint": "Start typing...",
+>     "margin": [2, 0, 0, 0]
+>   }
+> ]
+> ```
 
 ### result
 
@@ -94,67 +95,67 @@ JavaScript
 for example you can add an item to the end of the list with the `"result:push"`
 command.
 
-Example:
-
-```json
-[
-  "result",
-  [
-    ["Button", { "label": "item1" }],
-    ["Button", { "label": "item2" }]
-  ]
-]
-```
+> [!NOTE] Example
+>
+> ```json
+> [
+>   "result",
+>   [
+>     ["Button", { "label": "item1" }],
+>     ["Button", { "label": "item2" }]
+>   ]
+> ]
+> ```
 
 #### push
 
 The `"result:push"` command adds a new item to the end of the list.
 
-Example:
-
-```json
-["result:push", ["Button", { "label": "item3" }]]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:push", ["Button", { "label": "item3" }]]
+> ```
 
 #### pop
 
 The `"result:pop"` command lets you remove an item from the end of the list.
 
-Example:
-
-```json
-["result:pop"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:pop"]
+> ```
 
 #### unshift
 
 The `"result:unshift"` lets you insert an item to the start of the list.
 
-Example:
-
-```json
-["result:unshift", ["Button", { "label": "item0" }]]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:unshift", ["Button", { "label": "item0" }]]
+> ```
 
 #### shift
 
 The `"result:shift"` command lets you remove an item from the start of the list.
 
-Example:
-
-```json
-["result:shift"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:shift"]
+> ```
 
 #### slice
 
 The `"result:slice"` command lets you slice the result from its end and start.
 
-Example:
-
-```json
-["result:slice", [1, -1]]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:slice", [1, -1]]
+> ```
 
 In this example the first item and last item in the list are removed.
 
@@ -162,112 +163,126 @@ In this example the first item and last item in the list are removed.
 
 The `"result:remove"` command lets you remove an item by index.
 
-```json
-["result:remove", 2]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["result:remove", 2]
+> ```
 
 ### set-props
 
 Let's you set properties on rendered UI components that have a reference id.
 
-Example:
+> [!NOTE] Example
+>
+> ```json
+> [
+>   "set-props",
+>   {
+>     "$": "my-button",
+>     "label": "updated label"
+>   }
+> ]
+> ```
 
-```json
-[
-  "set-props",
-  {
-    "$": "my-button",
-    "label": "updated label"
-  }
-]
-```
+### text
+
+Sets the content of the search entry. Useful for handling
+[`"complete"`](./#complete) requests.
+
+> [!NOTE] Example
+>
+> ```json
+> ["text", "new text content"]
+> ```
 
 ### close
 
 Closes the picker window.
 
-Example:
-
-```json
-["close"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["close"]
+> ```
 
 ### open
 
 Opens the picker window with the given text searched.
 
-Example:
-
-```json
-["open", "text"]
-```
-
-> [!TIP]
+> [!NOTE] Example
 >
-> When the window is already open it can be used to set the text. For example to
-> autocomplete the search on [`"activate"`](./#activate) requests.
+> ```json
+> ["open", "text"]
+> ```
 
 ### focus
 
 Moves focus between UI elements. Valid payloads: `"entry"`, `"left"`,
-`"right"`,`"backward"`,`"forward"`,`"up"`,`"down"`
+`"right"`,`"backward"`,`"forward"`,`"up"`,`"down"`.
 
-Example:
-
-```json
-["focus", "forward"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["focus", "forward"]
+> ```
 
 ### log
 
 Logging commands.
 
-Example:
-
-```json
-["log", "hello world"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["log", "hello world"]
+> ```
 
 #### warning
 
-Example:
+Warn level logging.
 
-```json
-["log:warning", "hello world"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["log:warning", "hello world"]
+> ```
 
 #### error
 
-Example:
+Error level logging.
 
-```json
-["log:error", "hello world"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["log:error", "hello world"]
+> ```
 
 ### batch
 
 Let's you issue multiple commands in one. Mostly useful in Transient plugins.
 
-Example:
-
-```json
-[
-  "batch",
-  [
-    ["log", "hello world"],
-    ["result:pop"],
-    ["result:push", ["Button", { "label": "item" }]]
-  ]
-]
-```
+> [!NOTE] Example
+>
+> ```json
+> [
+>   "batch",
+>   [
+>     ["log", "hello world"],
+>     ["result:pop"],
+>     ["result:push", ["Button", { "label": "item" }]]
+>   ]
+> ]
+> ```
 
 ### ignore
 
 Does nothing. Mostly useful in Transient plugins.
 
-```json
-["ignore"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["ignore"]
+> ```
 
 ## Requests
 
@@ -279,51 +294,51 @@ first element is the request and the second element is the payload.
 Issued on each keystroke or optionally debounced if the [`delay`](./#settings)
 property is set.
 
-Example:
-
-```json
-["search", "text"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["search", "text"]
+> ```
 
 ### action
 
 Issued when a signal handler is invoked. The payload is the data set as the
 handler.
 
-Example:
-
-This result item,
-
-```json
-["Button", { "onClicked": "data" }]
-```
-
-When clicked will issue the following action request.
-
-```json
-["action", "data"]
-```
+> [!NOTE] Example
+>
+> This result item,
+>
+> ```json
+> ["Button", { "onClicked": "data" }]
+> ```
+>
+> When clicked will issue the following action request.
+>
+> ```json
+> ["action", "data"]
+> ```
 
 ### clear
 
 Issued when the picker is no longer active and is asked to clear its UI.
 
-Example:
-
-```json
-["clear"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["clear"]
+> ```
 
 ### activate
 
 Issued when the search entry is activated, for example when the enter key is
 pressed. The payload is the current content of the search entry.
 
-Example:
-
-```json
-["activate", "text"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["activate", "text"]
+> ```
 
 ### complete
 
@@ -331,22 +346,26 @@ Issued when an autocompletion is attempted by the user. Usually when the search
 entry is focused and the user presses the Tab key. The payload is the current
 content of the search entry.
 
-```json
-["complete", "text"]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["complete", "text"]
+> ```
 
 ### exit
 
 Issued when the process should exit. For example when the command is removed or
 when the Extension is disabled. Only issued for Persistent plugins.
 
-Example:
+> [!NOTE] Example
+>
+> ```json
+> ["exit"]
+> ```
 
-```json
-["exit"]
-```
+<!--  -->
 
-> [!CAUTION]
+> [!IMPORTANT]
 >
 > The process **has** to exit, otherwise the extension cannot cleanly disable.
 
@@ -366,7 +385,7 @@ type Node = [
 ]
 ```
 
-> [!NOTE]
+> [!TIP]
 >
 > Enum types can be passed by their names: for example
 > [`St.BoxLayout`](https://gjs-docs.gnome.org/st17~17/st.boxlayout) oriantation
@@ -376,38 +395,40 @@ type Node = [
 > ["Box", { "oriantation": "vertical" }]
 > ```
 
-Example:
+<!--  -->
 
-<!-- prettier-ignore -->
-```json
-["Button", { "$": "button1", "onClicked": "data" },
-  ["Box", {
-    "oriantation": "vertical",
-    "style": "border: 1px solid -st-accent-color;"
-  },
-    ["Box", {},
-      ["Label", { "text": "top left", "xExpand": true }]
-      ["Label", { "text": "top right", "xAlign": "end" }]
-    ]
-    ["Label", { "text": "main content", "style": "font-weight: bold;" }]
-  ]
-]
-```
-
-> [!TIP]
+> [!NOTE] Example
 >
-> The properties can have a special `$` property which can be used in the
-> [`set-props`](./#set-props) command to reference widget instances.
+> <!-- prettier-ignore -->
+> ```json
+> ["Button", { "$": "button1", "onClicked": "data" },
+>   ["Box", {
+>     "oriantation": "vertical",
+>     "style": "border: 1px solid -st-accent-color;"
+>   },
+>     ["Box", {},
+>       ["Label", { "text": "top left", "xExpand": true }]
+>       ["Label", { "text": "top right", "xAlign": "end" }]
+>     ]
+>     ["Label", { "text": "main content", "style": "font-weight: bold;" }]
+>   ]
+> ]
+> ```
+
+The properties can have a special `$` property which can be used in the
+[`set-props`](./#set-props) command to reference widget instances.
 
 ### Label
 
 - [`St.Label`](https://gjs-docs.gnome.org/st17~17/st.label)
 
-Example:
+> [!NOTE] Example
+>
+> ```json
+> ["Label", { "text": "content" }]
+> ```
 
-```json
-["Label", { "text": "content" }]
-```
+<!--  -->
 
 > [!WARNING]
 >
@@ -417,15 +438,17 @@ Example:
 
 - [`St.BoxLayout`](https://gjs-docs.gnome.org/st17~17/st.boxlayout)
 
-Example:
+> [!NOTE] Example
+>
+> <!-- prettier-ignore -->
+> ```json
+> ["Box", { "oriantation": "horizontal" },
+>   ["Icon", {}],
+>   ["Label", {}]
+> ]
+> ```
 
-<!-- prettier-ignore -->
-```json
-["Box", { "oriantation": "horizontal" },
-  ["Icon", {}],
-  ["Label", {}]
-]
-```
+<!--  -->
 
 > [!TIP]
 >
@@ -435,9 +458,13 @@ Example:
 
 - [`St.Icon`](https://gjs-docs.gnome.org/st17~17/st.icon)
 
-```json
-["Icon", { "iconName": "system-search-symbolic" }]
-```
+> [!NOTE] Example
+>
+> ```json
+> ["Icon", { "iconName": "system-search-symbolic" }]
+> ```
+
+<!--  -->
 
 > [!WARNING]
 >
@@ -447,27 +474,22 @@ Example:
 
 - [`St.Button`](https://gjs-docs.gnome.org/st17~17/st.button)
 
-> [!NOTE]
->
-> Buttons have `canFocus` set to `true` by default. If you don't want them to be
-> focusable by key navigation set it to `false`.
+Buttons have `canFocus` set to `true` by default. If you don't want them to be
+focusable by key navigation set it to `false`. Buttons are also implicitly given
+the `popup-menu-item` to make them look Gnome Shell native.
 
-```json
-[
-  "Button",
-  {
-    "iconName": "system-search-symbolic",
-    "onClicked": "data",
-    "onKeyFocusIn": "data"
-  },
-  ["Icon"]
-]
-```
-
-> [!NOTE]
+> [!NOTE] Example
 >
-> Buttons are implicitly given the `popup-menu-item` to make them look Gnome
-> Shell native.
+> <!-- prettier-ignore -->
+> ```json
+> ["Button", {
+>   "iconName": "system-search-symbolic",
+>   "onClicked": "data",
+>   "onKeyFocusIn": "data"
+> },
+>   ["Icon"]
+> ]
+> ```
 
 <!-- -->
 
