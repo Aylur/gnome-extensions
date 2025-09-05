@@ -15,7 +15,9 @@ export default function AppPicker(props: {
   const { gnofi } = useGnofi()
   const { picker, schema } = props
 
-  const result = createBinding(picker, "result").as((r) => r.slice(0, schema.get().limit))
+  const result = createBinding(picker, "result").as((r) =>
+    r.filter((app) => !app.get_nodisplay()).slice(0, schema.get().limit),
+  )
 
   return (
     <St.BoxLayout xExpand orientation={Clutter.Orientation.VERTICAL}>
