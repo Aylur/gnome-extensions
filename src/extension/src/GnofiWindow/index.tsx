@@ -58,7 +58,7 @@ export default function GnofiWindow() {
     <Modal
       $={(self) => (modal = self)}
       isOpen={isOpen}
-      onHide={() => gnofi.close()}
+      onHide={() => (gnofi.close(), (gnofi.text = ""))}
       onKeyPressEvent={onKeyPress}
       class="popup-menu"
     >
