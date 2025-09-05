@@ -72,6 +72,7 @@ export default function ExternalPickerLogsPage(props: {
         const timestamp = now()
         content.append(LogLabel([log, level], timestamp) as Gtk.Widget)
         fullText.push(`${timestamp} ${log}`)
+        scrollToBottom()
       }
     }
 
