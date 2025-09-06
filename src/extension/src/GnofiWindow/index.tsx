@@ -16,14 +16,16 @@ export default function GnofiWindow() {
   const text = createBinding(gnofi, "text")
   const activePicker = createBinding(gnofi, "activePicker")
   const [entryFocused, setEntryFocused] = createState(false)
-  const { windowWidth, windowMarginTop, focusableEntry, commands } = useSettings()
+  const { windowWidth, windowMarginTop, focusableEntry, commands, commandLeader } =
+    useSettings()
 
   const hintText = createComputed((get) => {
     const { hint } = get(activePicker)
     const { length } = Object.entries(get(commands))
+    const leader = get(commandLeader)
     return length === 0
       ? _("Start typing to search...")
-      : hint || "Type ':' for list of commands"
+      : hint || _(`Type '%s' for list of commands`).format(leader)
   })
 
   const focusHandler = gnofi.connect("focus", (_, target) => {
