@@ -7,6 +7,7 @@ import { usePrefs } from "#/prefs"
 import { useSettings } from "~schemas"
 import SendMessageDialog from "./SendMessageDialog"
 import LicensePage from "./LicensePage"
+import ChangelogPage from "./ChangelogPage"
 
 export default function AboutPage() {
   const { showHiddenOptions, setShowHiddenOptions } = useSettings()
@@ -87,6 +88,19 @@ export default function AboutPage() {
             pixelSize={24}
             iconName="x-office-document-symbolic"
           />
+          <Gtk.Image
+            iconName="adw-expander-arrow-symbolic"
+            css="transform:rotate(90deg);"
+          />
+        </Adw.ActionRow>
+
+        <Adw.ActionRow
+          title={_("Changelog")}
+          subtitle={_("See what's new and what changed")}
+          activatable
+          onActivated={() => ChangelogPage({ window })}
+        >
+          <Gtk.Image $type="prefix" pixelSize={24} iconName="view-list-bullet-symbolic" />
           <Gtk.Image
             iconName="adw-expander-arrow-symbolic"
             css="transform:rotate(90deg);"
