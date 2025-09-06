@@ -2,31 +2,11 @@ import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensio
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { openUri } from "#/utils"
-import { gnofiIcon, gpl3 } from "#data"
+import { gnofiIcon } from "#data"
 import { usePrefs } from "#/prefs"
 import { useSettings } from "~schemas"
 import SendMessageDialog from "./SendMessageDialog"
-
-function LicensePage() {
-  return (
-    <Adw.NavigationPage title={_("License")}>
-      <Adw.ToolbarView>
-        <Adw.HeaderBar $type="top">
-          <Adw.WindowTitle $type="title" title={_("License")} />
-        </Adw.HeaderBar>
-        <Gtk.ScrolledWindow>
-          <Gtk.Label
-            class="monospace"
-            label={gpl3}
-            halign={Gtk.Align.CENTER}
-            // so it fits in the default 640w window
-            css="font-size: 0.88rem"
-          />
-        </Gtk.ScrolledWindow>
-      </Adw.ToolbarView>
-    </Adw.NavigationPage>
-  )
-}
+import LicensePage from "./LicensePage"
 
 export default function AboutPage() {
   const { showHiddenOptions, setShowHiddenOptions } = useSettings()
@@ -100,7 +80,7 @@ export default function AboutPage() {
           title={_("Legal")}
           subtitle={_("Licensed under the GNU GPL v3.0")}
           activatable
-          onActivated={() => window.push_subpage(LicensePage() as Adw.NavigationPage)}
+          onActivated={() => LicensePage({ window })}
         >
           <Gtk.Image
             $type="prefix"
