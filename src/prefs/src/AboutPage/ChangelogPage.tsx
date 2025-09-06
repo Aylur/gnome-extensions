@@ -82,7 +82,7 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
 
             <ChangeSet title={_("Bug Fixes")}>
               <Change>
-                {_("PickerWindow: show correct command leader in placeholder text")}
+                {_("GnofiWindow: show correct command leader in placeholder text")}
               </Change>
               <Change>
                 {_("IPC: scroll to bottom when a log is appended in LogsPage")}
@@ -96,6 +96,11 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
               <Change>
                 {_(
                   "SearchProvider: respect desktop file Hidden, NoDisplay, OnlyShowIn and NotShowIn properties",
+                )}
+              </Change>
+              <Change>
+                {_(
+                  "GnofiWindow: hide border of entry. This fixes the look of certain custom themes.",
                 )}
               </Change>
             </ChangeSet>
