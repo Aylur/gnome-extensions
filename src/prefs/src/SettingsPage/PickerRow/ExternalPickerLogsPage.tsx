@@ -103,9 +103,7 @@ export default function ExternalPickerLogsPage(props: {
   }
 
   return createRoot((dispose) => {
-    onCleanup(() => {
-      proxy?.stop()
-    })
+    onCleanup(() => proxy?.stop())
 
     return (
       <Adw.NavigationPage $={(self) => window.push_subpage(self)} onHiding={dispose}>

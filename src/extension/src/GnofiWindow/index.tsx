@@ -2,10 +2,11 @@ import St from "gi://St"
 import Modal from "#/widgets/Modal"
 import Clutter from "gi://Clutter"
 import { useGnofi } from "#/Gnofi"
-import { createBinding, createComputed, createState, onCleanup, This } from "gnim"
+import { createBinding, createComputed, createState, This } from "gnim"
 import { useSettings } from "~schemas"
 import Pickers from "./Pickers"
 import Controls from "./Controls"
+import { useConnect, useEffect } from "gnim-hooks"
 
 export default function GnofiWindow() {
   let modal: Modal
@@ -28,7 +29,7 @@ export default function GnofiWindow() {
       : hint || _(`Type '%s' for list of commands`).format(leader)
   })
 
-  const focusHandler = gnofi.connect("focus", (_, target) => {
+  useConnect(gnofi, "focus", (target) => {
     if (target === "entry") {
       entry.grab_key_focus()
       modal.keyFocus = entry
@@ -37,15 +38,10 @@ export default function GnofiWindow() {
     }
   })
 
-  const openHandler = isOpen.subscribe(() => {
-    if (isOpen.get()) {
+  useEffect((get) => {
+    if (get(isOpen)) {
       gnofi.focus("entry")
     }
-  })
-
-  onCleanup(() => {
-    gnofi.disconnect(focusHandler)
-    openHandler()
   })
 
   function onKeyPress(_: any, event: Clutter.Event) {
