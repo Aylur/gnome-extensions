@@ -69,54 +69,9 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
-          <Release version="3">
-            <ChangeSet title={_("New Features")}>
-              <Change>{_("prefs: Changelog page")}</Change>
-            </ChangeSet>
-            <ChangeSet title={_("Changes")}>
-              <Change>{_("IPC: add <tt>text</tt> command")}</Change>
-              <Change>
-                {_("IPC: <tt>open</tt> command no longer clears current picker")}
-              </Change>
-            </ChangeSet>
-
-            <ChangeSet title={_("Bug Fixes")}>
-              <Change>
-                {_("GnofiWindow: show correct command leader in placeholder text")}
-              </Change>
-              <Change>
-                {_("IPC: scroll to bottom when a log is appended in LogsPage")}
-              </Change>
-              <Change>
-                {_("IPC: issue <tt>clear</tt> command only after window is fully hidden")}
-              </Change>
-              <Change>
-                {_("IPC: correctly assign default <tt>canFocus</tt> property")}
-              </Change>
-              <Change>
-                {_(
-                  "SearchProvider: respect desktop file Hidden, NoDisplay, OnlyShowIn and NotShowIn properties",
-                )}
-              </Change>
-              <Change>
-                {_(
-                  "GnofiWindow: hide border of entry. This fixes the look of certain custom themes.",
-                )}
-              </Change>
-            </ChangeSet>
-          </Release>
-
-          <Release version="2">
-            <ChangeSet title={_("Bug Fixes")}>
-              <Change>{_("IPC: docs Container component style")}</Change>
-              <Change>{_("IPC: docs Code component style")}</Change>
-              <Change>{_("prefs: donation list fetching")}</Change>
-            </ChangeSet>
-          </Release>
-
-          <Release version="1">
+          <Release version="0.1.0">
             <ChangeSet title={_("Features")}>
-              <Change>{_("App Picker")}</Change>
+              <Change>{_("Builtin App Picker")}</Change>
               <Change>{_("SearchProvider Picker")}</Change>
               <Change>{_("External IPC Picker")}</Change>
               <Change>{_("Commands")}</Change>

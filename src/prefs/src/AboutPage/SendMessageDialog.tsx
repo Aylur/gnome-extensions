@@ -13,6 +13,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
   const [text, setText] = createState(_("Hi! I wanted to ask about..."))
   const [email, setEmail] = createState("")
 
+  // please don't abuse this, I'm on a free resend tier
   async function sendEmail() {
     setSending(true)
     try {
