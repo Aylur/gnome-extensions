@@ -28,6 +28,8 @@ gnome-session-quit
 
 ## Features
 
+![Preferences](https://github.com/user-attachments/assets/e76820d3-89d3-417c-9751-a9ebae0788f4")
+
 ### Gnome Shell Search Replacement
 
 At its core, Gnofi is designed to replace Gnome Shell's search and move it out
@@ -48,7 +50,7 @@ Search Provider as a command like `:c`, and search for characters without
 cluttering the search window with applications and other results you don't care
 about.
 
-![Characters command](https://github.com/user-attachments/assets/c4ed70f7-c93b-45f8-bbe6-138b71c6a5f4)
+![Characters command](https://github.com/user-attachments/assets/4950ed3f-825a-4d76-b744-5885bbab855f)
 
 ### IPC Plugins
 
@@ -58,6 +60,10 @@ interface. You can write a plugin in **any** programming language and:
 - Extend the default search functionality
 - Completely replace the default search
 - Assign custom plugins as commands
+
+Example Nix plugin:
+
+![Nix Plugin example](https://github.com/user-attachments/assets/0f36131d-de81-4cf1-8c6c-72a6d3cf0db9)
 
 > [!TIP]
 >
