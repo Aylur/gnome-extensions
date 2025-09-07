@@ -62,12 +62,12 @@ function useHotkey() {
     Meta.KeyBindingFlags.NONE,
     Shell.ActionMode.NORMAL | Shell.ActionMode.POPUP | Shell.ActionMode.OVERVIEW,
     () => {
-      const hasFullscreen = global.workspace_manager
-        .get_active_workspace()
-        .list_windows()
-        .some((win) => win.is_fullscreen() && win.showing_on_its_workspace())
+      const w = global.display.focusWindow
+      if (w.is_fullscreen() && w.showing_on_its_workspace()) {
+        return
+      }
 
-      if (!hasFullscreen) gnofi.open("")
+      gnofi.open("")
     },
   )
 
