@@ -47,7 +47,7 @@ export default function AboutPage() {
             label={
               import.meta.DEVEL
                 ? _('Development version "%s"').format(version)
-                : _("Version %d").format(version)
+                : _("Version %s").format(version)
             }
             onClicked={toggleHiddenOptions}
           />

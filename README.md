@@ -10,6 +10,22 @@ An extensible launcher, picker, search and command palette for Gnome.
 
 ![Desktop Screenshot](https://github.com/user-attachments/assets/b444c452-1eb2-4735-94ff-eb3fbf877132)
 
+## Installation
+
+```sh
+# get the latest tag
+tag=$(curl -s https://api.github.com/repos/aylur/gnofi-gnome-extension/releases/latest | jq -r .tag_name)
+
+# download the extension
+curl -L "https://github.com/Aylur/gnofi-gnome-extension/releases/download/$tag/gnofi@aylur.shell-extension.zip" -o gnofi@aylur.shell-extension.zip
+
+# install
+gnome-extensions install gnofi@aylur.shell-extension.zip
+
+# log out and log in
+gnome-session-quit
+```
+
 ## Features
 
 ### Gnome Shell Search Replacement
