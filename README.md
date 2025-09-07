@@ -28,7 +28,7 @@ gnome-session-quit
 
 ## Features
 
-![Preferences](https://github.com/user-attachments/assets/e76820d3-89d3-417c-9751-a9ebae0788f4")
+![Preferences](https://github.com/user-attachments/assets/e76820d3-89d3-417c-9751-a9ebae0788f4)
 
 ### Gnome Shell Search Replacement
 
