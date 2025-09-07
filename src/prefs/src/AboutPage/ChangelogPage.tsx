@@ -69,6 +69,11 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.1.1">
+            <ChangeSet title={_("Bug Fixes")}>
+              <Change>{_("correctly open window on hotkey")}</Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.1.0">
             <ChangeSet title={_("Features")}>
               <Change>{_("Builtin App Picker")}</Change>

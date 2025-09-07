@@ -62,8 +62,8 @@ function useHotkey() {
     Meta.KeyBindingFlags.NONE,
     Shell.ActionMode.NORMAL | Shell.ActionMode.POPUP | Shell.ActionMode.OVERVIEW,
     () => {
-      const w = global.display.focusWindow
-      if (w.is_fullscreen() && w.showing_on_its_workspace()) {
+      const w: Meta.Window | null = global.display.get_focus_window()
+      if (w && w.is_fullscreen() && w.showing_on_its_workspace()) {
         return
       }
 
