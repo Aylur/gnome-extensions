@@ -18,11 +18,11 @@ export default class extends ExtensionPreferences {
 
     const proxy = await GnomeExtensions.proxy()
     const [info] = await proxy.GetExtensionInfo(this.uuid)
-    const version = info["version"]?.unpack<number>() || null
+    const version = info["version"]?.unpack<number>() || import.meta.VERSION
 
     const prefs: PrefsProps = {
       window,
-      version,
+      version: `${version}`,
       uuid: this.uuid,
       extensionsProxy: proxy,
     }

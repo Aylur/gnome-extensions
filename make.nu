@@ -10,13 +10,15 @@ let banner = $"/*
  */
 "
 
-def bundle [input: string, output: string, devel = false] {
-    let version = try {
+def bundle [input: string, output: string, --version: string] {
+    let devel = ($version | describe) == "nothing"
+
+    let version = $version | default (try {
         git diff --quiet
-        $'"(git rev-parse --short HEAD)"'
+        $"(git rev-parse --short HEAD)"
     } catch {
-        '"dirty"'
-    }
+        "dirty"
+    })
 
     let doc = node docs/mdast.ts (cat docs/IPC.md)
 
@@ -31,7 +33,7 @@ def bundle [input: string, output: string, devel = false] {
         --supported:decorators=false
         --banner:js=$"($banner)"
         --define:import.meta.IPC_DOC=$"($doc)"
-        --define:import.meta.VERSION=$"($version)"
+        --define:import.meta.VERSION=$'"($version)"'
         --define:import.meta.DEVEL=$"($devel)"
         --define:import.meta.EMAIL_API=$'"($env | get GNOFI_EMAIL_API)"'
         --define:import.meta.GIT_URL=$'"($GIT_URL)"'
@@ -41,7 +43,7 @@ def bundle [input: string, output: string, devel = false] {
     )
 }
 
-def "main build" [--devel] {
+def "main build" [--version: string] {
     rm -rf dist
 
     let schema = open metadata.json | get settings-schema
@@ -49,7 +51,7 @@ def "main build" [--devel] {
     mkdir dist/schemas
     mkdir dist/data
     bundle ./src/extension/index dist/extension.js
-    bundle ./src/prefs/index dist/prefs.js $devel
+    bundle ./src/prefs/index dist/prefs.js --version $version
 
     (esbuild
         --bundle ./src/extension/stylesheet.css
@@ -82,7 +84,7 @@ def "main install" [
 }
 
 def "main dev" [] {
-    main build --devel
+    main build
     main install
     dbus-run-session -- gnome-shell --nested --wayland
 }
@@ -94,7 +96,7 @@ def "main gettext" [] {
 }
 
 def "main pack" [] {
-    main build
+    main build --version $env.GNOFI_VERSION
     gnome-extensions pack --extra-source=data --force dist
 }
 

@@ -1,5 +1,5 @@
 import Pango from "gi://Pango"
-import Gtk from "gi://Gtk?version=4.0"
+import Gtk from "gi://Gtk"
 import type { PhrasingContent } from "mdast"
 
 function pango(node: PhrasingContent): string {

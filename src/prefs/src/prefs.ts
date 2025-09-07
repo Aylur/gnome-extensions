@@ -5,7 +5,7 @@ import GnomeExtensions from "~dbus/GnomeExtensions"
 export type PrefsProps = {
   window: Adw.PreferencesWindow
   extensionsProxy: GnomeExtensions
-  version: number | null
+  version: string
   uuid: string
 }
 

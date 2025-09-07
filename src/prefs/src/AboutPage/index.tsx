@@ -45,8 +45,8 @@ export default function AboutPage() {
             css="padding: 3px 18px; color: var(--accent-color);"
             tooltipText={_("Toggle Hidden Options")}
             label={
-              version == null
-                ? _('Development version "%s"').format(import.meta.VERSION)
+              import.meta.DEVEL
+                ? _('Development version "%s"').format(version)
                 : _("Version %d").format(version)
             }
             onClicked={toggleHiddenOptions}
@@ -130,7 +130,7 @@ export default function AboutPage() {
               justify={Gtk.Justification.CENTER}
               wrap
               label={_(
-                "Sending direct messages is only supported from the official https://extensions.gnome.org/ distributon.",
+                "Sending messages is not supported from this distributon of Gnofi.",
               )}
             />
           </Adw.PreferencesRow>
