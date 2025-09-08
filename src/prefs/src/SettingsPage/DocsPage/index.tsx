@@ -201,9 +201,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                   />
                   <Gtk.Button
                     $type="end"
-                    visible={createComputed(
-                      (get) => !get(collapsed) || !get(showSideBar),
-                    )}
+                    visible={createComputed((get) => !get(showSideBar) || get(collapsed))}
                     class="flat"
                     iconName="system-search-symbolic"
                     onClicked={startSearch}
