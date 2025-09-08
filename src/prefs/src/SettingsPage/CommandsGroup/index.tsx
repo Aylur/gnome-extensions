@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { PickerSchema, useSettings } from "~schemas"
@@ -50,7 +50,7 @@ export default function CommandsGroup() {
   }
 
   return (
-    <Adw.PreferencesGroup title={_("Commands")}>
+    <Adw.PreferencesGroup title={t("Commands")}>
       <AddPickerButton
         $type="header-suffix"
         onPreAddPicker={preAdd}
@@ -79,7 +79,7 @@ export default function CommandsGroup() {
           marginTop={14}
           marginBottom={14}
           halign={Gtk.Align.CENTER}
-          label={_("No commands added yet")}
+          label={t("No commands added yet")}
         />
       </Adw.PreferencesRow>
     </Adw.PreferencesGroup>

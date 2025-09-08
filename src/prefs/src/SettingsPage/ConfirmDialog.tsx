@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import { createRoot } from "gnim"
 
@@ -25,7 +25,7 @@ export default function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   function init(self: Adw.AlertDialog) {
-    self.add_response(CANCEL, _("Cancel"))
+    self.add_response(CANCEL, t("Cancel"))
     self.add_response(CONFIRM, confirmText)
     self.set_response_appearance(CONFIRM, Adw.ResponseAppearance[type.toUpperCase()])
     self.present(window)

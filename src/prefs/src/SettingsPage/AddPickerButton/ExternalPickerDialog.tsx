@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { createRoot, createState } from "gnim"
@@ -43,15 +43,15 @@ export default function ExternalPickerDialog(props: {
         <Adw.HeaderBar $type="top">
           <Gtk.Button
             class="suggested-action"
-            tooltipText={isValid((v) => (v ? "" : _("Fill in the form")))}
+            tooltipText={isValid((v) => (v ? "" : t("Fill in the form")))}
             sensitive={isValid}
             onClicked={save}
           >
-            {_("Save")}
+            {t("Save")}
           </Gtk.Button>
         </Adw.HeaderBar>
         <Adw.PreferencesGroup marginEnd={12} marginStart={12} marginBottom={12}>
-          <Adw.ActionRow title={_("Type")}>
+          <Adw.ActionRow title={t("Type")}>
             <Adw.ToggleGroup
               class="flat"
               valign={Gtk.Align.CENTER}
@@ -62,14 +62,14 @@ export default function ExternalPickerDialog(props: {
                 )
               }
             >
-              <Adw.Toggle label={_("Transient")} name="transient" />
-              <Adw.Toggle label={_("Persistent")} name="persistent" />
+              <Adw.Toggle label={t("Transient")} name="transient" />
+              <Adw.Toggle label={t("Persistent")} name="persistent" />
             </Adw.ToggleGroup>
           </Adw.ActionRow>
           <EntryRow
-            title={nameMissing((m) => (m ? _("Name is required") : _("Display Name")))}
+            title={nameMissing((m) => (m ? t("Name is required") : t("Display Name")))}
             state={nameMissing((m) => (m ? "error" : "none"))}
-            explanation={_(
+            explanation={t(
               "This property is only used for displaying purposes and has no runtime effect.",
             )}
             onNotifyText={({ text }) => {
@@ -79,9 +79,9 @@ export default function ExternalPickerDialog(props: {
             onEntryActivated={save}
           />
           <EntryRow
-            title={exeMissing((m) => (m ? _("Executable is required") : _("Executable")))}
+            title={exeMissing((m) => (m ? t("Executable is required") : t("Executable")))}
             state={exeMissing((m) => (m ? "error" : "none"))}
-            explanation={_(
+            explanation={t(
               'If you need a shell environment to run the command - for example, if you need to use environment variables - make sure to use a shell:\n<b><tt>bash -c "your-command $var"</tt></b>',
             )}
             onNotifyText={({ text }) => {

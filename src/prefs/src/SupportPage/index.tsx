@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import Gio from "gi://Gio"
@@ -35,15 +35,15 @@ function DonateAlert(props: { window: Adw.Window; url: string }) {
   return createRoot((dispose) => (
     <Adw.AlertDialog
       $={(self) => {
-        self.add_response("ok", _("Open URL"))
+        self.add_response("ok", t("Open URL"))
         self.present(props.window)
       }}
       onResponse={(_, res) => {
         if (res === "ok") openUri(props.url)
         dispose()
       }}
-      heading={_("Donations are not automatic")}
-      body={_(
+      heading={t("Donations are not automatic")}
+      body={t(
         "The management of the donation list is not an automatic process. If you want to appear in the list below, make sure to mention in the donation description that it is for the Gnofi Gnome extension.",
       )}
     />
@@ -72,17 +72,17 @@ export default function SupportPage() {
   return (
     <Adw.PreferencesPage
       name="support"
-      title={_("Support")}
+      title={t("Support")}
       iconName="emote-love-symbolic"
     >
       <Adw.PreferencesGroup
-        title={_("Support Gnofi")}
-        description={_(
+        title={t("Support Gnofi")}
+        description={t(
           "If you enjoy using Gnofi and would like to help support its continued development, consider making a donation.",
         )}
       >
         <Adw.ActionRow
-          title={_("Sponsor me on GitHub")}
+          title={t("Sponsor me on GitHub")}
           activatable
           tooltipText="https://github.com/sponsors/aylur"
           onActivated={(self) => DonateAlert({ window, url: self.tooltipText })}
@@ -91,7 +91,7 @@ export default function SupportPage() {
           <Gtk.Image iconName="adw-external-link-symbolic" />
         </Adw.ActionRow>
         <Adw.ActionRow
-          title={_("Support me on Ko-fi")}
+          title={t("Support me on Ko-fi")}
           activatable
           tooltipText={`https://ko-fi.com/aylur`}
           onActivated={(self) => DonateAlert({ window, url: self.tooltipText })}
@@ -100,7 +100,7 @@ export default function SupportPage() {
           <Gtk.Image iconName="adw-external-link-symbolic" />
         </Adw.ActionRow>
         <Adw.ActionRow
-          title={_("Donate via PayPal")}
+          title={t("Donate via PayPal")}
           activatable
           tooltipText={`https://paypal.me/KristofDemeter`}
           onActivated={(self) => DonateAlert({ window, url: self.tooltipText })}
@@ -110,19 +110,19 @@ export default function SupportPage() {
         </Adw.ActionRow>
       </Adw.PreferencesGroup>
       <Adw.PreferencesGroup
-        title={_("Donators")}
+        title={t("Donators")}
         description={noDonators((no) =>
           no
-            ? _(
+            ? t(
                 "There have been no donations yet. Be the first one to appear on this list!",
               )
-            : _("A huge thank you to these people who have supported Gnofi!"),
+            : t("A huge thank you to these people who have supported Gnofi!"),
         )}
       >
         <Adw.Spinner $type="header-suffix" valign={Gtk.Align.CENTER} visible={loading} />
         <Adw.ActionRow
           visible={error((e) => !!e)}
-          title={_("Failed to retrieve list of contributors")}
+          title={t("Failed to retrieve list of contributors")}
           subtitle={error}
         >
           <Gtk.Image $type="prefix" iconName="face-sad-symbolic" />
@@ -145,8 +145,8 @@ export default function SupportPage() {
         </For>
         <Adw.ActionRow
           visible={noDonators}
-          title={_("This could be your name")}
-          subtitle={_("Possibly a monthly donator")}
+          title={t("This could be your name")}
+          subtitle={t("Possibly a monthly donator")}
         >
           <Gtk.Image $type="prefix" pixel_size={32} iconName="avatar-default-symbolic" />
           <Gtk.Label label="10$" />
@@ -158,7 +158,7 @@ export default function SupportPage() {
           valign={Gtk.Align.END}
           class="dimmed"
           wrap
-          label={_(
+          label={t(
             "If you have donated and I haven't yet added you to this list, contact me.",
           )}
         />

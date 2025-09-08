@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { openUri } from "#/utils"
@@ -20,34 +20,34 @@ export default function AboutPage() {
     window.add_toast(
       new Adw.Toast({
         title: shown
-          ? _("Hidden options are now visible")
-          : _("Hidden options are now hidden"),
+          ? t("Hidden options are now visible")
+          : t("Hidden options are now hidden"),
         timeout: 2,
       }),
     )
   }
 
   return (
-    <Adw.PreferencesPage name="about" title={_("About")} iconName="help-about-symbolic">
+    <Adw.PreferencesPage name="about" title={t("About")} iconName="help-about-symbolic">
       <Adw.PreferencesGroup>
         <Gtk.Box halign={Gtk.Align.CENTER} orientation={Gtk.Orientation.VERTICAL}>
           <Gtk.Image pixelSize={158} marginBottom={6} gicon={gnofiIcon} />
-          <Gtk.Label class="title-1" label={_("Gnofi")} />
+          <Gtk.Label class="title-1" label={t("Gnofi")} />
           <Gtk.Label
             wrap
             halign={Gtk.Align.CENTER}
-            label={_("An extensible launcher, picker, search and command palette")}
+            label={t("An extensible launcher, picker, search and command palette")}
           />
           <Gtk.Button
             class="pill"
             marginTop={12}
             halign={Gtk.Align.CENTER}
             css="padding: 3px 18px; color: var(--accent-color);"
-            tooltipText={_("Toggle Hidden Options")}
+            tooltipText={t("Toggle Hidden Options")}
             label={
               import.meta.DEVEL
-                ? _('Development version "%s"').format(version)
-                : _("Version %s").format(version)
+                ? t('Development version "%s"').format(version)
+                : t("Version %s").format(version)
             }
             onClicked={toggleHiddenOptions}
           />
@@ -56,8 +56,8 @@ export default function AboutPage() {
 
       <Adw.PreferencesGroup>
         <Adw.ActionRow
-          title={_("Report an Issue")}
-          subtitle={_("Or request a feature")}
+          title={t("Report an Issue")}
+          subtitle={t("Or request a feature")}
           activatable
           tooltipText={import.meta.BUGS_URL}
           onActivated={() => openUri(import.meta.BUGS_URL)}
@@ -67,8 +67,8 @@ export default function AboutPage() {
         </Adw.ActionRow>
 
         <Adw.ActionRow
-          title={_("Source Code")}
-          subtitle={_("Don't forget to leave a star on the repo")}
+          title={t("Source Code")}
+          subtitle={t("Don't forget to leave a star on the repo")}
           activatable
           tooltipText={import.meta.GIT_URL}
           onActivated={() => openUri(import.meta.GIT_URL)}
@@ -78,8 +78,8 @@ export default function AboutPage() {
         </Adw.ActionRow>
 
         <Adw.ActionRow
-          title={_("Legal")}
-          subtitle={_("Licensed under the GNU GPL v3.0")}
+          title={t("Legal")}
+          subtitle={t("Licensed under the GNU GPL v3.0")}
           activatable
           onActivated={() => LicensePage({ window })}
         >
@@ -95,8 +95,8 @@ export default function AboutPage() {
         </Adw.ActionRow>
 
         <Adw.ActionRow
-          title={_("Changelog")}
-          subtitle={_("See what's new and what changed")}
+          title={t("Changelog")}
+          subtitle={t("See what's new and what changed")}
           activatable
           onActivated={() => ChangelogPage({ window })}
         >
@@ -110,15 +110,15 @@ export default function AboutPage() {
 
       <Adw.PreferencesGroup
         visible={showHiddenOptions((show) => show || !!import.meta.EMAIL_API)}
-        title={_("Leave Feedback")}
-        description={_(
+        title={t("Leave Feedback")}
+        description={t(
           "Please prefer using the GitHub issue tracker if you have a GitHub account.",
         )}
       >
         {import.meta.EMAIL_API ? (
           <Adw.ButtonRow
             startIconName="mail-unread-symbolic"
-            title={_("Send a direct message")}
+            title={t("Send a direct message")}
             onActivated={() => SendMessageDialog({ window })}
           />
         ) : (
@@ -129,7 +129,7 @@ export default function AboutPage() {
               halign={Gtk.Align.CENTER}
               justify={Gtk.Justification.CENTER}
               wrap
-              label={_(
+              label={t(
                 "Sending messages is not supported from this distributon of Gnofi.",
               )}
             />

@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import Adw from "gi://Adw"
 import HotkeyDialog from "./HotkeyDialog"
@@ -26,7 +26,7 @@ export default function HotkeyRow(props: {
       onActivated={grabHotkey}
     >
       <Gtk.Box $type="suffix" spacing={6}>
-        <Gtk.Label class="dimmed" label={_("Disabled")} visible={accel((a) => !a)} />
+        <Gtk.Label class="dimmed" label={t("Disabled")} visible={accel((a) => !a)} />
         <Gtk.ShortcutsShortcut
           hexpand
           halign={Gtk.Align.END}
@@ -38,7 +38,7 @@ export default function HotkeyRow(props: {
           class="flat"
           iconName="edit-clear-symbolic"
           onClicked={() => props.onChange([])}
-          tooltipText={_("Disable Hotkey")}
+          tooltipText={t("Disable Hotkey")}
           visible={accel(Boolean)}
         />
       </Gtk.Box>

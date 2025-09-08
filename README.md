@@ -69,3 +69,35 @@ Example Nix plugin:
 >
 > You can also assign the `dock` command to display something as default.
 > ![Dock example](https://github.com/user-attachments/assets/684382ee-b039-4b6e-8312-f56114ddac7c)
+
+## Help Translating
+
+1. Generate a `pot` file
+
+   ```sh
+   mkdir -p po
+   xgettext **/*.ts **/*.tsx \
+     --from-code=UTF-8 \
+     --output=messages.pot \
+     --language=JavaScript \
+     --keyword=p:1c,2 \
+     --keyword=t \
+     --keyword=n:1,2
+   ```
+
+2. Init translation in your chosen locale
+
+   ```sh
+   msginit --input=messages.pot \
+     --locale=YOUR_LOCALE \
+     --output=po/YOUR_LOCALE.po
+   ```
+
+3. Translate it, commit and open a PR
+
+> [!NOTE]
+>
+> The
+> [IPC documentation](https://github.com/Aylur/gnofi-gnome-extension/blob/main/docs/IPC.md)
+> in the preferences window currently cannot be translated. If there is
+> interest, I'll implement it.

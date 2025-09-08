@@ -7,7 +7,7 @@ import { useExtension } from "./extenstion"
 import { sendNotification } from "~dbus/Notifications"
 
 export default function useExportDBusService() {
-  const extension = useExtension()
+  const { openPreferences, gettext: t } = useExtension()
   const { gnofi } = useGnofi()
   const { setPreferencesPage } = useSettings()
 
@@ -20,16 +20,16 @@ export default function useExportDBusService() {
     async sendTipMessage() {
       sendNotification({
         imagePath: GLib.path_get_dirname(import.meta.url) + "/data/gnofi.svg",
-        summary: _("Tip"),
-        body: _(
+        summary: t("Tip"),
+        body: t(
           'If you want to take advantage of Gnofi\'s extensible features and improve your workflow even more, try clicking the version number in the "About" page.',
         ),
         actions: [
           [
-            _("Open About Page"),
+            t("Open About Page"),
             () => {
               setPreferencesPage("about")
-              extension.openPreferences()
+              openPreferences()
             },
           ],
         ],

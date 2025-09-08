@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { AppPickerSchema } from "~schemas"
@@ -13,7 +13,7 @@ export default function AppPickerDetailsDialog(props: {
   return createRoot((dipose) => (
     <Adw.Dialog
       contentWidth={520}
-      title={_("App Picker Settings")}
+      title={t("App Picker Settings")}
       onClosed={dipose}
       $={(self) => self.present(props.window)}
     >
@@ -27,8 +27,8 @@ export default function AppPickerDetailsDialog(props: {
           />
           <Adw.WindowTitle
             $type="title"
-            title={_("Builtin Picker Settings")}
-            subtitle={_("App Picker")}
+            title={t("Builtin Picker Settings")}
+            subtitle={t("App Picker")}
           />
         </Adw.HeaderBar>
         <Gtk.ScrolledWindow propagateNaturalWidth propagateNaturalHeight>

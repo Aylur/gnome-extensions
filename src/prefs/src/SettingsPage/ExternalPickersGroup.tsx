@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import { useSettings } from "~schemas"
 import Adw from "gi://Adw"
 import { usePrefs } from "#/prefs"
@@ -14,10 +14,10 @@ export default function ExternalPickersGroup() {
   }
 
   return (
-    <Adw.PreferencesGroup visible={showHiddenOptions} title={_("External Pickers")}>
+    <Adw.PreferencesGroup visible={showHiddenOptions} title={t("External Pickers")}>
       <Adw.SwitchRow
-        title={_("Save Logs in Memory")}
-        subtitle={_(
+        title={t("Save Logs in Memory")}
+        subtitle={t(
           "This makes logs persistent across opening the log page of external pickers.",
         )}
         active={saveLogsInMemory}
@@ -25,12 +25,12 @@ export default function ExternalPickersGroup() {
       />
       <Adw.ButtonRow
         startIconName="open-book-symbolic"
-        title={_("Open IPC Documentation")}
+        title={t("Open IPC Documentation")}
         onActivated={() => void DocsPage({ window })}
       />
       <Adw.ButtonRow
         startIconName="view-refresh-symbolic"
-        title={_("Reload Gnofi")}
+        title={t("Reload Gnofi")}
         onActivated={() => void reload()}
       />
     </Adw.PreferencesGroup>

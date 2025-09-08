@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import Adw from "gi://Adw"
 import { createBinding, createState } from "gnim"
@@ -93,7 +93,7 @@ export default function Code(props: {
         valign={Gtk.Align.START}
         onClicked={() => props.onCopy(code)}
         iconName="edit-copy-symbolic"
-        tooltipText={_("Copy to Clipboard")}
+        tooltipText={t("Copy to Clipboard")}
       />
     </Gtk.Overlay>
   )

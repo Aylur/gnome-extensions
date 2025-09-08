@@ -7,6 +7,7 @@ import { AppPickerSchema, useSettings } from "~schemas"
 import { useGnofi } from "./Gnofi"
 import { createBinding, onCleanup } from "gnim"
 import { useConnect, useEffect } from "gnim-hooks"
+import { useExtension } from "./extenstion"
 
 function useReplaceOverviewSearch() {
   const { gnofi } = useGnofi()
@@ -126,12 +127,13 @@ function useCloseOnPickerClose() {
 
 function useEnsureAppPicker() {
   const { searchPickers, setSearchPickers } = useSettings()
+  const { gettext: t } = useExtension()
 
   useEffect((get) => {
     if (get(searchPickers).length === 0) {
       setSearchPickers([
         AppPickerSchema.new({
-          name: _("Search applications"),
+          name: t("Search applications"),
         }).dict,
       ])
     }

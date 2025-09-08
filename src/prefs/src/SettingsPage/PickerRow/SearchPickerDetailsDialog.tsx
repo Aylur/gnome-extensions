@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { SearchPickerSchema } from "~schemas"
@@ -26,7 +26,7 @@ export default function SearchPickerDetailsDialog(props: {
   return createRoot((dipose) => (
     <Adw.Dialog
       contentWidth={520}
-      title={_("Provider Settings")}
+      title={t("Provider Settings")}
       onClosed={dipose}
       $={(self) => self.present(props.window)}
     >
@@ -46,7 +46,7 @@ export default function SearchPickerDetailsDialog(props: {
           </With>
           <Adw.WindowTitle
             $type="title"
-            title={_("Provider Settings")}
+            title={t("Provider Settings")}
             subtitle={appName}
           />
         </Adw.HeaderBar>
@@ -59,8 +59,8 @@ export default function SearchPickerDetailsDialog(props: {
           >
             <LayoutRows schema={props.schema} onChange={props.onChange} />
             <Adw.SwitchRow
-              title={_("Copy Only")}
-              subtitle={_(
+              title={t("Copy Only")}
+              subtitle={t(
                 "When clipboard text is available copy without activating the item",
               )}
               active={schema((s) => s.copyOnly)}

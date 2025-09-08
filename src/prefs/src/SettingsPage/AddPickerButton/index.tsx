@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { AppPickerSchema, SearchPickerSchema, PickerSchema, useSettings } from "~schemas"
@@ -60,7 +60,7 @@ export default function AddPickerButton(props: {
       .then((schema) => {
         ExternalPickerDialog({
           window,
-          title: _("Add new IPC Picker"),
+          title: t("Add new IPC Picker"),
           onSave: (external) =>
             props.onAddPicker(
               schema
@@ -76,7 +76,7 @@ export default function AddPickerButton(props: {
     popover?.popdown()
     onPreAddPicker()
       .then((schema) => {
-        const app = AppPickerSchema.new({ name: _("Search applications") })
+        const app = AppPickerSchema.new({ name: t("Search applications") })
         props.onAddPicker(
           schema ? app.copy({ id: schema.id, name: schema.name || app.name }) : app,
         )
@@ -90,19 +90,19 @@ export default function AddPickerButton(props: {
         {(show) =>
           show ? (
             <Gtk.MenuButton>
-              <Adw.ButtonContent iconName="list-add-symbolic" label={_("Add Picker")} />
+              <Adw.ButtonContent iconName="list-add-symbolic" label={t("Add Picker")} />
               <Gtk.Popover $={initPopover}>
                 <Gtk.Box orientation={Gtk.Orientation.VERTICAL}>
                   <Gtk.Button class="flat" onClicked={addProvider}>
                     <Gtk.Box spacing={4}>
                       <Gtk.Image iconName="system-search-symbolic" />
-                      <Gtk.Label label={_("Search Provider")} />
+                      <Gtk.Label label={t("Search Provider")} />
                     </Gtk.Box>
                   </Gtk.Button>
                   <Gtk.Button class="flat" onClicked={addExternal}>
                     <Gtk.Box spacing={4}>
                       <Gtk.Image iconName="application-x-executable-symbolic" />
-                      <Gtk.Label label={_("External IPC plugin")} />
+                      <Gtk.Label label={t("External IPC plugin")} />
                     </Gtk.Box>
                   </Gtk.Button>
                   <Gtk.Button
@@ -112,7 +112,7 @@ export default function AddPickerButton(props: {
                   >
                     <Gtk.Box spacing={4}>
                       <Gtk.Image iconName="system-search-symbolic" />
-                      <Gtk.Label label={_("App Picker")} />
+                      <Gtk.Label label={t("App Picker")} />
                     </Gtk.Box>
                   </Gtk.Button>
                 </Gtk.Box>
@@ -122,7 +122,7 @@ export default function AddPickerButton(props: {
             <Gtk.Button onClicked={addProvider}>
               <Adw.ButtonContent
                 iconName="list-add-symbolic"
-                label={_("Add Search Provider")}
+                label={t("Add Search Provider")}
               />
             </Gtk.Button>
           )

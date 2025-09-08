@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gio from "gi://Gio"
 import Gtk from "gi://Gtk"
@@ -41,7 +41,7 @@ export default function SearchProviderListDialog(props: {
 
   return createRoot((dispose) => (
     <Adw.Dialog
-      title={_("Pick a Provider")}
+      title={t("Pick a Provider")}
       $={init}
       onClosed={dispose}
       contentWidth={400}
@@ -53,7 +53,7 @@ export default function SearchProviderListDialog(props: {
             $={(self) => self.set_key_capture_widget(props.window)}
             onSearchChanged={({ text }) => setFilter(text.toLowerCase())}
             onStopSearch={() => dialog.close()}
-            placeholderText={_("Pick a provider")}
+            placeholderText={t("Pick a provider")}
             searchDelay={0}
           />
         </Adw.HeaderBar>

@@ -1,4 +1,3 @@
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js"
 import St from "gi://St"
 import Clutter from "gi://Clutter"
 import { register, signal } from "gnim/gobject"
@@ -7,6 +6,7 @@ import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js"
 import * as Main from "resource:///org/gnome/shell/ui/main.js"
 import { PanelButtonPosition } from "~schemas"
 import { onMount } from "gnim"
+import { useExtension } from "#/extenstion"
 
 interface PanelButtonProps extends St.Widget.ConstructorProps {
   id: string
@@ -50,7 +50,8 @@ export default class PanelButton extends PanelMenu.Button {
     ...props
   }: Partial<PanelButtonProps>) {
     super(alignment, name, false)
-    if (!id) throw Error(_("PanelButton is required to have an 'id'"))
+    const { gettext: t } = useExtension()
+    if (!id) throw Error(t("PanelButton is required to have an 'id'"))
     this.id = id
     this._position = panelposition
     this._index = index
@@ -63,7 +64,10 @@ export default class PanelButton extends PanelMenu.Button {
   }
 
   add_child(child: Clutter.Actor): void {
-    if (this.menu instanceof PopupMenu.PopupMenu && child instanceof PopupMenu.PopupBaseMenuItem) {
+    if (
+      this.menu instanceof PopupMenu.PopupMenu &&
+      child instanceof PopupMenu.PopupBaseMenuItem
+    ) {
       this.menu.addMenuItem(child)
     } else if (
       this.menu instanceof PopupMenu.PopupMenu &&

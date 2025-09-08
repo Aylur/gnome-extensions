@@ -4,9 +4,11 @@ import { useGnofi } from "#/Gnofi"
 import { createBinding, createComputed, For } from "gnim"
 import PickerButton from "#/widgets/PickerButton"
 import Separator from "#/widgets/Separator"
+import { useExtension } from "#/extenstion"
 
 export default function HelpPicker() {
   const { gnofi } = useGnofi()
+  const { gettext: t } = useExtension()
 
   const activePicker = createBinding(gnofi, "activePicker")
   const isActive = activePicker((a) => a === gnofi.builtinHelpPicker)
@@ -26,7 +28,7 @@ export default function HelpPicker() {
         xAlign={Clutter.ActorAlign.CENTER}
         class="gnofi-no-match-label"
         visible={pickers((ps) => ps.length === 0)}
-        text={_("No commands have been set yet")}
+        text={t("No commands have been set yet")}
       />
       <St.BoxLayout
         xExpand

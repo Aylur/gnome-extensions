@@ -5,10 +5,12 @@ import { createBinding, For } from "gnim"
 import { useSettings } from "~schemas"
 import Picker from "./Picker"
 import Separator from "#/widgets/Separator"
+import { useExtension } from "#/extenstion"
 
 export default function DefaultPicker() {
   const { gnofi } = useGnofi()
   const { searchPickers } = useSettings()
+  const { gettext: t } = useExtension()
 
   const activePicker = createBinding(gnofi, "activePicker")
   const isActive = activePicker((a) => a === gnofi.builtinDefaultPicker)
@@ -27,7 +29,7 @@ export default function DefaultPicker() {
           xExpand
           xAlign={Clutter.ActorAlign.CENTER}
           class="gnofi-no-match-label"
-          text={_("No match found")}
+          text={t("No match found")}
         />
       </St.BoxLayout>
       <St.BoxLayout

@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import Adw from "gi://Adw"
 import { useStyle } from "gnim-hooks/gtk4"
@@ -14,31 +14,31 @@ export default function Container(props: { children: Node | Node[]; type: string
   switch (type) {
     case "[!NOTE]":
       icon = "info-outline-symbolic"
-      title = _("Note")
+      title = t("Note")
       break
     case "[!INFO]":
       icon = "info-outline-symbolic"
-      title = _("Info")
+      title = t("Info")
       break
     case "[!TIP]":
       icon = "dialog-information-symbolic"
       color = "alpha(var(--accent-blue), 0.2)"
-      title = _("Tip")
+      title = t("Tip")
       break
     case "[!IMPORTANT]":
       icon = "exclamation-mark-symbolic"
       color = "alpha(var(--accent-purple), 0.2)"
-      title = _("Important")
+      title = t("Important")
       break
     case "[!WARNING]":
       icon = "warning-outline-symbolic"
       color = "alpha(var(--warning-bg-color), 0.2)"
-      title = _("Warning")
+      title = t("Warning")
       break
     case "[!CAUTION]":
       icon = "caution-outline-symbolic"
       color = "alpha(var(--destructive-bg-color), 0.2)"
-      title = _("Caution")
+      title = t("Caution")
       break
     default:
       throw Error(`unknown type ${props.type}`)

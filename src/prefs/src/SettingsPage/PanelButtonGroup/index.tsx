@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { PanelButtonPosition, useSettings } from "~schemas"
@@ -43,7 +43,7 @@ export default function PanelButtonGroup() {
     filter.add_mime_type("image/*")
 
     const dialog = new Gtk.FileDialog({
-      title: _("Choose Image"),
+      title: t("Choose Image"),
       defaultFilter: filter,
     })
 
@@ -61,19 +61,19 @@ export default function PanelButtonGroup() {
   const { LEFT, MIDDLE, RIGHT } = PanelButtonPosition
 
   const positionLabels = {
-    [LEFT]: _("Left"),
-    [MIDDLE]: _("Middle"),
-    [RIGHT]: _("Right"),
+    [LEFT]: t("Left"),
+    [MIDDLE]: t("Middle"),
+    [RIGHT]: t("Right"),
   }
 
   return (
-    <Adw.PreferencesGroup title={_("Panel Button Settings")}>
+    <Adw.PreferencesGroup title={t("Panel Button Settings")}>
       <Adw.ExpanderRow
-        title={_("Enable Panel Button")}
+        title={t("Enable Panel Button")}
         subtitle={opts.as(({ label, icon, visible }) =>
           visible
             ? !label && !icon
-              ? _("Leaving label and icon will result in an empty button")
+              ? t("Leaving label and icon will result in an empty button")
               : ""
             : "",
         )}
@@ -96,7 +96,7 @@ export default function PanelButtonGroup() {
         />
         <Adw.ActionRow
           class="property"
-          title={_("Icon")}
+          title={t("Icon")}
           subtitle={opts.as(({ icon }) => icon)}
         >
           <Gtk.Button
@@ -104,19 +104,19 @@ export default function PanelButtonGroup() {
             class="destructive-action flat"
             iconName="edit-clear-symbolic"
             valign={Gtk.Align.CENTER}
-            tooltipText={_("Remove icon")}
+            tooltipText={t("Remove icon")}
             onClicked={() => set("icon", "")}
           />
           <Gtk.Button
             class="flat"
             valign={Gtk.Align.CENTER}
             iconName="folder-symbolic"
-            tooltipText={_("Pick an image file")}
+            tooltipText={t("Pick an image file")}
             onClicked={pickIcon}
           />
           <Gtk.Button
             class="flat"
-            tooltipText={_("Pick a named icon")}
+            tooltipText={t("Pick a named icon")}
             valign={Gtk.Align.CENTER}
             iconName="view-list-bullet-symbolic"
             onClicked={searchIcons}
@@ -124,13 +124,13 @@ export default function PanelButtonGroup() {
         </Adw.ActionRow>
         <Adw.EntryRow
           visible={settings.showHiddenOptions}
-          title={_("Label")}
+          title={t("Label")}
           text={opts.get().label}
           onNotifyText={({ text }) => set("label", text)}
         />
         <Adw.ComboRow
           visible={settings.showHiddenOptions}
-          title={_("Position")}
+          title={t("Position")}
           class="combo spin"
           model={Gtk.StringList.new(Object.values(positionLabels))}
           selected={opts.as(({ position }) => position)}

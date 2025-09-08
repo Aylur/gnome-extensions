@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { AppPickerSchema, PickerSchema, useSettings } from "~schemas"
@@ -29,10 +29,10 @@ export default function DefaultPickerGroup() {
 
   return (
     <Adw.PreferencesGroup
-      title={_("Default Picker")}
+      title={t("Default Picker")}
       sensitive={isOverriden((x) => !x)}
       description={isOverriden((o) =>
-        o ? _("Default picker is overriden by a custom command") : "",
+        o ? t("Default picker is overriden by a custom command") : "",
       )}
     >
       <AddPickerButton
@@ -57,7 +57,7 @@ export default function DefaultPickerGroup() {
       <Gtk.Label
         css="font-weight:bold;"
         visible={searchPickers((l) => l.length === 0)}
-        label={_("There are no pickers set")}
+        label={t("There are no pickers set")}
         halign={Gtk.Align.CENTER}
       />
     </Adw.PreferencesGroup>

@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { createRoot, Node } from "gnim"
@@ -18,7 +18,7 @@ function Release(props: { version: string; children?: Node }) {
           <Gtk.Label
             halign={Gtk.Align.START}
             class="title-2"
-            label={_("Version %s").format(props.version)}
+            label={t("Version %s").format(props.version)}
             marginBottom={12}
           />
           <Gtk.Box spacing={8} orientation={Gtk.Orientation.VERTICAL}>
@@ -64,29 +64,34 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
     <Adw.NavigationPage
       $={(self) => props.window.push_subpage(self)}
       onHiding={dispose}
-      title={_("Release Notes")}
+      title={t("Release Notes")}
     >
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.1.3">
+            <ChangeSet title={t("Bug Fixes")}>
+              <Change>{t("fix extension translations")}</Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.1.2">
-            <ChangeSet title={_("Bug Fixes")}>
+            <ChangeSet title={t("Bug Fixes")}>
               <Change>
-                {_("DocsPage: hide search button when the layout is uncollapsed")}
+                {t("DocsPage: hide search button when the layout is uncollapsed")}
               </Change>
             </ChangeSet>
           </Release>
           <Release version="0.1.1">
-            <ChangeSet title={_("Bug Fixes")}>
-              <Change>{_("correctly open window on hotkey")}</Change>
+            <ChangeSet title={t("Bug Fixes")}>
+              <Change>{t("correctly open window on hotkey")}</Change>
             </ChangeSet>
           </Release>
           <Release version="0.1.0">
-            <ChangeSet title={_("Features")}>
-              <Change>{_("Builtin App Picker")}</Change>
-              <Change>{_("SearchProvider Picker")}</Change>
-              <Change>{_("External IPC Picker")}</Change>
-              <Change>{_("Commands")}</Change>
+            <ChangeSet title={t("Features")}>
+              <Change>{t("Builtin App Picker")}</Change>
+              <Change>{t("SearchProvider Picker")}</Change>
+              <Change>{t("External IPC Picker")}</Change>
+              <Change>{t("Commands")}</Change>
             </ChangeSet>
           </Release>
         </Adw.PreferencesPage>

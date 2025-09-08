@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { LayoutSchema, LabelLayout } from "~schemas"
@@ -26,18 +26,18 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
   }
 
   const labelLayoutLabels: Record<LabelLayout, string> = {
-    [LabelLayout.BOTH]: _("Name and Description"),
-    [LabelLayout.NAME]: _("Name Only"),
-    [LabelLayout.DESCRIPTION]: _("Description Only"),
-    [LabelLayout.BOTH_INLINE]: _("Both Inline"),
-    [LabelLayout.NONE]: _("None"),
+    [LabelLayout.BOTH]: t("Name and Description"),
+    [LabelLayout.NAME]: t("Name Only"),
+    [LabelLayout.DESCRIPTION]: t("Description Only"),
+    [LabelLayout.BOTH_INLINE]: t("Both Inline"),
+    [LabelLayout.NONE]: t("None"),
   }
 
   return (
     <>
       <Adw.ActionRow
-        title={_("Grid Orientation")}
-        subtitle={_("Orientation of the grid and button content")}
+        title={t("Grid Orientation")}
+        subtitle={t("Orientation of the grid and button content")}
       >
         <Adw.ToggleGroup
           class="flat"
@@ -45,13 +45,13 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
           activeName={schema((s) => (s.verticalGrid ? "v" : "h"))}
           onNotifyActiveName={({ activeName }) => set("verticalGrid", activeName === "v")}
         >
-          <Adw.Toggle name="v" label={_("Vertical")} />
-          <Adw.Toggle name="h" label={_("Horizontal")} />
+          <Adw.Toggle name="v" label={t("Vertical")} />
+          <Adw.Toggle name="h" label={t("Horizontal")} />
         </Adw.ToggleGroup>
       </Adw.ActionRow>
       <Adw.ActionRow
-        title={_("Button Content Orientation")}
-        subtitle={_("Orientation of the grid and button content")}
+        title={t("Button Content Orientation")}
+        subtitle={t("Orientation of the grid and button content")}
       >
         <Adw.ToggleGroup
           class="flat"
@@ -61,13 +61,13 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
             set("verticalButton", activeName === "v")
           }
         >
-          <Adw.Toggle name="v" label={_("Vertical")} />
-          <Adw.Toggle name="h" label={_("Horizontal")} />
+          <Adw.Toggle name="v" label={t("Vertical")} />
+          <Adw.Toggle name="h" label={t("Horizontal")} />
         </Adw.ToggleGroup>
       </Adw.ActionRow>
       <Adw.SpinRow
-        title={_("Result Limit")}
-        subtitle={_("Number of result items to show")}
+        title={t("Result Limit")}
+        subtitle={t("Number of result items to show")}
       >
         <Gtk.Adjustment
           lower={1}
@@ -79,11 +79,11 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
         />
       </Adw.SpinRow>
       <Adw.SpinRow
-        title={_("Grid Breakpoint")}
+        title={t("Grid Breakpoint")}
         subtitle={schema((l) =>
           l.verticalGrid
-            ? _("The number of items in a column")
-            : _("The number of items in a row"),
+            ? t("The number of items in a column")
+            : t("The number of items in a row"),
         )}
       >
         <Gtk.Adjustment
@@ -95,7 +95,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
           onNotifyValue={({ value }) => set("breakpoint", value)}
         />
       </Adw.SpinRow>
-      <Adw.SpinRow title={_("Icon Size")} subtitle={_("Size of button icons")}>
+      <Adw.SpinRow title={t("Icon Size")} subtitle={t("Size of button icons")}>
         <Gtk.Adjustment
           lower={16}
           upper={128}
@@ -106,8 +106,8 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
         />
       </Adw.SpinRow>
       <Adw.SpinRow
-        title={_("Padding")}
-        subtitle={_("Space between button content and its border")}
+        title={t("Padding")}
+        subtitle={t("Space between button content and its border")}
       >
         <Gtk.Adjustment
           lower={0}
@@ -118,7 +118,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
           onNotifyValue={({ value }) => set("padding", value)}
         />
       </Adw.SpinRow>
-      <Adw.SpinRow title={_("Gap")} subtitle={_("Space between rows and columns")}>
+      <Adw.SpinRow title={t("Gap")} subtitle={t("Space between rows and columns")}>
         <Gtk.Adjustment
           lower={0}
           upper={56}
@@ -128,7 +128,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
           onNotifyValue={({ value }) => set("gap", value)}
         />
       </Adw.SpinRow>
-      <Adw.ActionRow title={_("Margin")} subtitle={_("Space around the grid")}>
+      <Adw.ActionRow title={t("Margin")} subtitle={t("Space around the grid")}>
         {[0, 1, 2, 3].map((index) => (
           <Gtk.MenuButton class="flat" valign={Gtk.Align.CENTER}>
             <Gtk.Label class="body" label={schema((l) => `${l.margin[index] ?? 2}`)} />
@@ -148,7 +148,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
         ))}
       </Adw.ActionRow>
       <Adw.ComboRow
-        title={_("Label")}
+        title={t("Label")}
         model={Gtk.StringList.new(Object.values(labelLayoutLabels))}
         selected={schema((l) => l.label)}
         onNotifySelected={({ selected }) => set("label", selected)}

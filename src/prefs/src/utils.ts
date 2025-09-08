@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import Adw from "gi://Adw"
 import Gdk from "gi://Gdk"
@@ -26,7 +26,7 @@ export function copyToClipboard(text: string, window?: Adw.PreferencesWindow) {
   )
   window?.add_toast(
     new Adw.Toast({
-      title: _("Copied code to clipboard"),
+      title: t("Copied code to clipboard"),
       timeout: 1,
     }),
   )

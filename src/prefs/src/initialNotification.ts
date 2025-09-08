@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import GnofiExtension from "~dbus/GnofiExtension"
 import { useSettings } from "~schemas"
 import { usePrefs } from "./prefs"
@@ -16,8 +16,8 @@ async function sendInitialNotification(isGnofiEnabled: Promise<boolean>) {
     } else {
       await sendNotification({
         imagePath: gnofiLogoPath,
-        summary: _("Tip"),
-        body: _(
+        summary: t("Tip"),
+        body: t(
           'If you want to take advantage of Gnofi\'s extensible features and improve your workflow even more, try clicking the version number in the "About" page.',
         ),
       })

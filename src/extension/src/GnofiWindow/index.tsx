@@ -7,12 +7,14 @@ import { useSettings } from "~schemas"
 import Pickers from "./Pickers"
 import Controls from "./Controls"
 import { useConnect, useEffect } from "gnim-hooks"
+import { useExtension } from "#/extenstion"
 
 export default function GnofiWindow() {
   let modal: Modal
   let entry: St.Entry
 
   const { gnofi } = useGnofi()
+  const { gettext: t } = useExtension()
   const isOpen = createBinding(gnofi, "isOpen")
   const text = createBinding(gnofi, "text")
   const activePicker = createBinding(gnofi, "activePicker")
@@ -25,8 +27,8 @@ export default function GnofiWindow() {
     const { length } = Object.entries(get(commands))
     const leader = get(commandLeader)
     return length === 0
-      ? _("Start typing to search...")
-      : hint || _(`Type '%s' for list of commands`).format(leader)
+      ? t("Start typing to search...")
+      : hint || t(`Type '%s' for list of commands`).format(leader)
   })
 
   useConnect(gnofi, "focus", (target) => {

@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import Gdk from "gi://Gdk"
@@ -44,7 +44,7 @@ export default function ExternalPickerLogsPage(props: {
     const cb = Gdk.Display.get_default()!.get_clipboard()!
     const text = new TextEncoder().encode(fullText.join("\n"))
     cb.set_content(Gdk.ContentProvider.new_for_bytes("text/plain", text))
-    window.add_toast(new Adw.Toast({ title: _("Copied logs to clipboard"), timeout: 2 }))
+    window.add_toast(new Adw.Toast({ title: t("Copied logs to clipboard"), timeout: 2 }))
   }
 
   function clear() {
@@ -111,10 +111,10 @@ export default function ExternalPickerLogsPage(props: {
           <Adw.HeaderBar $type="top">
             <Adw.WindowTitle $type="title" title={pickerName} />
             <Gtk.Button $type="end" visible={empty((e) => !e)} onClicked={copy}>
-              <Adw.ButtonContent iconName="edit-copy-symbolic" label={_("Copy")} />
+              <Adw.ButtonContent iconName="edit-copy-symbolic" label={t("Copy")} />
             </Gtk.Button>
             <Gtk.Button $type="end" visible={empty((e) => !e)} onClicked={clear}>
-              <Adw.ButtonContent iconName="user-trash-symbolic" label={_("Clear")} />
+              <Adw.ButtonContent iconName="user-trash-symbolic" label={t("Clear")} />
             </Gtk.Button>
           </Adw.HeaderBar>
           <Gtk.Box marginBottom={16} marginStart={16} marginEnd={16}>
@@ -122,11 +122,11 @@ export default function ExternalPickerLogsPage(props: {
               hexpand
               visible={empty}
               iconName="utilities-terminal-symbolic"
-              title={_("Empty logs")}
+              title={t("Empty logs")}
               description={logsInMemory((b) =>
                 b
-                  ? _("This picker has not yet logged anything.")
-                  : _("There is no logs recorded yet."),
+                  ? t("This picker has not yet logged anything.")
+                  : t("There is no logs recorded yet."),
               )}
             />
             <Gtk.ScrolledWindow visible={empty((e) => !e)} $={init} hexpand vexpand>

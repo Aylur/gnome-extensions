@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import Gdk from "gi://Gdk"
 import Adw from "gi://Adw"
@@ -65,7 +65,7 @@ export default function HotkeyDialog({ window, onApply }: HotkeyDialogPros) {
     <Adw.Dialog
       $={init}
       onClosed={dispose}
-      title={_("Modify Hotkey")}
+      title={t("Modify Hotkey")}
       contentWidth={400}
       contentHeight={300}
     >
@@ -73,15 +73,15 @@ export default function HotkeyDialog({ window, onApply }: HotkeyDialogPros) {
         <Gtk.HeaderBar $type="top" showTitleButtons={accel((a) => !a)}>
           <Gtk.Button
             $type="start"
-            label={_("Cancel")}
+            label={t("Cancel")}
             onClicked={() => dialog.close()}
             visible={accel(Boolean)}
           />
-          <Adw.WindowTitle $type="title" title={_("Modify Hotkey")} />
+          <Adw.WindowTitle $type="title" title={t("Modify Hotkey")} />
           <Gtk.Button
             $type="end"
             class="suggested-action"
-            label={_("Apply")}
+            label={t("Apply")}
             onClicked={apply}
             visible={accel(Boolean)}
           />
@@ -95,7 +95,7 @@ export default function HotkeyDialog({ window, onApply }: HotkeyDialogPros) {
           marginStart={32}
           marginEnd={32}
         >
-          <Gtk.Label label={_("Enter a new shortcut")} visible={accel((a) => !a)} />
+          <Gtk.Label label={t("Enter a new shortcut")} visible={accel((a) => !a)} />
           <Gtk.Image
             pixelSize={156}
             gicon={enterKeyboardShortcutIcon}
@@ -112,7 +112,7 @@ export default function HotkeyDialog({ window, onApply }: HotkeyDialogPros) {
             maxWidthChars={30}
             xalign={0.5}
             halign={Gtk.Align.CENTER}
-            label={_("Press Esc to cancel or Backspace to disable the keyboard shortcut")}
+            label={t("Press Esc to cancel or Backspace to disable the keyboard shortcut")}
           />
         </Gtk.Box>
       </Adw.ToolbarView>

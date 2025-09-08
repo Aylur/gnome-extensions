@@ -8,6 +8,7 @@ import { SearchPickerSchema } from "~schemas"
 import PickerButton from "#/widgets/PickerButton"
 import { osdWindowManager } from "resource:///org/gnome/shell/ui/main.js"
 import Separator from "#/widgets/Separator"
+import { useExtension } from "#/extenstion"
 
 export default function SearchPicker(props: {
   picker: Gnofi.SearchPicker
@@ -15,6 +16,7 @@ export default function SearchPicker(props: {
 }) {
   const { gnofi } = useGnofi()
   const { picker, schema } = props
+  const { gettext: t } = useExtension()
 
   const name = picker.app?.get_name() || ""
   const result = createBinding(picker, "result")
@@ -56,7 +58,7 @@ export default function SearchPicker(props: {
           iconSize={18}
           onClick={() => picker.activate(gnofi.text)}
           padding={[4, 8]}
-          name={surplus((s) => (s > 0 ? _("%s  %d more").format(name, s) : name))}
+          name={surplus((s) => (s > 0 ? t("%s  %d more").format(name, s) : name))}
         />
         <Separator css="margin-left: 8px" />
       </St.BoxLayout>

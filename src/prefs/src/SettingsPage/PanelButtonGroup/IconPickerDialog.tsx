@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import GLib from "gi://GLib"
 import Adw from "gi://Adw"
 import Gio from "gi://Gio"
@@ -67,7 +67,7 @@ export default function IconPickerDialog({ onPicked, window }: IconPickerDialogP
   }
 
   function pick(name: string) {
-    toastoverlay.add_toast(new Adw.Toast({ title: _("Icon set"), timeout: 2 }))
+    toastoverlay.add_toast(new Adw.Toast({ title: t("Icon set"), timeout: 2 }))
     onPicked(name)
   }
 
@@ -78,7 +78,7 @@ export default function IconPickerDialog({ onPicked, window }: IconPickerDialogP
           <Gtk.SearchEntry
             $type="title"
             $={(self) => (searchentry = self)}
-            placeholderText={_("Search for named icons")}
+            placeholderText={t("Search for named icons")}
             searchDelay={50}
             onSearchChanged={({ text }) => search(text)}
           />

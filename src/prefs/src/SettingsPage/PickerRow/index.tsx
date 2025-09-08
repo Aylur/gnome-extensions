@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gtk from "gi://Gtk"
 import {
   PickerSchema,
@@ -33,14 +33,14 @@ export default function PickerRow<T extends PickerSchema>(props: {
       <Row
         schema={schema}
         gicon={getSymbolicAppIcon(schema.appInfo)}
-        label={_("Search Provider")}
+        label={t("Search Provider")}
         value={schema.appInfo?.get_name() || schema.desktopId}
         {...{ swappable, onRemove, onSwap, command, removable }}
       >
         <Gtk.Button
           class="flat"
           valign={Gtk.Align.CENTER}
-          tooltipText={_("Settings")}
+          tooltipText={t("Settings")}
           onClicked={() =>
             SearchPickerDetailsDialog({
               window,
@@ -66,8 +66,8 @@ export default function PickerRow<T extends PickerSchema>(props: {
         }
         label={
           schema.type === "transient"
-            ? _("Transient IPC Plugin")
-            : _("Persistent IPC Plugin")
+            ? t("Transient IPC Plugin")
+            : t("Persistent IPC Plugin")
         }
         value={schema.name || schema.executable}
         {...{ swappable, onRemove, onSwap, command, removable }}
@@ -75,7 +75,7 @@ export default function PickerRow<T extends PickerSchema>(props: {
         <Gtk.Button
           class="flat"
           valign={Gtk.Align.CENTER}
-          tooltipText={_("Open Logs")}
+          tooltipText={t("Open Logs")}
           onClicked={() => {
             ExternalPickerLogsPage({
               window,
@@ -96,14 +96,14 @@ export default function PickerRow<T extends PickerSchema>(props: {
       <Row
         schema={schema}
         iconName="system-search-symbolic"
-        label={_("Builtin Picker")}
-        value={_("App Picker")}
+        label={t("Builtin Picker")}
+        value={t("App Picker")}
         {...{ swappable, onRemove, onSwap, command, removable }}
       >
         <Gtk.Button
           class="flat"
           valign={Gtk.Align.CENTER}
-          tooltipText={_("Settings")}
+          tooltipText={t("Settings")}
           onClicked={() =>
             AppPickerDetailsDialog({
               window,

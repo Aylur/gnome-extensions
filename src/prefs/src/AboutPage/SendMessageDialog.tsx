@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import EntryRow from "#/EntryRow"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
@@ -10,7 +10,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
   let dialog: Adw.Dialog
 
   const [sending, setSending] = createState(false)
-  const [text, setText] = createState(_("Hi! I wanted to ask about..."))
+  const [text, setText] = createState(t("Hi! I wanted to ask about..."))
   const [email, setEmail] = createState("")
 
   // please don't abuse this, I'm on a free resend tier
@@ -32,10 +32,10 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
         throw Error(await res.text())
       }
 
-      props.window.add_toast(new Adw.Toast({ title: _("Message sent") }))
+      props.window.add_toast(new Adw.Toast({ title: t("Message sent") }))
     } catch (error) {
       console.error(error)
-      props.window.add_toast(new Adw.Toast({ title: _("Failed to send the message") }))
+      props.window.add_toast(new Adw.Toast({ title: t("Failed to send the message") }))
     } finally {
       setSending(false)
       dialog.close()
@@ -44,7 +44,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
 
   return createRoot((dispose) => (
     <Adw.Dialog
-      title={_("Send a direct message")}
+      title={t("Send a direct message")}
       onClosed={dispose}
       $={(self) => (dialog = self).present(props.window)}
       contentWidth={420}
@@ -58,7 +58,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
           <Gtk.Button
             onClicked={() => dialog.close()}
             $type="start"
-            label={_("Cancel")}
+            label={t("Cancel")}
           />
           <Gtk.Button
             $type="end"
@@ -67,7 +67,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
             sensitive={text((t) => t.length >= 100)}
             tooltipText={text((v) =>
               v.length < 100
-                ? _("The message needs to be at least a 100 characters long")
+                ? t("The message needs to be at least a 100 characters long")
                 : "",
             )}
           >
@@ -76,10 +76,10 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
                 sending ? (
                   <Gtk.Box spacing={3}>
                     <Adw.Spinner />
-                    <Gtk.Label label={_("Sending")} />
+                    <Gtk.Label label={t("Sending")} />
                   </Gtk.Box>
                 ) : (
-                  <Adw.ButtonContent iconName="mail-unread-symbolic" label={_("Send")} />
+                  <Adw.ButtonContent iconName="mail-unread-symbolic" label={t("Send")} />
                 )
               }
             </With>
@@ -93,15 +93,15 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
         >
           <Adw.PreferencesGroup>
             <EntryRow
-              title={_("Email (Optional)")}
-              explanation={_(
+              title={t("Email (Optional)")}
+              explanation={t(
                 "An optional email that I can respond to in case of a question.",
               )}
               onNotifyText={({ text }) => setEmail(text)}
               maxLength={100}
             />
             <MessageRow
-              title={_("Message")}
+              title={t("Message")}
               initalText={text.get()}
               onChanged={(text) => setText(text)}
             />

@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
 import GenericGroup from "./GenericGroup"
 import PanelButtonGroup from "./PanelButtonGroup"
@@ -10,7 +10,7 @@ export default function SettingsPage() {
   return (
     <Adw.PreferencesPage
       name="settings"
-      title={_("Settings")}
+      title={t("Settings")}
       iconName="org.gnome.Settings-symbolic"
     >
       <GenericGroup />

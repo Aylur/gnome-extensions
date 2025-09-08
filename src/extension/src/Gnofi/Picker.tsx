@@ -16,6 +16,7 @@ import {
   ExternalPickerSchema,
   SearchPickerSchema,
 } from "~schemas"
+import { useExtension } from "#/extenstion"
 
 export function getAppIcon(appInfo?: Gio.DesktopAppInfo) {
   let icon = appInfo?.get_string("Icon")
@@ -37,6 +38,7 @@ export default function Picker(props: {
 }) {
   const { schema, gnofi, schemas, logger } = props
   const { id, name } = schema
+  const { gettext: t } = useExtension()
 
   // schemas are immutable and its props can't be bound
   // <For> filters them by id so `schema` here is not reactive
@@ -48,7 +50,7 @@ export default function Picker(props: {
       <AppPicker
         command={id}
         description={name}
-        hint={_("Search for applications")}
+        hint={t("Search for applications")}
         onActivate={() => gnofi.close()}
       />
     )

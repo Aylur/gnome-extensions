@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Gio from "gi://Gio"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
@@ -37,11 +37,11 @@ export default function Row(props: {
   function remove() {
     ConfirmDialog({
       window,
-      heading: _("Remove Picker?"),
-      body: _("Are you sure you want to remove %s?").format(
-        schema instanceof AppPickerSchema ? _("App Picker") : schema.name,
+      heading: t("Remove Picker?"),
+      body: t("Are you sure you want to remove %s?").format(
+        schema instanceof AppPickerSchema ? t("App Picker") : schema.name,
       ),
-      confirmText: _("Remove"),
+      confirmText: t("Remove"),
       type: "destructive",
       onConfirm: onRemove,
     })

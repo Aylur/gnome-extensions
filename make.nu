@@ -50,6 +50,7 @@ def "main build" [--version: string] {
 
     mkdir dist/schemas
     mkdir dist/data
+    mkdir dist/po
     bundle ./src/extension/index dist/extension.js
     bundle ./src/prefs/index dist/prefs.js --version $version
 
@@ -68,6 +69,10 @@ def "main build" [--version: string] {
 
     cp metadata.json dist
     cp -r src/prefs/data/* dist/data
+
+    # FIXME: remove try block when there is at least one translation
+    try { cp -r po/*.po dist/po }
+
     rm dist/data/index.ts
 }
 
@@ -92,12 +97,19 @@ def "main dev" [] {
 def "main gettext" [] {
     let uuid = open metadata.json | get uuid
     mkdir po
-    xgettext **/*.ts **/*.tsx --from-code=UTF-8 $"--output=po/($uuid).pot" -L JavaScript
+    (xgettext **/*.ts **/*.tsx
+        --from-code=UTF-8
+        --output=$"po/($uuid).pot"
+        --language=JavaScript
+        --keyword=p:1c,2
+        --keyword=t
+        --keyword=n:1,2
+    )
 }
 
 def "main pack" [] {
     main build --version $env.GNOFI_VERSION
-    gnome-extensions pack --extra-source=data --force dist
+    gnome-extensions pack --podir=po --extra-source=data --force dist
 }
 
 def main [] {

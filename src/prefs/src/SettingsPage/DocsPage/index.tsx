@@ -1,4 +1,4 @@
-import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
+import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import { copyToClipboard, openUri } from "#/utils"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
@@ -81,7 +81,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
     }
 
     return (
-      <Adw.NavigationPage $={init} onHiding={dispose} title={_("IPC Documentation")}>
+      <Adw.NavigationPage $={init} onHiding={dispose} title={t("IPC Documentation")}>
         <Adw.BreakpointBin widthRequest={100} heightRequest={300}>
           <Adw.Breakpoint
             onApply={() => setCollapsed(true)}
@@ -103,7 +103,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
             <Adw.NavigationPage
               $={(self) => (contentpage = self)}
               $type="sidebar"
-              title={_("Contents")}
+              title={t("Contents")}
             >
               <Adw.ToolbarView>
                 <Adw.HeaderBar $type="top" showTitle>
@@ -161,7 +161,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                                 halign={Gtk.Align.START}
                                 label={
                                   headerDepth(label) === 1
-                                    ? _("Overview")
+                                    ? t("Overview")
                                     : escapeMarkup(label.label)
                                 }
                               />
@@ -182,7 +182,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                     onClicked={() => openUri(import.meta.EXAMPLES_URL)}
                   >
                     <Adw.ButtonContent
-                      label={_("Full Examples")}
+                      label={t("Full Examples")}
                       iconName="adw-external-link-symbolic"
                     />
                   </Gtk.Button>
@@ -190,14 +190,14 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
               </Adw.ToolbarView>
             </Adw.NavigationPage>
 
-            <Adw.NavigationPage $type="content" title={_("IPC Documentation")}>
+            <Adw.NavigationPage $type="content" title={t("IPC Documentation")}>
               <Adw.ToolbarView>
                 <Adw.HeaderBar $type="top" showTitle showBackButton={collapsed}>
                   <Gtk.Button
                     visible={collapsed}
                     onClicked={() => setShowSideBar(true)}
                     iconName="sidebar-show-symbolic"
-                    tooltipText={_("Show Table of Contents")}
+                    tooltipText={t("Show Table of Contents")}
                   />
                   <Gtk.Button
                     $type="end"

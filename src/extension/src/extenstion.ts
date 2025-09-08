@@ -1,9 +1,16 @@
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js"
 import { createContext } from "gnim"
 
-const ExtensionContext = createContext<Extension | null>(null)
+export type ExtensionProps = {
+  openPreferences(): void
+  uuid: string
+  gettext(msgid: string): string
+  ngettext(msgid1: string, msgid2: string, n: number): string
+  pgettext(msgctxt: string, msgid: string): string
+}
 
-export function ExtensionProvider<T>(props: Extension, children: () => T) {
+const ExtensionContext = createContext<ExtensionProps | null>(null)
+
+export function ExtensionProvider<T>(props: ExtensionProps, children: () => T) {
   return ExtensionContext.provide(props, children)
 }
 
