@@ -44,8 +44,8 @@ export default function SearchPicker(props: {
   return (
     <St.BoxLayout
       xExpand
+      vertical
       visible={result((r) => r.length > 0)}
-      orientation={Clutter.Orientation.VERTICAL}
       css={schema((s) => {
         const [t = 2, r = 2, b = 2, l = 2] = s.margin
         return `margin:${t}px ${r}px ${b}px ${l}px`

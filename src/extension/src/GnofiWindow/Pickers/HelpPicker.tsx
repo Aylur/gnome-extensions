@@ -16,12 +16,7 @@ export default function HelpPicker() {
   const leader = createBinding(gnofi, "commandLeader")
 
   return (
-    <St.BoxLayout
-      xExpand
-      visible={isActive}
-      class="gnofi-help-box"
-      orientation={Clutter.Orientation.VERTICAL}
-    >
+    <St.BoxLayout xExpand visible={isActive} class="gnofi-help-box" vertical>
       <Separator />
       <St.Label
         xExpand
@@ -30,11 +25,7 @@ export default function HelpPicker() {
         visible={pickers((ps) => ps.length === 0)}
         text={t("No commands have been set yet")}
       />
-      <St.BoxLayout
-        xExpand
-        visible={pickers((ps) => ps.length > 0)}
-        orientation={Clutter.Orientation.VERTICAL}
-      >
+      <St.BoxLayout xExpand vertical visible={pickers((ps) => ps.length > 0)}>
         <For each={pickers}>
           {(picker) => (
             <PickerButton

@@ -1,10 +1,8 @@
 # Gnofi
 
-An extensible launcher, picker, search and command palette for Gnome.
+An extensible launcher, picker, search and command palette for Gnome
 
-> [!IMPORTANT]
->
-> Currently only Gnome 48 is supported. See [#5](https://github.com/Aylur/gnofi-gnome-extension/issues/5)
+Supports Gnome 46 and upwards.
 
 > [!NOTE]
 >

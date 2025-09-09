@@ -8,7 +8,11 @@ import { errorStr, ExternalPicker } from "gnofi"
 import { useConnect } from "gnim-hooks"
 import { useGnofi } from "#/Gnofi"
 
-const repo = GIRepository.Repository.get_default()
+const repo: GIRepository.Repository =
+  "get_default" in GIRepository.Repository
+    ? GIRepository.Repository.get_default()
+    : // @ts-expect-error missing type?
+      GIRepository.Repository.dup_default()
 
 function kebabify(str: string) {
   return str
@@ -56,10 +60,12 @@ function renderNode(
     if (typeof value === "string") {
       const type = Ctor.find_property(kebabify(key))?.value_type
       if (type && GObject.type_is_a(type, GObject.TYPE_ENUM)) {
-        const namespace = repo.find_by_gtype(type).get_namespace()
-        const name = repo.find_by_gtype(type).get_name()
-        // @ts-expect-error too lazy to type this out
-        props[key] = imports.gi[namespace][name][value.toUpperCase()]
+        const namespace = repo.find_by_gtype(type)?.get_namespace()
+        const name = repo.find_by_gtype(type)?.get_name()
+        if (namespace && name) {
+          // @ts-expect-error too lazy to type this out
+          props[key] = imports.gi[namespace][name][value.toUpperCase()]
+        }
       }
     }
   }

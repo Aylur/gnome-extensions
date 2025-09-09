@@ -53,12 +53,7 @@ export default function PickerButton(props: {
           : `padding:${p}px`,
       )}
     >
-      <St.BoxLayout
-        xExpand
-        orientation={vertical((v) =>
-          v ? Clutter.Orientation.VERTICAL : Clutter.Orientation.HORIZONTAL,
-        )}
-      >
+      <St.BoxLayout xExpand vertical={vertical}>
         <St.Bin>
           <With value={icon}>
             {([gicon, iconName]) =>
@@ -87,11 +82,7 @@ export default function PickerButton(props: {
                 v ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
               )}
               yAlign={Clutter.ActorAlign.CENTER}
-              orientation={
-                layout === LabelLayout.BOTH_INLINE
-                  ? Clutter.Orientation.HORIZONTAL
-                  : Clutter.Orientation.VERTICAL
-              }
+              vertical={layout !== LabelLayout.BOTH_INLINE}
             >
               {(layout === LabelLayout.BOTH_INLINE ||
                 layout === LabelLayout.BOTH ||

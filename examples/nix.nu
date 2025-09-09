@@ -42,7 +42,7 @@ def result []: list<record> -> list {
       onClicked:$pkg.key
       css:"padding:5px"
     }
-      [Box { xExpand:true orientation:vertical }
+      [Box { xExpand:true vertical:true }
         [Box { }
           [Label {
             xExpand:true

@@ -20,7 +20,7 @@ export default function AppPicker(props: {
   )
 
   return (
-    <St.BoxLayout xExpand orientation={Clutter.Orientation.VERTICAL}>
+    <St.BoxLayout xExpand vertical>
       <Separator visible={result((r) => r.length > 0)} />
       <Grid
         xExpand

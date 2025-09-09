@@ -37,11 +37,7 @@ export default function ExternalPicker(props: {
   )
 
   return (
-    <St.BoxLayout
-      xExpand
-      visible={result((r) => r.length > 0)}
-      orientation={Clutter.Orientation.VERTICAL}
-    >
+    <St.BoxLayout xExpand vertical visible={result((r) => r.length > 0)}>
       <Separator />
       <Grid
         xExpand

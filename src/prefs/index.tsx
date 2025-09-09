@@ -1,5 +1,6 @@
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import Adw from "gi://Adw"
+import Gtk from "gi://Gtk"
 import { createRoot, onCleanup, This } from "gnim"
 import { SettingsProvider, useSettings } from "~schemas"
 import { PrefsContext, type PrefsProps } from "#/prefs"
@@ -11,7 +12,7 @@ import GnomeExtensions from "~dbus/GnomeExtensions"
 import useInitialNotification from "#/initialNotification"
 
 export default class extends ExtensionPreferences {
-  async fillPreferencesWindow(window: Adw.PreferencesWindow): Promise<void> {
+  private async fillWindow(window: Adw.PreferencesWindow) {
     if (import.meta.DEVEL) window.add_css_class("devel")
 
     loadIcons()
@@ -57,5 +58,28 @@ export default class extends ExtensionPreferences {
         })
       })
     })
+  }
+
+  // gnome shell v46 does not await, so this has to be sync
+  // but we need a placeholder, otherwise it would an error page
+  async fillPreferencesWindow(window: Adw.PreferencesWindow) {
+    let initialPage: Adw.PreferencesPage | null = null
+
+    this.fillWindow(window).then(() => {
+      if (initialPage) {
+        window.remove(initialPage)
+        initialPage = null
+      }
+    })
+
+    void (
+      <This this={window}>
+        <Adw.PreferencesPage $={(self) => (initialPage = self)}>
+          <Adw.PreferencesGroup>
+            <Adw.Spinner halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER} />
+          </Adw.PreferencesGroup>
+        </Adw.PreferencesPage>
+      </This>
+    )
   }
 }

@@ -66,7 +66,7 @@ export default function GnofiWindow() {
         class="popup-menu-content gnofi-picker-content"
         reactive
         onButtonPressEvent={() => true} // avoid closing modal
-        orientation={Clutter.Orientation.VERTICAL}
+        vertical
         style={windowMarginTop((m) => `margin-top: ${m}px`)}
         width={windowWidth}
         yExpand

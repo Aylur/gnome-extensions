@@ -18,12 +18,8 @@ export default function DefaultPicker() {
   const hasResult = createBinding(gnofi.builtinDefaultPicker, "hasResult")
 
   return (
-    <St.BoxLayout xExpand visible={isActive} orientation={Clutter.Orientation.VERTICAL}>
-      <St.BoxLayout
-        xExpand
-        visible={hasResult((x) => !x)}
-        orientation={Clutter.Orientation.VERTICAL}
-      >
+    <St.BoxLayout xExpand visible={isActive} vertical>
+      <St.BoxLayout xExpand vertical visible={hasResult((x) => !x)}>
         <Separator />
         <St.Label
           xExpand
@@ -32,11 +28,7 @@ export default function DefaultPicker() {
           text={t("No match found")}
         />
       </St.BoxLayout>
-      <St.BoxLayout
-        xExpand
-        visible={hasResult}
-        orientation={Clutter.Orientation.VERTICAL}
-      >
+      <St.BoxLayout xExpand visible={hasResult} vertical>
         <For each={pickers}>
           {(picker) => (
             <Picker

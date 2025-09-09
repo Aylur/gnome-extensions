@@ -69,6 +69,18 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.3.0">
+            <ChangeSet title={t("New Features")}>
+              <Change>{t("add support for Gnome 46, 47 and 49")}</Change>
+            </ChangeSet>
+          </Release>
+          <Release version="0.2.0">
+            <ChangeSet title={t("Changes")}>
+              <Change>
+                {t("use the same object path for exported dbus interfaces")}
+              </Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.1.3">
             <ChangeSet title={t("Bug Fixes")}>
               <Change>{t("fix extension translations")}</Change>
