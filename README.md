@@ -4,7 +4,7 @@ An extensible launcher, picker, search and command palette for Gnome.
 
 > [!NOTE]
 >
-> Unfortunately this extension is not available on
+> Unfortunately, this extension is currently not available on
 > [extensions.gnome.org](https://extensions.gnome.org/). See
 > [#1](https://github.com/Aylur/gnofi-gnome-extension/issues/1)
 
@@ -69,6 +69,28 @@ Example Nix plugin:
 >
 > You can also assign the `dock` command to display something as default.
 > ![Dock example](https://github.com/user-attachments/assets/684382ee-b039-4b6e-8312-f56114ddac7c)
+
+### D-Bus interface
+
+You can open the picker window through D-Bus:
+
+```sh
+gdbus call \
+  --session \
+  --dest org.gnome.Shell.Extensions.Gnofi \
+  --object-path /org/gnome/Shell/Extensions/Gnofi \
+  --method org.gnome.Shell.Extensions.Gnofi.Extension.Open \
+  "" \ # text to fill the text entry
+```
+
+> [!TIP]
+>
+> If you want to open a command you can get the current command leader:
+
+```sh
+leader=$(dconf read /org/gnome/shell/extensions/gnofi/command-leader | cut -c2)
+echo "${leader}cmd"
+```
 
 ## Help Translating
 

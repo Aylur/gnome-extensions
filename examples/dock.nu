@@ -31,7 +31,6 @@ def Dock [] {
 mut init = false
 
 while true {
-
   match (head -n 1 | from json -s) {
     [action $payload] => (do {
       systemd-run --user gtk-launch $payload
