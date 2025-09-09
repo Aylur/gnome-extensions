@@ -1,4 +1,4 @@
-import { DOMAIN } from "./dbus"
+import { DOMAIN, OBJECT_PATH } from "./dbus"
 import { Service, iface, methodAsync } from "gnim/dbus"
 
 interface Implementation {
@@ -10,7 +10,7 @@ interface Implementation {
 export default class GnofiExtension extends Service {
   private impl?: Implementation
 
-  @methodAsync("s")
+  @methodAsync({ name: "text", type: "s" }, { name: "with-leader", type: "b" })
   Open(text: string) {
     return Promise.resolve(this.impl?.open(text))
   }
@@ -22,10 +22,10 @@ export default class GnofiExtension extends Service {
 
   serveExtension(impl: Implementation) {
     this.impl = impl
-    return this.serve({ name: DOMAIN })
+    return this.serve({ name: DOMAIN, objectPath: OBJECT_PATH })
   }
 
   proxy() {
-    return super.proxy({ name: DOMAIN })
+    return super.proxy({ name: DOMAIN, objectPath: OBJECT_PATH })
   }
 }

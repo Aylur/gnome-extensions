@@ -1,6 +1,6 @@
 import GLib from "gi://GLib"
 import GObject from "gi://GObject"
-import { DOMAIN } from "./dbus"
+import { DOMAIN, OBJECT_PATH } from "./dbus"
 import { Service, iface, signal, methodAsync } from "gnim/dbus"
 import type { Accessor } from "gnim"
 
@@ -19,12 +19,12 @@ export default class GnofiLogger extends Service {
 
   serve(saveLogsInMemory: Accessor<boolean>) {
     this.saveLogsInMemory = saveLogsInMemory
-    return super.serve({ name: DOMAIN })
+    return super.serve({ name: DOMAIN, objectPath: OBJECT_PATH })
   }
 
   static proxy() {
     const logger = new GnofiLogger()
-    return logger.proxy({ name: DOMAIN })
+    return logger.proxy({ name: DOMAIN, objectPath: OBJECT_PATH })
   }
 
   private _logs = new Map<string, Array<Log>>()
