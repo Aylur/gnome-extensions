@@ -1,14 +1,18 @@
 import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js"
 import GnofiExtension from "~dbus/GnofiExtension"
+import GnomeExtensions from "~dbus/GnomeExtensions"
 import { useSettings } from "~schemas"
 import { usePrefs } from "./prefs"
 import { sendNotification } from "~dbus/Notifications"
 import { gnofiLogoPath } from "#data"
 
-async function sendInitialNotification(isGnofiEnabled: Promise<boolean>) {
-  const enabled = await isGnofiEnabled
-
+async function sendInitialNotification(uuid: string) {
   try {
+    const proxy = await GnomeExtensions.proxy()
+    const [info] = await proxy.GetExtensionInfo(uuid)
+    const enabled = info["enabled"]?.unpack<boolean>()
+    proxy.stop()
+
     if (enabled) {
       const proxy = await new GnofiExtension().proxy()
       await proxy.SendTipMessage()
@@ -29,17 +33,13 @@ async function sendInitialNotification(isGnofiEnabled: Promise<boolean>) {
 
 export default function useInitialNotification() {
   const { initialNotification, setInitialNotification, showHiddenOptions } = useSettings()
-  const { extensionsProxy, uuid } = usePrefs()
+  const { uuid } = usePrefs()
 
   if (initialNotification.get() && !showHiddenOptions.get()) {
     if (!import.meta.DEVEL) {
       setInitialNotification(false)
     }
 
-    sendInitialNotification(
-      extensionsProxy
-        .GetExtensionInfo(uuid)
-        .then(([info]) => info["enabled"]?.unpack<boolean>() ?? false),
-    )
+    sendInitialNotification(uuid)
   }
 }

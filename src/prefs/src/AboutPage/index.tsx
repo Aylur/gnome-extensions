@@ -11,7 +11,7 @@ import ChangelogPage from "./ChangelogPage"
 
 export default function AboutPage() {
   const { showHiddenOptions, setShowHiddenOptions } = useSettings()
-  const { window, version } = usePrefs()
+  const { window } = usePrefs()
 
   function toggleHiddenOptions() {
     const shown = !showHiddenOptions.get()
@@ -46,8 +46,8 @@ export default function AboutPage() {
             tooltipText={t("Toggle Hidden Options")}
             label={
               import.meta.DEVEL
-                ? t('Development version "%s"').format(version)
-                : t("Version %s").format(version)
+                ? t('Development version "%s"').format(import.meta.VERSION)
+                : t("Version %s").format(import.meta.VERSION)
             }
             onClicked={toggleHiddenOptions}
           />

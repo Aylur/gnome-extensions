@@ -1,11 +1,8 @@
 import type Adw from "gi://Adw"
 import { createContext } from "gnim"
-import GnomeExtensions from "~dbus/GnomeExtensions"
 
-export type PrefsProps = {
+type PrefsProps = {
   window: Adw.PreferencesWindow
-  extensionsProxy: GnomeExtensions
-  version: string
   uuid: string
 }
 

@@ -3,14 +3,17 @@ import { useSettings } from "~schemas"
 import Adw from "gi://Adw"
 import { usePrefs } from "#/prefs"
 import DocsPage from "./DocsPage"
+import GnomeExtensions from "~dbus/GnomeExtensions"
 
 export default function ExternalPickersGroup() {
-  const { window, uuid, extensionsProxy } = usePrefs()
+  const { window, uuid } = usePrefs()
   const { showHiddenOptions, saveLogsInMemory, setSaveLogsInMemory } = useSettings()
 
   async function reload() {
-    await extensionsProxy.DisableExtension(uuid)
-    await extensionsProxy.EnableExtension(uuid)
+    const proxy = await GnomeExtensions.proxy()
+    await proxy.DisableExtension(uuid)
+    await proxy.EnableExtension(uuid)
+    proxy.stop()
   }
 
   return (
