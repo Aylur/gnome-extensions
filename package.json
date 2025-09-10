@@ -19,7 +19,7 @@
   "dependencies": {
     "gnim": "^1.6.5",
     "gnim-hooks": "^0.1.0",
-    "gnofi": "^1.0.3",
+    "gnofi": "^1.1.0",
     "~dbus": "link:src/dbus",
     "~schemas": "link:src/schemas"
   },
