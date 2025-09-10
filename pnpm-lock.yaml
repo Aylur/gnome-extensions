@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       gnofi:
-        specifier: ^1.1.0
-        version: 1.1.0(fuse.js@7.1.0)(gnim@1.6.5)
+        specifier: ^1.3.0
+        version: 1.3.0(fuse.js@7.1.0)(gnim@1.6.5)
       ~dbus:
         specifier: link:src/dbus
         version: link:src/dbus
@@ -702,8 +702,8 @@ packages:
     resolution: {integrity: sha512-I6fBT1NYULHejftt8MBQI5dYvDrXcwUVeP2UewqsKR96Q856+qS9uolTRz6c+tsarjsQeDwd/I4YDEdViuZtUw==}
     engines: {gjs: '>=1.79.0'}
 
-  gnofi@1.1.0:
-    resolution: {integrity: sha512-pG2UoImhhtdONdYtikPNeS+0vRhxSUVaHrunbrGLVlA9XDXBNyMG8aRTEBQQUPNYbnb2EJ7rADl/gqQKsOxJPQ==}
+  gnofi@1.3.0:
+    resolution: {integrity: sha512-6a+/1vkxXKZjXAJ7z01m0DX1uKddL8CK42rMKKSZp/n+H3t6gBCbhWTnP1I9f8PHsObeDjc2BSaNkEzvEgGwAw==}
     engines: {gjs: '>=1.79.0'}
     peerDependencies:
       fuse.js: ^7.1.0
@@ -1946,7 +1946,7 @@ snapshots:
 
   gnim@1.6.5: {}
 
-  gnofi@1.1.0(fuse.js@7.1.0)(gnim@1.6.5):
+  gnofi@1.3.0(fuse.js@7.1.0)(gnim@1.6.5):
     dependencies:
       fuse.js: 7.1.0
       gnim: 1.6.5

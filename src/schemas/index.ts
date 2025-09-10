@@ -26,6 +26,7 @@ function createExtensionSettings(settings: Gio.Settings) {
       "focusable-entry": "b",
       "visible-command": "b",
       "command-leader": "s",
+      "search-delay": "u",
       "panel-button": "(buiss)",
       "save-logs-in-memory": "b",
       "show-hidden-options": "b",

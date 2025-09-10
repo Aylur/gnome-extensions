@@ -4,6 +4,7 @@ import { Gnofi } from "gnofi"
 import GnofiLogger from "~dbus/GnofiLogger"
 import { useSettings } from "~schemas"
 import Picker from "./Picker"
+import { useEffect } from "gnim-hooks"
 
 const GnofiContext = createContext<{ gnofi: Gnofi } | null>(null)
 
@@ -14,14 +15,25 @@ export function useGnofi() {
 }
 
 export function GnofiProvider<T>(children: () => T) {
-  const { commandLeader, visibleCommand, searchPickers, saveLogsInMemory, commands } =
-    useSettings()
+  const {
+    commandLeader,
+    visibleCommand,
+    searchPickers,
+    saveLogsInMemory,
+    commands,
+    searchDelay,
+  } = useSettings()
 
   const logger = new GnofiLogger()
   const gnofi = new Gnofi({ keys: Clutter })
 
   gnofi.builtinHelpPicker.showAll = true
   logger.serve(saveLogsInMemory)
+
+  useEffect((get) => {
+    gnofi.builtinDefaultPicker.searchDelay = get(searchDelay)
+  })
+
   onCleanup(() => logger.stop())
 
   void (

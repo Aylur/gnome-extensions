@@ -69,6 +69,14 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.4.0">
+            <ChangeSet title={t("New Features")}>
+              <Change>
+                {t("AppPicker search for GenericName and Keywords desktop entries")}
+              </Change>
+              <Change>{t("Debounce delay on default search")}</Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.3.0">
             <ChangeSet title={t("New Features")}>
               <Change>{t("add support for Gnome 46, 47 and 49")}</Change>

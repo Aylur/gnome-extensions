@@ -52,7 +52,7 @@ export default function GenericGroup() {
       <Adw.SwitchRow
         visible={settings.showHiddenOptions}
         title={t("Replace Overview Search")}
-        subtitle={t("Hide the overview search entry and use picker instead")}
+        subtitle={t("Hide the overview search entry and use Gnofi instead")}
         active={settings.replaceOverviewSearch}
         onNotifyActive={({ active }) => settings.setReplaceOverviewSearch(active)}
       />
@@ -62,6 +62,14 @@ export default function GenericGroup() {
         subtitle={t("Open the picker immediately after logging in")}
         active={settings.openAtStartup}
         onNotifyActive={({ active }) => settings.setOpenAtStartup(active)}
+      />
+      <Adw.SpinRow
+        visible={settings.showHiddenOptions}
+        title={t("Search Delay")}
+        subtitle={t("Debounce delay of the default search picker")}
+        value={settings.searchDelay}
+        onNotifyValue={({ value }) => settings.setSearchDelay(Math.floor(value))}
+        $constructor={() => Adw.SpinRow.new_with_range(0, 1000, 5)}
       />
       <Adw.EntryRow
         visible={settings.showHiddenOptions}

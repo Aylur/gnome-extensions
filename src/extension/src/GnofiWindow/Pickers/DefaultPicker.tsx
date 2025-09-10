@@ -16,6 +16,7 @@ export default function DefaultPicker() {
   const isActive = activePicker((a) => a === gnofi.builtinDefaultPicker)
   const pickers = createBinding(gnofi.builtinDefaultPicker, "pickers")
   const hasResult = createBinding(gnofi.builtinDefaultPicker, "hasResult")
+  const searching = createBinding(gnofi.builtinDefaultPicker, "searching")
 
   return (
     <St.BoxLayout xExpand visible={isActive} vertical>
@@ -25,7 +26,7 @@ export default function DefaultPicker() {
           xExpand
           xAlign={Clutter.ActorAlign.CENTER}
           class="gnofi-no-match-label"
-          text={t("No match found")}
+          text={searching((s) => (s ? t("Searching...") : t("No match found")))}
         />
       </St.BoxLayout>
       <St.BoxLayout xExpand visible={hasResult} vertical>

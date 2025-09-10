@@ -45,6 +45,11 @@
       <description>The command leader that switches to command mode</description>
     </key>
 
+    <key name="search-delay" type="u">
+      <default>200</default>
+      <description>Debounce delay of the default search picker</description>
+    </key>
+
     <key name="panel-button" type="(buiss)">
       <default>(true,0,0,'open-menu-symbolic','')</default>
       <description>Panel button settings: visibility, position, icon, label.</description>
