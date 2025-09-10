@@ -97,7 +97,10 @@ def "main dev" [] {
 def "main gettext" [] {
     let uuid = open metadata.json | get uuid
     mkdir po
-    (xgettext **/*.ts **/*.tsx
+
+    let files = git ls-files "*.ts" "*.tsx" | split row "\n"
+
+    (xgettext ...$files
         --from-code=UTF-8
         --output=$"po/($uuid).pot"
         --language=JavaScript
