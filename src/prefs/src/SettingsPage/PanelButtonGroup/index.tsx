@@ -6,13 +6,7 @@ import { traverseWidgetTree } from "#/utils"
 import IconPickerDialog from "./IconPickerDialog"
 import { usePrefs } from "#/prefs"
 import { Accessed, getScope } from "gnim"
-import { css } from "gnim-hooks/gtk4"
-
-void css`
-  row.combo.spin spinbutton text {
-    min-width: 0;
-  }
-`
+import { useStyle } from "gnim-hooks/gtk4"
 
 export default function PanelButtonGroup() {
   const scope = getScope()
@@ -65,6 +59,14 @@ export default function PanelButtonGroup() {
     [MIDDLE]: t("Middle"),
     [RIGHT]: t("Right"),
   }
+
+  const spinButtonStyle = useStyle({
+    "&": {
+      " text": {
+        "min-width": "0",
+      },
+    },
+  })
 
   return (
     <Adw.PreferencesGroup title={t("Panel Button Settings")}>
@@ -144,7 +146,11 @@ export default function PanelButtonGroup() {
             marginEnd={12}
             orientation={Gtk.Orientation.VERTICAL}
           />
-          <Gtk.SpinButton $type="suffix" valign={Gtk.Align.CENTER}>
+          <Gtk.SpinButton
+            $type="suffix"
+            class={spinButtonStyle}
+            valign={Gtk.Align.CENTER}
+          >
             <Gtk.Adjustment
               lower={0}
               upper={16}

@@ -74,9 +74,8 @@ export default function GenericGroup() {
       <Adw.EntryRow
         visible={settings.showHiddenOptions}
         title={t("Command Leader")}
-        maxLength={1}
         text={settings.commandLeader}
-        onNotifyText={({ text }) => settings.setCommandLeader(text || ":")}
+        onEntryActivated={({ text }) => settings.setCommandLeader(text || ":")}
       />
     </Adw.PreferencesGroup>
   )

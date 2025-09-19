@@ -8,6 +8,7 @@ import { useSettings } from "~schemas"
 import SendMessageDialog from "./SendMessageDialog"
 import LicensePage from "./LicensePage"
 import ChangelogPage from "./ChangelogPage"
+import ButtonRow from "#/ButtonRow"
 
 export default function AboutPage() {
   const { showHiddenOptions, setShowHiddenOptions } = useSettings()
@@ -88,10 +89,7 @@ export default function AboutPage() {
             pixelSize={24}
             iconName="x-office-document-symbolic"
           />
-          <Gtk.Image
-            iconName="adw-expander-arrow-symbolic"
-            css="transform:rotate(90deg);"
-          />
+          <Gtk.Image iconName="chevron-right-symbolic" />
         </Adw.ActionRow>
 
         <Adw.ActionRow
@@ -101,22 +99,17 @@ export default function AboutPage() {
           onActivated={() => ChangelogPage({ window })}
         >
           <Gtk.Image $type="prefix" pixelSize={24} iconName="view-list-bullet-symbolic" />
-          <Gtk.Image
-            iconName="adw-expander-arrow-symbolic"
-            css="transform:rotate(90deg);"
-          />
+          <Gtk.Image iconName="chevron-right-symbolic" />
         </Adw.ActionRow>
       </Adw.PreferencesGroup>
 
       <Adw.PreferencesGroup
         visible={showHiddenOptions((show) => show || !!import.meta.EMAIL_API)}
         title={t("Leave Feedback")}
-        description={t(
-          "Please prefer using the GitHub issue tracker if you have a GitHub account.",
-        )}
+        description={t("Feel free to leave a message, it will land right in my mailbox.")}
       >
         {import.meta.EMAIL_API ? (
-          <Adw.ButtonRow
+          <ButtonRow
             startIconName="mail-unread-symbolic"
             title={t("Send a direct message")}
             onActivated={() => SendMessageDialog({ window })}

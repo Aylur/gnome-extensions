@@ -5,6 +5,7 @@ import Gtk from "gi://Gtk"
 import { createRoot, createState, With } from "gnim"
 import MessageRow from "./MessageRow"
 import fetch from "gnim/fetch"
+import Spinner from "#/Spinner"
 
 export default function SendMessageDialog(props: { window: Adw.PreferencesWindow }) {
   let dialog: Adw.Dialog
@@ -75,7 +76,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
               {(sending) =>
                 sending ? (
                   <Gtk.Box spacing={3}>
-                    <Adw.Spinner />
+                    <Spinner />
                     <Gtk.Label label={t("Sending")} />
                   </Gtk.Box>
                 ) : (
@@ -97,8 +98,8 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
               explanation={t(
                 "An optional email that I can respond to in case of a question.",
               )}
-              onNotifyText={({ text }) => setEmail(text)}
-              maxLength={100}
+              onNotifyText={({ text }) => setEmail(text.slice(0, 100))}
+              maxLength={Adw.MINOR_VERSION >= 6 ? 100 : undefined}
             />
             <MessageRow
               title={t("Message")}

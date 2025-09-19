@@ -4,6 +4,7 @@ import Adw from "gi://Adw"
 import { usePrefs } from "#/prefs"
 import DocsPage from "./DocsPage"
 import GnomeExtensions from "~dbus/GnomeExtensions"
+import ButtonRow from "#/ButtonRow"
 
 export default function ExternalPickersGroup() {
   const { window, uuid } = usePrefs()
@@ -26,12 +27,12 @@ export default function ExternalPickersGroup() {
         active={saveLogsInMemory}
         onNotifyActive={({ active }) => setSaveLogsInMemory(active)}
       />
-      <Adw.ButtonRow
+      <ButtonRow
         startIconName="open-book-symbolic"
         title={t("Open IPC Documentation")}
         onActivated={() => void DocsPage({ window })}
       />
-      <Adw.ButtonRow
+      <ButtonRow
         startIconName="view-refresh-symbolic"
         title={t("Reload Gnofi")}
         onActivated={() => void reload()}

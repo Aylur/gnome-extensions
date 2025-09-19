@@ -1,6 +1,7 @@
 #!/usr/bin/env nu
 
 let GIT_URL = open metadata.json | get url
+let DOCS_URL = "https://github.com/Aylur/gnofi-gnome-extension/blob/main/docs/IPC.md"
 
 let DONATORS = "https://raw.githubusercontent.com/Aylur/gnofi-gnome-extension/refs/heads/main/donators.json"
 
@@ -40,6 +41,7 @@ def bundle [input: string, output: string, --version: string] {
         --define:import.meta.EXAMPLES_URL=$'"($GIT_URL)/tree/main/examples"'
         --define:import.meta.DONATORS_LIST_URL=$'"($DONATORS)"'
         --define:import.meta.BUGS_URL=$'"($GIT_URL)/issues/new"'
+        --define:import.meta.DOCS_URL=$'"($DOCS_URL)"'
     )
 }
 

@@ -7,6 +7,7 @@ import { fetch } from "gnim/fetch"
 import { kofiIcon, paypalIcon } from "#data"
 import { openUri, isValidUri } from "#/utils"
 import { usePrefs } from "#/prefs"
+import Spinner from "#/Spinner"
 
 type Donator = {
   image?: string
@@ -119,7 +120,7 @@ export default function SupportPage() {
             : t("A huge thank you to these people who have supported Gnofi!"),
         )}
       >
-        <Adw.Spinner $type="header-suffix" valign={Gtk.Align.CENTER} visible={loading} />
+        <Spinner $type="header-suffix" valign={Gtk.Align.CENTER} visible={loading} />
         <Adw.ActionRow
           visible={error((e) => !!e)}
           title={t("Failed to retrieve list of contributors")}

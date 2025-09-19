@@ -46,7 +46,7 @@
     </key>
 
     <key name="search-delay" type="u">
-      <default>200</default>
+      <default>100</default>
       <description>Debounce delay of the default search picker</description>
     </key>
 

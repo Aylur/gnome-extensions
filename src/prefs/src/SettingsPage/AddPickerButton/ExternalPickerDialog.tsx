@@ -4,6 +4,7 @@ import Gtk from "gi://Gtk"
 import { createRoot, createState } from "gnim"
 import { ExternalPickerSchema } from "~schemas"
 import EntryRow from "#/EntryRow"
+import { useToggleGroup } from "#/utils"
 
 export default function ExternalPickerDialog(props: {
   window: Adw.Window
@@ -52,19 +53,20 @@ export default function ExternalPickerDialog(props: {
         </Adw.HeaderBar>
         <Adw.PreferencesGroup marginEnd={12} marginStart={12} marginBottom={12}>
           <Adw.ActionRow title={t("Type")}>
-            <Adw.ToggleGroup
-              class="flat"
-              valign={Gtk.Align.CENTER}
-              activeName={schema((s) => s.type)}
-              onNotifyActiveName={({ activeName }) =>
-                setSchema((s) =>
-                  s.copy({ type: activeName as "persistent" | "transient" }),
-                )
-              }
-            >
-              <Adw.Toggle label={t("Transient")} name="transient" />
-              <Adw.Toggle label={t("Persistent")} name="persistent" />
-            </Adw.ToggleGroup>
+            <Gtk.Box valign={Gtk.Align.CENTER} spacing={4}>
+              <Gtk.Button
+                onClicked={() => setSchema((s) => s.copy({ type: "transient" }))}
+                $={useToggleGroup(schema((s) => s.type === "transient"))}
+              >
+                {t("Transient")}
+              </Gtk.Button>
+              <Gtk.Button
+                onClicked={() => setSchema((s) => s.copy({ type: "persistent" }))}
+                $={useToggleGroup(schema((s) => s.type === "persistent"))}
+              >
+                {t("Persistent")}
+              </Gtk.Button>
+            </Gtk.Box>
           </Adw.ActionRow>
           <EntryRow
             title={nameMissing((m) => (m ? t("Name is required") : t("Display Name")))}

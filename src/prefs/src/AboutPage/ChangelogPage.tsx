@@ -69,6 +69,11 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.5.0">
+            <ChangeSet title={t("New Features")}>
+              <Change>{t("Support older versions of libadwaita")}</Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.4.0">
             <ChangeSet title={t("New Features")}>
               <Change>

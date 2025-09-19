@@ -3,6 +3,7 @@ import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import { LayoutSchema, LabelLayout } from "~schemas"
 import { createState } from "gnim"
+import { useToggleGroup } from "#/utils"
 
 export default function LayoutRows<S extends LayoutSchema>(props: {
   schema: S
@@ -39,31 +40,39 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
         title={t("Grid Orientation")}
         subtitle={t("Orientation of the grid and button content")}
       >
-        <Adw.ToggleGroup
-          class="flat"
-          valign={Gtk.Align.CENTER}
-          activeName={schema((s) => (s.verticalGrid ? "v" : "h"))}
-          onNotifyActiveName={({ activeName }) => set("verticalGrid", activeName === "v")}
-        >
-          <Adw.Toggle name="v" label={t("Vertical")} />
-          <Adw.Toggle name="h" label={t("Horizontal")} />
-        </Adw.ToggleGroup>
+        <Gtk.Box valign={Gtk.Align.CENTER} spacing={4}>
+          <Gtk.Button
+            onClicked={() => set("verticalGrid", true)}
+            $={useToggleGroup(schema((s) => s.verticalGrid))}
+          >
+            {t("Vertical")}
+          </Gtk.Button>
+          <Gtk.Button
+            onClicked={() => set("verticalGrid", false)}
+            $={useToggleGroup(schema((s) => !s.verticalGrid))}
+          >
+            {t("Horizontal")}
+          </Gtk.Button>
+        </Gtk.Box>
       </Adw.ActionRow>
       <Adw.ActionRow
         title={t("Button Content Orientation")}
         subtitle={t("Orientation of the grid and button content")}
       >
-        <Adw.ToggleGroup
-          class="flat"
-          valign={Gtk.Align.CENTER}
-          activeName={schema((s) => (s.verticalButton ? "v" : "h"))}
-          onNotifyActiveName={({ activeName }) =>
-            set("verticalButton", activeName === "v")
-          }
-        >
-          <Adw.Toggle name="v" label={t("Vertical")} />
-          <Adw.Toggle name="h" label={t("Horizontal")} />
-        </Adw.ToggleGroup>
+        <Gtk.Box valign={Gtk.Align.CENTER} spacing={4}>
+          <Gtk.Button
+            onClicked={() => set("verticalButton", true)}
+            $={useToggleGroup(schema((s) => s.verticalButton))}
+          >
+            {t("Vertical")}
+          </Gtk.Button>
+          <Gtk.Button
+            onClicked={() => set("verticalButton", false)}
+            $={useToggleGroup(schema((s) => !s.verticalButton))}
+          >
+            {t("Horizontal")}
+          </Gtk.Button>
+        </Gtk.Box>
       </Adw.ActionRow>
       <Adw.SpinRow
         title={t("Result Limit")}

@@ -20,6 +20,7 @@ declare global {
     BUGS_URL: string
     EXAMPLES_URL: string
     DONATORS_LIST_URL: string
+    DOCS_URL: string
 
     IPC_DOC: Root
   }

@@ -3,15 +3,9 @@ import { copyToClipboard, openUri } from "#/utils"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import Pango from "gi://Pango"
-import { createComputed, createRoot, createState, For } from "gnim"
+import { createComputed, createRoot, createState, For, jsx } from "gnim"
 import Markdown from "./Markdown"
-import { css } from "gnim-hooks/gtk4"
-
-void css`
-  searchbar > revealer > box {
-    background-color: transparent;
-  }
-`
+import { useStyle } from "gnim-hooks/gtk4"
 
 const SPLIT_BREAKPOINT = 720
 
@@ -43,6 +37,14 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
     const [searchModeEnabled, setSearchModeEnabled] = createState(false)
 
     const toc = headers((label) => label.filter((toc) => headerDepth(toc) < 4))
+
+    const searchBarStyle = useStyle({
+      "&": {
+        ">revealer >box": {
+          "background-color": "transparent",
+        },
+      },
+    })
 
     function navigate(name: string) {
       setSearchModeEnabled(false)
@@ -117,6 +119,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                 <Gtk.Box orientation={Gtk.Orientation.VERTICAL}>
                   <Gtk.SearchBar
                     $={(self) => (searchbar = self)}
+                    class={searchBarStyle}
                     name="docs-searcbar"
                     searchModeEnabled={searchModeEnabled}
                     onNotifySearchModeEnabled={(s) =>
@@ -171,21 +174,36 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                       </For>
                     </Gtk.Box>
                   </Gtk.ScrolledWindow>
-                  <Gtk.Button
-                    class="flat"
+                  <Gtk.Box
                     marginTop={12}
                     marginBottom={12}
                     marginStart={12}
                     marginEnd={12}
+                    spacing={4}
                     valign={Gtk.Align.END}
-                    tooltipText={import.meta.EXAMPLES_URL}
-                    onClicked={() => openUri(import.meta.EXAMPLES_URL)}
+                    orientation={Gtk.Orientation.VERTICAL}
                   >
-                    <Adw.ButtonContent
-                      label={t("Full Examples")}
-                      iconName="adw-external-link-symbolic"
-                    />
-                  </Gtk.Button>
+                    <Gtk.Button
+                      class="flat"
+                      tooltipText={import.meta.EXAMPLES_URL}
+                      onClicked={() => openUri(import.meta.EXAMPLES_URL)}
+                    >
+                      <Adw.ButtonContent
+                        label={t("Full Examples")}
+                        iconName="adw-external-link-symbolic"
+                      />
+                    </Gtk.Button>
+                    <Gtk.Button
+                      class="flat"
+                      tooltipText={import.meta.DOCS_URL}
+                      onClicked={() => openUri(import.meta.DOCS_URL)}
+                    >
+                      <Adw.ButtonContent
+                        label={t("Read Online")}
+                        iconName="adw-external-link-symbolic"
+                      />
+                    </Gtk.Button>
+                  </Gtk.Box>
                 </Gtk.Box>
               </Adw.ToolbarView>
             </Adw.NavigationPage>
@@ -216,12 +234,37 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                         marginStart={16}
                         marginEnd={16}
                       >
-                        <Markdown
-                          ref={(self) => setHeaders(self.headers)}
-                          md={import.meta.IPC_DOC}
-                          onNavigation={navigate}
-                          onCopy={(text) => copyToClipboard(text, window)}
-                        />
+                        {Adw.MINOR_VERSION >= 7 ? (
+                          <Markdown
+                            ref={(self) => setHeaders(self.headers)}
+                            md={import.meta.IPC_DOC}
+                            onNavigation={navigate}
+                            onCopy={(text) => copyToClipboard(text, window)}
+                          />
+                        ) : (
+                          <Gtk.Button
+                            css="padding: 3px 18px; color: var(--destructive-bg-color);"
+                            valign={Gtk.Align.CENTER}
+                            halign={Gtk.Align.CENTER}
+                            onClicked={() =>
+                              window.add_toast(
+                                createRoot((dispose) =>
+                                  jsx(Adw.Toast, {
+                                    title: t("You can read it online."),
+                                    buttonLabel: t("Open in Browser"),
+                                    onDismissed: dispose,
+                                    onButtonClicked: () => {
+                                      dispose()
+                                      openUri(import.meta.DOCS_URL)
+                                    },
+                                  }),
+                                ),
+                              )
+                            }
+                          >
+                            {t("This page requires libadwaita >=1.7 to be rendered.")}
+                          </Gtk.Button>
+                        )}
                       </Adw.Bin>
                     </Adw.Clamp>
                   </Gtk.Viewport>
