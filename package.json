@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "version": "0.5.1",
   "homepage": "https://github.com/aylur/gnofi-gnome-extension",
   "license": "GPL-3.0-only",
   "devDependencies": {
@@ -17,9 +18,10 @@
     "unist-util-visit": "^5.0.0"
   },
   "dependencies": {
-    "gnim": "^1.6.5",
+    "gnim": "^1.8.0",
     "gnim-hooks": "^0.1.0",
-    "gnofi": "^1.3.0",
+    "gnim-schemas": "^0.0.0",
+    "gnofi": "^1.3.1",
     "~dbus": "link:src/dbus",
     "~schemas": "link:src/schemas"
   },

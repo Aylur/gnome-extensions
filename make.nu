@@ -62,12 +62,9 @@ def "main build" [--version: string] {
         --target=firefox116
     )
 
-    cat ./src/schemas/gschema.xml
-    | str replace "@id@" $schema
-    | str replace "@path@" $"/($schema | split row "." | str join "/")/"
-    | save $"./dist/schemas/($schema).gschema.xml"
-
-    glib-compile-schemas ./dist/schemas
+    cp ./src/schemas/gschema.ts $"dist/schemas/($schema).gschema.ts"
+    gnim-schemas dist/schemas --targetdir=dist/schemas --compile
+    rm $"dist/schemas/($schema).gschema.ts"
 
     cp metadata.json dist
     cp -r src/prefs/data/* dist/data
@@ -113,7 +110,7 @@ def "main gettext" [] {
 }
 
 def "main pack" [] {
-    main build --version $env.GNOFI_VERSION
+    main build --version (open package.json | get version)
     gnome-extensions pack --podir=po --extra-source=data --force dist
 }
 

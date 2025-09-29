@@ -1,5 +1,7 @@
 import type Gio from "gi://Gio"
-import { Accessor, createContext, createSettings } from "gnim"
+import { schema } from "./gschema"
+import { createSettings } from "gnim-schemas"
+import { Accessor, createContext } from "gnim"
 import { createSchema } from "./schema"
 
 export * from "./schema"
@@ -16,25 +18,7 @@ export function useSettings() {
 
 function createExtensionSettings(settings: Gio.Settings) {
   const { panelButton, setPanelButton, commands, searchPickers, ...keys } =
-    createSettings(settings, {
-      "window-hotkey": "as",
-      "window-margin-top": "u",
-      "window-width": "u",
-      "close-overview": "b",
-      "replace-overview-search": "b",
-      "open-at-startup": "b",
-      "focusable-entry": "b",
-      "visible-command": "b",
-      "command-leader": "s",
-      "search-delay": "u",
-      "panel-button": "(buiss)",
-      "save-logs-in-memory": "b",
-      "show-hidden-options": "b",
-      "commands": "a{sa{sv}}",
-      "search-pickers": "aa{sv}",
-      "preferences-page": "s",
-      "initial-notification": "b",
-    })
+    createSettings(settings, schema)
 
   return {
     settings,
