@@ -49,7 +49,7 @@ export default function HotkeyDialog({ window, onApply }: HotkeyDialogPros) {
   }
 
   function apply() {
-    onApply(accel.get())
+    onApply(accel.peek())
     dialog.close()
   }
 

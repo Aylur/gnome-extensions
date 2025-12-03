@@ -1,9 +1,8 @@
 import { gtype, property, register } from "gnim/gobject"
 import Gtk from "gi://Gtk"
 import Adw from "gi://Adw"
-import { createBinding, onCleanup, This } from "gnim"
+import { createEffect, createBinding, onCleanup, This } from "gnim"
 import { traverseWidgetTree } from "#/utils"
-import { useEffect } from "gnim-hooks"
 
 type State = "error" | "warning" | "none"
 const State = gtype<State>(String)
@@ -43,10 +42,10 @@ export default class EntryRow extends Adw.EntryRow {
       }
     })
 
-    useEffect((get) => {
-      if (get(state) !== "none") {
+    createEffect(() => {
+      if (state() !== "none") {
         labels.map((l) => {
-          l.add_css_class(get(state))
+          l.add_css_class(state())
           l.remove_css_class("dimmed")
         })
       } else {

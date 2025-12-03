@@ -14,18 +14,19 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
   const [text, setText] = createState(t("Hi! I wanted to ask about..."))
   const [email, setEmail] = createState("")
 
-  // please don't abuse this, I'm on a free resend tier
   async function sendEmail() {
     setSending(true)
     try {
-      const res = await fetch(import.meta.EMAIL_API, {
+      const res = await fetch("https://inbox.aylur.dev/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email.get(),
-          message: text.get(),
+          context: "Gnofi",
+          subject: "Gnofi",
+          from: email.peek(),
+          text: text.peek(),
         }),
       })
 
@@ -103,7 +104,7 @@ export default function SendMessageDialog(props: { window: Adw.PreferencesWindow
             />
             <MessageRow
               title={t("Message")}
-              initalText={text.get()}
+              initalText={text.peek()}
               onChanged={(text) => setText(text)}
             />
           </Adw.PreferencesGroup>

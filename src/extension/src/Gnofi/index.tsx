@@ -1,10 +1,9 @@
 import Clutter from "gi://Clutter"
-import { createContext, For, onCleanup, This } from "gnim"
+import { createEffect, createContext, For, onCleanup, This } from "gnim"
 import { Gnofi } from "gnofi"
 import GnofiLogger from "~dbus/GnofiLogger"
 import { useSettings } from "~schemas"
 import Picker from "./Picker"
-import { useEffect } from "gnim-hooks"
 
 const GnofiContext = createContext<{ gnofi: Gnofi } | null>(null)
 
@@ -30,8 +29,8 @@ export function GnofiProvider<T>(children: () => T) {
   gnofi.builtinHelpPicker.showAll = true
   logger.serve(saveLogsInMemory)
 
-  useEffect((get) => {
-    gnofi.builtinDefaultPicker.searchDelay = get(searchDelay)
+  createEffect(() => {
+    gnofi.builtinDefaultPicker.searchDelay = searchDelay()
   })
 
   onCleanup(() => logger.stop())

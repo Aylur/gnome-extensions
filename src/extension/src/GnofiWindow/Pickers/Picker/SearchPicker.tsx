@@ -27,7 +27,7 @@ export default function SearchPicker(props: {
       St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, item.clipboardText)
     }
 
-    if (schema.get().copyOnly) {
+    if (schema.peek().copyOnly) {
       osdWindowManager.show(
         global.display.get_current_monitor(),
         item.gicon,

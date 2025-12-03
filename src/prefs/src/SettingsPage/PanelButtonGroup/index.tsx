@@ -23,7 +23,7 @@ export default function PanelButtonGroup() {
   }))
 
   function set<K extends keyof Opts>(key: K, value: Opts[K]) {
-    const values = { ...opts.get(), [key]: value }
+    const values = { ...opts.peek(), [key]: value }
     const { visible, position, index, icon, label } = values
     settings.setPanelButton([visible, position, index, icon, label])
   }

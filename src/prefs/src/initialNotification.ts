@@ -35,7 +35,7 @@ export default function useInitialNotification() {
   const { initialNotification, setInitialNotification, showHiddenOptions } = useSettings()
   const { uuid } = usePrefs()
 
-  if (initialNotification.get() && !showHiddenOptions.get()) {
+  if (initialNotification.peek() && !showHiddenOptions.peek()) {
     if (!import.meta.DEVEL) {
       setInitialNotification(false)
     }

@@ -10,13 +10,13 @@ interface Implementation {
 export default class GnofiExtension extends Service {
   private impl?: Implementation
 
-  @methodAsync({ name: "text", type: "s" }, { name: "with-leader", type: "b" })
-  Open(text: string) {
+  @methodAsync({ name: "text", type: "s" })
+  async Open(text: string) {
     return Promise.resolve(this.impl?.open(text))
   }
 
   @methodAsync()
-  SendTipMessage() {
+  async SendTipMessage() {
     return Promise.resolve(this.impl?.sendTipMessage())
   }
 

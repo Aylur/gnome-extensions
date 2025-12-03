@@ -21,7 +21,7 @@ function kebabify(str: string) {
     .toLowerCase()
 }
 
-const widgets: Record<string, typeof St.Widget> = {
+const widgets: Record<string, typeof St.Widget<any, any>> = {
   Label: St.Label,
   Box: St.BoxLayout,
   Icon: St.Icon,

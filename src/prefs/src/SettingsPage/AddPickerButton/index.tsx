@@ -41,7 +41,7 @@ export default function AddPickerButton(props: {
           },
           filter: (provider) =>
             !props.pickerList
-              .get()
+              .peek()
               .some(
                 (p) =>
                   p instanceof SearchPickerSchema &&

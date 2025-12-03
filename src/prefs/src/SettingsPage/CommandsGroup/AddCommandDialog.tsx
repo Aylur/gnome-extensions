@@ -21,8 +21,8 @@ export default function AddCommandDialog(props: {
   }
 
   function save() {
-    if (command.get()) {
-      props.onAdd(new PickerSchema({ name: description.get(), id: command.get() }))
+    if (command.peek()) {
+      props.onAdd(new PickerSchema({ name: description.peek(), id: command.peek() }))
       dialog.close()
     } else {
       setMissing(true)

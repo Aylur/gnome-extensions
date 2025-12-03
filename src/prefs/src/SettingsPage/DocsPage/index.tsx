@@ -3,7 +3,7 @@ import { copyToClipboard, openUri } from "#/utils"
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import Pango from "gi://Pango"
-import { createComputed, createRoot, createState, For, jsx } from "gnim"
+import { createMemo, createRoot, createState, For, jsx } from "gnim"
 import Markdown from "./Markdown"
 import { useStyle } from "gnim-hooks/gtk4"
 
@@ -52,7 +52,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
       if (name.startsWith("#")) name = name.slice(1)
       if (name.startsWith("./#")) name = name.slice(3)
 
-      const widget = headers.get().find((label) => label.name === name)
+      const widget = headers.peek().find((label) => label.name === name)
 
       if (widget) {
         // FIXME: this scrolls from the bottom and looks bad
@@ -60,7 +60,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
         adj.value = adj.upper - adj.pageSize
         setTimeout(() => viewport.scroll_to(widget, null), 100)
 
-        if (collapsed.get()) {
+        if (collapsed.peek()) {
           setShowSideBar(false)
         }
       } else {
@@ -219,7 +219,7 @@ export default function DocsPage({ window }: { window: Adw.PreferencesWindow }) 
                   />
                   <Gtk.Button
                     $type="end"
-                    visible={createComputed((get) => !get(showSideBar) || get(collapsed))}
+                    visible={createMemo(() => !showSideBar() || collapsed())}
                     class="flat"
                     iconName="system-search-symbolic"
                     onClicked={startSearch}

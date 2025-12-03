@@ -16,7 +16,8 @@ export default function AppPicker(props: {
   const { picker, schema } = props
 
   const result = createBinding(picker, "result").as((r) =>
-    r.filter((app) => !app.get_nodisplay()).slice(0, schema.get().limit),
+    // @ts-expect-error missing get_nodisplay() annotation
+    r.filter((app) => !app.get_nodisplay()).slice(0, schema.peek().limit),
   )
 
   return (

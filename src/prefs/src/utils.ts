@@ -4,8 +4,7 @@ import Adw from "gi://Adw"
 import Gdk from "gi://Gdk"
 import GLib from "gi://GLib"
 import Gio from "gi://Gio"
-import { useEffect } from "gnim-hooks"
-import { Accessor } from "gnim"
+import { Accessor, createEffect } from "gnim"
 
 export function traverseWidgetTree(
   widget: Gtk.Widget | null,
@@ -74,8 +73,8 @@ export function getSymbolicAppIcon(appInfo?: Gio.DesktopAppInfo) {
 // avoid using Adw.ToggleGroup to support older versions
 export function useToggleGroup(selected: Accessor<boolean>) {
   return (self: Gtk.Button) => {
-    useEffect((get) => {
-      if (get(selected)) {
+    createEffect(() => {
+      if (selected()) {
         self.remove_css_class("flat")
       } else {
         self.add_css_class("flat")

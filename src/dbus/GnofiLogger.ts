@@ -35,7 +35,7 @@ export default class GnofiLogger extends Service {
     { name: "level", type: "i" },
   )
   Log(key: string, log: string, level: GLib.LogLevelFlags) {
-    if (this.saveLogsInMemory.get()) {
+    if (this.saveLogsInMemory.peek()) {
       const arr = this._logs.get(key) || new Array<Log>()
       arr.push([log, level] as const)
       this._logs.set(key, arr)

@@ -1,7 +1,7 @@
 import St from "gi://St"
 import Clutter from "gi://Clutter"
 import Gio from "gi://Gio"
-import { createComputed, Node, With } from "gnim"
+import { createMemo, Node, With } from "gnim"
 import { useGnofi } from "#/Gnofi"
 import { LabelLayout } from "~schemas"
 import { $ } from "gnim-hooks"
@@ -29,7 +29,7 @@ export default function PickerButton(props: {
   const padding = $(props.padding ?? 5)
   const labelLayout = $(props.labelLayout ?? LabelLayout.BOTH)
   const vertical = $(props.vertical ?? false)
-  const icon = createComputed([gicon, iconName])
+  const icon = createMemo(() => [gicon(), iconName()] as const)
 
   return (
     <St.Button
@@ -76,7 +76,7 @@ export default function PickerButton(props: {
         <With value={labelLayout}>
           {(layout) => (
             <St.BoxLayout
-              visible={createComputed((get) => !!(get(name) || get(description)))}
+              visible={createMemo(() => !!(name() || description()))}
               xExpand
               xAlign={vertical((v) =>
                 v ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,

@@ -2,12 +2,11 @@ import Gio from "gi://Gio"
 import GLib from "gi://GLib"
 import Clutter from "gi://Clutter"
 import St from "gi://St"
-import { createBinding, createComputed, With } from "gnim"
+import { createEffect, createBinding, createMemo, With } from "gnim"
 import { useSettings } from "~schemas"
 import PanelButton from "./widgets/PanelButton"
 import { useGnofi } from "./Gnofi"
 import { useExtension } from "./extenstion"
-import { useEffect } from "gnim-hooks"
 
 export default function GnofiPanelButton() {
   const { panelButton } = useSettings()
@@ -21,7 +20,7 @@ export default function GnofiPanelButton() {
   const label = panelButton(([, , , , label]) => label)
 
   // this way the button is only recreated when needed
-  const buttonProps = createComputed([visible, position, index])
+  const buttonProps = createMemo(() => [visible(), position(), index()] as const)
 
   const gicon = icon((icon) =>
     GLib.file_test(icon, GLib.FileTest.EXISTS)
@@ -29,11 +28,12 @@ export default function GnofiPanelButton() {
       : Gio.Icon.new_for_string(icon || "system-search-symbolic"),
   )
 
-  const contentProps = createComputed([icon, gicon, label])
+  const contentProps = createMemo(() => [icon(), gicon(), label()] as const)
+  const isOpen = createBinding(gnofi, "isOpen")
 
   function init(self: St.Widget) {
-    useEffect((get) => {
-      if (get(createBinding(gnofi, "isOpen"))) {
+    createEffect(() => {
+      if (isOpen()) {
         self.add_style_pseudo_class("active")
       } else {
         self.remove_style_pseudo_class("active")

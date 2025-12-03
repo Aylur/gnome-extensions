@@ -69,6 +69,17 @@ export default function ChangelogPage(props: { window: Adw.PreferencesWindow }) 
       <Adw.ToolbarView>
         <Adw.HeaderBar $type="top" showTitle />
         <Adw.PreferencesPage>
+          <Release version="0.5.2">
+            <ChangeSet title={t("Maintenance")}>
+              <Change>{t("Update to Gnim 1.9")}</Change>
+              <Change>{t("Migrate off of deprecated Gio APIs")}</Change>
+            </ChangeSet>
+          </Release>
+          <Release version="0.5.1">
+            <ChangeSet title={t("Maintenance")}>
+              <Change>{t("Use gnim-schemas")}</Change>
+            </ChangeSet>
+          </Release>
           <Release version="0.5.0">
             <ChangeSet title={t("New Features")}>
               <Change>{t("Support older versions of libadwaita")}</Change>

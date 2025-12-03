@@ -5,8 +5,8 @@ import { InjectionManager } from "resource:///org/gnome/shell/extensions/extensi
 import { overview, wm, layoutManager } from "resource:///org/gnome/shell/ui/main.js"
 import { AppPickerSchema, useSettings } from "~schemas"
 import { useGnofi } from "./Gnofi"
-import { createBinding, onCleanup } from "gnim"
-import { useConnect, useEffect } from "gnim-hooks"
+import { createBinding, createEffect, onCleanup } from "gnim"
+import { useConnect } from "gnim-hooks"
 import { useExtension } from "./extenstion"
 
 function useReplaceOverviewSearch() {
@@ -40,8 +40,8 @@ function useReplaceOverviewSearch() {
     }
   }
 
-  useEffect((get) => {
-    if (get(enable)) {
+  createEffect(() => {
+    if (enable()) {
       replace()
     } else {
       disable()
@@ -86,7 +86,7 @@ function useOpenAtStartup() {
     // @ts-expect-error missing signal type
     "startup-complete",
     () => {
-      if (openAtStartup.get()) {
+      if (openAtStartup.peek()) {
         setTimeout(() => gnofi.open(""))
       }
     },
@@ -118,8 +118,8 @@ function useCloseOnPickerClose() {
   const { gnofi } = useGnofi()
   const isOpen = createBinding(gnofi, "isOpen")
 
-  useEffect((get) => {
-    if (!get(isOpen) && closeOverview.get()) {
+  createEffect(() => {
+    if (!isOpen() && closeOverview.peek()) {
       overview.hide()
     }
   })
@@ -129,8 +129,8 @@ function useEnsureAppPicker() {
   const { searchPickers, setSearchPickers } = useSettings()
   const { gettext: t } = useExtension()
 
-  useEffect((get) => {
-    if (get(searchPickers).length === 0) {
+  createEffect(() => {
+    if (searchPickers().length === 0) {
       setSearchPickers([
         AppPickerSchema.new({
           name: t("Search applications"),

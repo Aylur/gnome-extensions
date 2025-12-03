@@ -20,7 +20,7 @@ export default function SearchPickerDetailsDialog(props: {
     value: SearchPickerSchema[Key],
   ) => {
     setSchema((prev) => prev.copy({ [key]: value }))
-    props.onChange(schema.get())
+    props.onChange(schema.peek())
   }
 
   return createRoot((dipose) => (

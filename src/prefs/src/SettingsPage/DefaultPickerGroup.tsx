@@ -11,8 +11,8 @@ export default function DefaultPickerGroup() {
   const isOverriden = commands((cmds) => cmds.some((p) => p.id === "default"))
 
   function swap(a: PickerSchema, b: PickerSchema) {
-    const aIndex = searchPickers.get().findIndex((p) => p.is(a))
-    const bIndex = searchPickers.get().findIndex((p) => p.is(b))
+    const aIndex = searchPickers.peek().findIndex((p) => p.is(a))
+    const bIndex = searchPickers.peek().findIndex((p) => p.is(b))
 
     setSearchPickers((prev) => {
       return prev.map((p, i) => (i === aIndex ? b.dict : i === bIndex ? a.dict : p))
@@ -46,8 +46,8 @@ export default function DefaultPickerGroup() {
             schema={picker}
             swappable={searchPickers((s) => s.length > 1)}
             onSwap={swap}
-            onChange={(picker) => change(picker, index.get())}
-            onRemove={() => remove(index.get())}
+            onChange={(picker) => change(picker, index.peek())}
+            onRemove={() => remove(index.peek())}
             removable={showHiddenOptions(
               (s) => s || !(picker instanceof AppPickerSchema),
             )}

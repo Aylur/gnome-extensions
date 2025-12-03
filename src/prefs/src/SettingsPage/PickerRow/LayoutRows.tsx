@@ -13,7 +13,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
 
   const set = <Key extends keyof LayoutSchema>(key: Key, value: LayoutSchema[Key]) => {
     setSchema((prev) => prev.copy({ [key]: value }))
-    props.onChange(schema.get() as S)
+    props.onChange(schema.peek() as S)
   }
 
   const setMargin = (i: number, value: number) => {
@@ -23,7 +23,7 @@ export default function LayoutRows<S extends LayoutSchema>(props: {
       margin[i] = value
       return prev.copy({ margin })
     })
-    props.onChange(schema.get() as S)
+    props.onChange(schema.peek() as S)
   }
 
   const labelLayoutLabels: Record<LabelLayout, string> = {

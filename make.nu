@@ -36,7 +36,6 @@ def bundle [input: string, output: string, --version: string] {
         --define:import.meta.IPC_DOC=$"($doc)"
         --define:import.meta.VERSION=$'"($version)"'
         --define:import.meta.DEVEL=$"($devel)"
-        --define:import.meta.EMAIL_API=$'"($env | get GNOFI_EMAIL_API)"'
         --define:import.meta.GIT_URL=$'"($GIT_URL)"'
         --define:import.meta.EXAMPLES_URL=$'"($GIT_URL)/tree/main/examples"'
         --define:import.meta.DONATORS_LIST_URL=$'"($DONATORS)"'
@@ -90,7 +89,7 @@ def "main install" [
 def "main dev" [] {
     main build
     main install
-    dbus-run-session -- gnome-shell --nested --wayland
+    dbus-run-session gnome-shell --devkit --wayland
 }
 
 def "main gettext" [] {

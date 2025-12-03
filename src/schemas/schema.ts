@@ -1,5 +1,5 @@
-import Gio from "gi://Gio"
 import GLib from "gi://GLib"
+import GioUnix from "gi://GioUnix"
 import GObject, { register } from "gnim/gobject"
 
 type Dict<T = unknown> = Record<string, T>
@@ -138,7 +138,7 @@ export class SearchPickerSchema extends LayoutSchema {
   readonly objectPath: string
   readonly desktopId: string
   readonly copyOnly: boolean
-  readonly appInfo?: Gio.DesktopAppInfo
+  readonly appInfo?: GioUnix.DesktopAppInfo
 
   static new(props: { busName: string; objectPath: string; desktopId: string }) {
     return new SearchPickerSchema(props)
@@ -155,14 +155,14 @@ export class SearchPickerSchema extends LayoutSchema {
       throw Error("missing 'desktopId' in SearchPickerSchema")
     }
 
-    const appInfo = Gio.DesktopAppInfo.new(desktopId)
+    const appInfo = GioUnix.DesktopAppInfo.new(desktopId)
     super({ ...props, name: appInfo?.get_name() || "Unknown" })
 
     this.busName = busName
     this.objectPath = objectPath
     this.desktopId = desktopId
     this.copyOnly = typeof copyOnly === "boolean" && copyOnly
-    this.appInfo = Gio.DesktopAppInfo.new(this.desktopId)
+    this.appInfo = GioUnix.DesktopAppInfo.new(this.desktopId)
   }
 
   get dict(): Dict<GLib.Variant> {

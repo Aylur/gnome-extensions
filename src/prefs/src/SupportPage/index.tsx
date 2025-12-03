@@ -2,7 +2,7 @@ import { gettext as t } from "resource:///org/gnome/Shell/Extensions/js/extensio
 import Adw from "gi://Adw"
 import Gtk from "gi://Gtk"
 import Gio from "gi://Gio"
-import { For, createComputed, createRoot, createState } from "gnim"
+import { For, createMemo, createRoot, createState } from "gnim"
 import { fetch } from "gnim/fetch"
 import { kofiIcon, paypalIcon } from "#data"
 import { openUri, isValidUri } from "#/utils"
@@ -56,10 +56,7 @@ export default function SupportPage() {
   const [loading, setLoading] = createState(true)
   const [error, setError] = createState("")
   const [donators, setDonators] = createState(new Array<Donator>())
-  const noDonators = createComputed(
-    [loading, error, donators],
-    (load, err, { length }) => !load && !err && length === 0,
-  )
+  const noDonators = createMemo(() => !loading() && !error() && donators().length === 0)
 
   void fetch(import.meta.DONATORS_LIST_URL)
     .then((out) => {

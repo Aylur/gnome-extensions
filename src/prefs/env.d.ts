@@ -15,7 +15,6 @@ declare global {
     DEVEL: boolean
     VERSION: string
 
-    EMAIL_API: string
     GIT_URL: string
     BUGS_URL: string
     EXAMPLES_URL: string

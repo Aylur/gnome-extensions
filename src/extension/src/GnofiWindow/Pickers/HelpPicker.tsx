@@ -1,7 +1,7 @@
 import St from "gi://St"
 import Clutter from "gi://Clutter"
 import { useGnofi } from "#/Gnofi"
-import { createBinding, createComputed, For } from "gnim"
+import { createBinding, createMemo, For } from "gnim"
 import PickerButton from "#/widgets/PickerButton"
 import Separator from "#/widgets/Separator"
 import { useExtension } from "#/extenstion"
@@ -40,8 +40,8 @@ export default function HelpPicker() {
                 />
                 <St.Label
                   css="font-weight:bold"
-                  text={createComputed(
-                    (get) => `${get(leader)}${get(createBinding(picker, "command"))}`,
+                  text={createMemo(
+                    () => `${leader()}${createBinding(picker, "command")()}`,
                   )}
                 />
                 <St.Label

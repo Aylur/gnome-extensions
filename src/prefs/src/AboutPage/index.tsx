@@ -15,7 +15,7 @@ export default function AboutPage() {
   const { window } = usePrefs()
 
   function toggleHiddenOptions() {
-    const shown = !showHiddenOptions.get()
+    const shown = !showHiddenOptions.peek()
     setShowHiddenOptions(shown)
 
     window.add_toast(
@@ -104,30 +104,14 @@ export default function AboutPage() {
       </Adw.PreferencesGroup>
 
       <Adw.PreferencesGroup
-        visible={showHiddenOptions((show) => show || !!import.meta.EMAIL_API)}
         title={t("Leave Feedback")}
         description={t("Feel free to leave a message, it will land right in my mailbox.")}
       >
-        {import.meta.EMAIL_API ? (
-          <ButtonRow
-            startIconName="mail-unread-symbolic"
-            title={t("Send a direct message")}
-            onActivated={() => SendMessageDialog({ window })}
-          />
-        ) : (
-          <Adw.PreferencesRow sensitive={false}>
-            <Gtk.Label
-              marginTop={4}
-              marginBottom={4}
-              halign={Gtk.Align.CENTER}
-              justify={Gtk.Justification.CENTER}
-              wrap
-              label={t(
-                "Sending messages is not supported from this distributon of Gnofi.",
-              )}
-            />
-          </Adw.PreferencesRow>
-        )}
+        <ButtonRow
+          startIconName="mail-unread-symbolic"
+          title={t("Send a direct message")}
+          onActivated={() => SendMessageDialog({ window })}
+        />
       </Adw.PreferencesGroup>
       {/* TODO: list of other extensions */}
     </Adw.PreferencesPage>

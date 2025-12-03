@@ -28,14 +28,14 @@ export default function ExternalPickerDialog(props: {
   }
 
   function save() {
-    if (isValid.get()) {
-      props.onSave(schema.get())
+    if (isValid.peek()) {
+      props.onSave(schema.peek())
       dialog.close()
       return
     }
 
-    setNameMissing(schema.get().name === "")
-    setExeMissing(schema.get().executable === "")
+    setNameMissing(schema.peek().name === "")
+    setExeMissing(schema.peek().executable === "")
   }
 
   return createRoot((dispose) => (

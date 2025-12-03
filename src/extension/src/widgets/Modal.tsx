@@ -78,7 +78,6 @@ export default class Modal extends St.Widget {
     this.opacity = 0
     this.visible = true
 
-    // @ts-expect-error missing types
     this.ease({
       opacity: 255,
       duration: OPEN_AND_CLOSE_TIME,
@@ -92,7 +91,6 @@ export default class Modal extends St.Widget {
     this.grab?.dismiss()
     delete this.grab
 
-    // @ts-expect-error missing types
     this.ease({
       opacity: 0,
       duration: OPEN_AND_CLOSE_TIME,

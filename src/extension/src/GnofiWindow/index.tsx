@@ -2,11 +2,11 @@ import St from "gi://St"
 import Modal from "#/widgets/Modal"
 import Clutter from "gi://Clutter"
 import { useGnofi } from "#/Gnofi"
-import { createBinding, createComputed, createState, This } from "gnim"
+import { createEffect, createBinding, createMemo, createState, This } from "gnim"
 import { useSettings } from "~schemas"
 import Pickers from "./Pickers"
 import Controls from "./Controls"
-import { useConnect, useEffect } from "gnim-hooks"
+import { useConnect } from "gnim-hooks"
 import { useExtension } from "#/extenstion"
 
 export default function GnofiWindow() {
@@ -22,10 +22,10 @@ export default function GnofiWindow() {
   const { windowWidth, windowMarginTop, focusableEntry, commands, commandLeader } =
     useSettings()
 
-  const hintText = createComputed((get) => {
-    const { hint } = get(activePicker)
-    const { length } = Object.entries(get(commands))
-    const leader = get(commandLeader)
+  const hintText = createMemo(() => {
+    const { hint } = activePicker()
+    const { length } = Object.entries(commands())
+    const leader = commandLeader()
     return length === 0
       ? t("Start typing to search...")
       : hint || t(`Type '%s' for list of commands`).format(leader)
@@ -40,8 +40,8 @@ export default function GnofiWindow() {
     }
   })
 
-  useEffect((get) => {
-    if (get(isOpen)) {
+  createEffect(() => {
+    if (isOpen()) {
       gnofi.focus("entry")
     }
   })
