@@ -1,0 +1,7 @@
+{
+  "name": "Gnome Eval",
+  "description": "Evaluate scripts through DBus",
+  "uuid": "gnome-eval@aylur",
+  "url": "https://github.com/aylur/gnome-eval",
+  "shell-version": ["48", "49"]
+}

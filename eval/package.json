@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@girs/gjs": "latest",
+    "@girs/gnome-shell": "latest",
+    "esbuild": "latest"
+  },
+  "dependencies": {
+    "gnim": "latest"
+  },
+  "prettier": {
+    "semi": false
+  }
+}
