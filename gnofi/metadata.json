@@ -1,0 +1,14 @@
+{
+  "name": "Gnofi",
+  "description": "An extensible launcher, picker, search and command palette",
+  "uuid": "gnofi@aylur",
+  "url": "https://github.com/aylur/gnofi-gnome-extension",
+  "settings-schema": "org.gnome.shell.extensions.gnofi",
+  "gettext-domain": "gnofi@aylur",
+  "donations": {
+    "kofi": "aylur",
+    "github": "Aylur",
+    "paypal": "KristofDemeter"
+  },
+  "shell-version": ["46", "47", "48", "49"]
+}
