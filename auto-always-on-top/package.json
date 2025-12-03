@@ -3,13 +3,17 @@
   "scripts": {
     "build": "./make.nu build",
     "install": "./make.nu install",
-    "dev": "./make.nu test"
+    "dev": "./make.nu test",
+    "pack": "./make.nu pack"
   },
-  "dependencies": {
+  "devDependencies": {
     "@girs/adw-1": "latest",
     "@girs/gjs": "latest",
     "@girs/gnome-shell": "latest",
     "esbuild": "latest",
+    "nushell": "latest"
+  },
+  "dependencies": {
     "gnim": "latest",
     "gnim-schemas": "latest"
   },

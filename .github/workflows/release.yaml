@@ -1,0 +1,50 @@
+name: Create Release
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: "recursive"
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install system dependencies
+        run: sudo apt install -y libglib2.0-dev-bin libxml2-utils gjs zip
+
+      - name: Package auto-always-on-top
+        run: |
+          cd auto-always-on-top
+          npm ci
+          npm run pack
+
+      - name: Package gnofi
+        run: |
+          cd gnofi
+          pnpm install --frozen-lockfile
+          pnpm run pack
+
+      - name: Attach files to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            gnofi/dist/gnofi@aylur.shell-extension.zip
+            auto-always-on-top/dist/auto-always-on-top@aylur.shell-extension.zip

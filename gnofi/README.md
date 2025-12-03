@@ -4,22 +4,16 @@ An extensible launcher, picker, search and command palette for Gnome
 
 Supports Gnome 46 and upwards.
 
-> [!NOTE]
->
-> Unfortunately, this extension is currently not available on
-> [extensions.gnome.org](https://extensions.gnome.org/). See
-> [#1](https://github.com/Aylur/gnofi-gnome-extension/issues/1)
-
 ![Desktop Screenshot](https://github.com/user-attachments/assets/b444c452-1eb2-4735-94ff-eb3fbf877132)
 
 ## Installation
 
 ```sh
 # get the latest tag
-tag=$(curl -s https://api.github.com/repos/aylur/gnofi-gnome-extension/releases/latest | jq -r .tag_name)
+tag=$(curl -s https://api.github.com/repos/aylur/gnome-extensions/releases/latest | jq -r .tag_name)
 
 # download the extension
-curl -L "https://github.com/Aylur/gnofi-gnome-extension/releases/download/$tag/gnofi@aylur.shell-extension.zip" -o gnofi@aylur.shell-extension.zip
+curl -L "https://github.com/Aylur/gnome-extensions/releases/download/$tag/gnofi@aylur.shell-extension.zip" -o gnofi@aylur.shell-extension.zip
 
 # install
 gnome-extensions install gnofi@aylur.shell-extension.zip
@@ -122,6 +116,6 @@ echo "${leader}cmd"
 > [!NOTE]
 >
 > The
-> [IPC documentation](https://github.com/Aylur/gnofi-gnome-extension/blob/main/docs/IPC.md)
+> [IPC documentation](https://github.com/Aylur/gnome-extension/blob/main/gnofi/docs/IPC.md)
 > in the preferences window currently cannot be translated. If there is
 > interest, I'll implement it.

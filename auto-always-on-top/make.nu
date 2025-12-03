@@ -49,7 +49,13 @@ def "main install" [
 # build and test in nested shell
 def "main test" [] {
     main install
-    dbus-run-session -- gnome-shell --nested --wayland
+    dbus-run-session gnome-shell --devkit --wayland
+}
+
+def "main pack" [] {
+    main build
+    cd dist/
+    ^zip -r $"($UUID).shell-extension.zip" .
 }
 
 # generate .pot files

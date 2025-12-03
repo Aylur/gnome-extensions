@@ -1,6 +1,6 @@
 dist/
-result
+build/
 node_modules/
+result
 gnofi@aylur.shell-extension.zip
-.env
 *.pot

@@ -1,0 +1,6 @@
+dist/
+build/
+node_modules/
+result
+auto-always-on-top@aylur.shell-extension.zip
+*.pot

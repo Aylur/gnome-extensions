@@ -1,7 +1,7 @@
 {
   "type": "module",
   "version": "0.5.2",
-  "homepage": "https://github.com/aylur/gnofi-gnome-extension",
+  "homepage": "https://github.com/aylur/gnome-extensions",
   "license": "GPL-3.0-only",
   "devDependencies": {
     "@eslint/js": "latest",
@@ -13,6 +13,7 @@
     "esbuild": "latest",
     "eslint": "latest",
     "mdast-util-from-markdown": "^2.0.2",
+    "nushell": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",
     "unist-util-visit": "^5.0.0"
