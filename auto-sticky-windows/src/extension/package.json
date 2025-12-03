@@ -1,0 +1,9 @@
+{
+  "name": "~extension",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "~schemas": "*",
+    "~dbus": "*"
+  }
+}

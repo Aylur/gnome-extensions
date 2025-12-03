@@ -1,0 +1,13 @@
+{
+  "name": "Auto Always on Top",
+  "description": "Make newly opened windows automatically \"Always on Top\"",
+  "uuid": "auto-always-on-top@aylur",
+  "url": "https://github.com/aylur/auto-always-on-top-gnome-extension",
+  "settings-schema": "org.gnome.shell.extensions.auto-always-on-top",
+  "donations": {
+    "kofi": "aylur",
+    "github": "Aylur",
+    "paypal": "KristofDemeter"
+  },
+  "shell-version": ["48", "49"]
+}

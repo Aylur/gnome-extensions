@@ -1,12 +1,7 @@
-# GNOME extensions
+# Gnome Extensions
 
-Battery Bar, Dash Board, DateMenu Mod, Media Player, Power Menu, Workspace
-Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
-
-<img src="https://github.com/Aylur/gnome-extensions/blob/main/data/screenshot.png">
-
-## Like this Extension?
-
-You can support my work on [ko-fi](https://ko-fi.com/aylur).
-
-Also consider donating to [GNOME](https://www.gnome.org/support-gnome/donate/)
+> [!IMPORTANT]
+>
+> If you are looking for the source code of the now unmaintained widgets@aylur
+> extensions, its on the
+> [legacy branch](https://github.com/Aylur/gnome-extensions/tree/legacy).
