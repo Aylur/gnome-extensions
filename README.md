@@ -1,8 +1,7 @@
-> [!IMPORTANT]  
-> This extension is no longer maintained, but I plan on making most of these into separate extentions sometime in the future.
-
 # GNOME extensions
-Battery Bar, Dash Board, DateMenu Mod, Media Player, Power Menu, Workspace Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
+
+Battery Bar, Dash Board, DateMenu Mod, Media Player, Power Menu, Workspace
+Indicator, Notification Indicator, Modified Quick Settings, Background Clock.
 
 <img src="https://github.com/Aylur/gnome-extensions/blob/main/data/screenshot.png">
 
