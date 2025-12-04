@@ -15,13 +15,13 @@ export default function Controls() {
         xExpand={false}
         xAlign={Clutter.ActorAlign.END}
         visible={createBinding(gnofi, "text").as(Boolean)}
-        onClicked={() => (gnofi.text = "")}
+        onButtonPressEvent={() => void (gnofi.text = "")}
       >
         <St.Icon iconSize={16} iconName="edit-clear-symbolic" />
       </St.Button>
       <St.Button
         class="popup-menu-item"
-        onClicked={() => {
+        onButtonPressEvent={() => {
           extension.openPreferences()
           gnofi.close()
         }}

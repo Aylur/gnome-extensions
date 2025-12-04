@@ -46,6 +46,7 @@ export default function PickerButton(props: {
       }
       onKeyFocusIn={(self) => self.add_style_pseudo_class("selected")}
       onKeyFocusOut={(self) => self.remove_style_pseudo_class("selected")}
+      onClicked={props.onClick}
       onButtonPressEvent={props.onClick}
       css={padding((p) =>
         Array.isArray(p)
