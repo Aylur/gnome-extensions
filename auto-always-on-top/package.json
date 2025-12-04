@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "build": "./make.nu build",
-    "install": "./make.nu install",
+    "localinstall": "./make.nu install",
     "dev": "./make.nu test",
     "pack": "./make.nu pack"
   },
@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "gnim": "latest",
-    "gnim-schemas": "latest"
+    "gnim-schemas": "latest",
+    "~dbus": "link:src/dbus",
+    "~schemas": "link:src/schemas"
   },
   "workspaces": [
     "src/*"

@@ -1,9 +1,5 @@
 {
   "name": "~prefs",
   "type": "module",
-  "private": true,
-  "dependencies": {
-    "~schemas": "*",
-    "~dbus": "*"
-  }
+  "private": true
 }

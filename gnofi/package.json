@@ -31,6 +31,7 @@
     "build": "./make.nu build",
     "pack": "./make.nu pack",
     "gettext": "./make.nu gettext",
+    "localinstall": "./make.nu install",
     "lint": "eslint"
   },
   "prettier": {

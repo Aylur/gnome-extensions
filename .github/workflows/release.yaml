@@ -33,8 +33,8 @@ jobs:
       - name: Package auto-always-on-top
         run: |
           cd auto-always-on-top
-          npm ci
-          npm run pack
+          pnpm install --frozen-lockfile
+          pnpm run pack
 
       - name: Package gnofi
         run: |
